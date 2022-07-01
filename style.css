@@ -1,0 +1,599 @@
+*, *::before, *::after{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #F2F2F2;
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-y: overlay;
+}
+
+header{
+    width: 100vw;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    background-color: #FFFFFF;
+    position: fixed;
+    top:0;
+    z-index: 100;
+}
+
+header #logo{
+    width: 50px;
+    height: 50px;
+    margin-left: 5vw;
+}
+
+header nav{
+    width: calc(80vw - 50px);
+    display: flex;
+    justify-content: flex-end;
+}
+
+header nav ul{
+    width: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+header nav ul li{
+    list-style: none;
+    text-transform: uppercase;
+    font-family: 'Chivo', sans-serif;
+    cursor: pointer;
+    position: relative;
+}
+
+header nav ul li:after{
+    position: absolute;
+    content: "";
+    background-color: black;
+    height: 3px;
+    width: 0;
+    left: 0;
+    bottom: -3px;
+    transition: 0.3s ease-in-out;
+}
+
+header nav ul li:hover::after{
+    width: 100%;
+}
+
+header nav ul .verticalLine{
+    width: 1px;
+    height: 50%;
+    background-color: grey;
+}
+
+main{
+    position: relative;
+    margin-top: 70px;
+}
+
+.Transition{
+    z-index: 0;
+    position: fixed;
+    width: 150vw;
+    height: calc(100vh - 70px);
+    margin-top: -30px;
+    margin-left: -25vw;
+}
+
+.Transition.active{
+    z-index: 10;
+}
+
+.Transition .mover{
+    margin-top: 0;
+    position: relative;
+    transform: rotate(180deg);
+}
+
+.Transition .mover .cleaner{
+    width: 150vw;
+    height: 150vh;
+    transform: rotate(-5deg);
+    background-color: #F2F2F2;;
+    position: absolute;
+}
+
+.Transition .mover .slider{
+    border: 1px solid black;
+    margin-top: -30vh;
+    width: 150vw;
+    height: 10vh;
+    transform: rotate(-5deg);
+    background: rgb(253,218,89);
+    background: -moz-linear-gradient(45deg, rgba(253,218,89,1) 0%, rgba(253,171,89,1) 100%);
+    background: -webkit-linear-gradient(45deg, rgba(253,218,89,1) 0%, rgba(253,171,89,1) 100%);
+    background: linear-gradient(45deg, rgba(253,218,89,1) 0%, rgba(253,171,89,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#fdda59",endColorstr="#fdab59",GradientType=1);
+   /* animation: 1s ease-in-out infinite transition;*/
+    transition: margin-top 0s ease-in-out;
+}
+
+.Transition .mover .slider.active{
+    margin-top: 120vh;
+    transition: margin-top 0.8s ease-in-out;
+}
+
+#HomePage, #AboutPage, #WorksPage, #ContactPage{
+    height: calc(100vh - 70px);
+    width: 100vw;
+    padding-left: 10vw;
+    padding-right: 10vw;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+    display: flex;
+    flex-direction: row;
+    z-index: 1;
+    visibility: visible;
+    position: absolute;
+    top:0;
+    overflow: hidden;
+}
+
+#AboutPage, #WorksPage, #ContactPage{
+    min-height: calc(100vh - 70px);
+    height: auto;
+    padding-top: 10vh;
+    padding-bottom: 10vh;
+}
+
+
+#HomePage.disable, #AboutPage.disable, #WorksPage.disable, #ContactPage.disable{
+    visibility: hidden;
+    height: calc(95vh - 100px);
+}
+
+#HomePage #avatar{
+    width: min(30vw, 60vh);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+#HomePage #avatar .fond{
+    position: absolute;
+    width: 100%;
+    height: min(30vw, 60vh);
+    background: rgb(113,212,214);
+    background: -moz-linear-gradient(45deg, rgba(113,212,214,1) 0%, rgba(162,113,214,1) 100%);
+    background: -webkit-linear-gradient(45deg, rgba(113,212,214,1) 0%, rgba(162,113,214,1) 100%);
+    background: linear-gradient(45deg, rgba(113,212,214,1) 0%, rgba(162,113,214,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#71d4d6",endColorstr="#a271d6",GradientType=1);
+}
+
+#HomePage #avatar img, #HomePage #avatar .profilContainer{
+    position: absolute;
+    width: 100%;
+    height: min(30vw, 60vh);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#HomePage #avatar .profilContainer img{
+    width: 67%;
+    height:67%;
+}
+
+#HomePage #LeftHomePage{
+    width: 50vw;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+}
+
+#HomePage #LeftHomePage #name{
+    margin-top: 10%;
+    height: 30%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+}
+
+#HomePage #LeftHomePage #name h1{
+    font-family: 'Chivo', sans-serif;
+    font-size: 4.5vw;
+    color: #03224C;
+    text-align: center;
+}
+
+#HomePage #LeftHomePage #name h2{
+    font-family: 'Dancing Script', cursive;
+    font-size: 3.15vw;
+    color: #03224C;
+    text-align: center;
+}
+
+#HomePage #LeftHomePage #name .horizontalLine{
+    width: 30%;
+    height: 1px;
+    background-color: gray;
+}
+
+#HomePage #LeftHomePage #buttonName{
+    height: 20%;
+    margin-bottom: 20%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: line;
+}
+
+#HomePage #LeftHomePage #buttonName #social{
+    width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: line;
+}
+
+#HomePage #LeftHomePage #buttonName #social div{
+    height: 50px;
+    width: 50px;
+    margin-left: 25px;
+    border-radius: 50%;
+    background: rgb(113,212,214);
+    background: -moz-linear-gradient(45deg, rgba(113,212,214,1) 0%, rgba(162,113,214,1) 100%);
+    background: -webkit-linear-gradient(45deg, rgba(113,212,214,1) 0%, rgba(162,113,214,1) 100%);
+    background: linear-gradient(45deg, rgba(113,212,214,1) 0%, rgba(162,113,214,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#71d4d6",endColorstr="#a271d6",GradientType=1);
+    position: relative;
+}
+
+#HomePage #LeftHomePage #buttonName #social div img{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    cursor: pointer;
+}
+
+#HomePage #LeftHomePage #buttonName #CV{
+    font-family: 'Roboto Mono', monospace;
+    cursor: pointer;
+    width: 250px;
+    margin-left: 10%;
+    margin-right: 10%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    background: rgb(253,218,89);
+    background: -moz-linear-gradient(45deg, rgba(253,218,89,1) 0%, rgba(253,171,89,1) 100%);
+    background: -webkit-linear-gradient(45deg, rgba(253,218,89,1) 0%, rgba(253,171,89,1) 100%);
+    background: linear-gradient(45deg, rgba(253,218,89,1) 0%, rgba(253,171,89,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#fdda59",endColorstr="#fdab59",GradientType=1);
+    font-size: 13px;
+}
+
+#HomePage #LeftHomePage .arrow{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    bottom: 5%;
+    cursor: pointer;
+}
+
+#HomePage #LeftHomePage .arrow.animate{
+    animation: 1.4s ease-in-out infinite alternate slidein;
+}
+
+
+@keyframes slidein {
+    0% { transform: translateY(0%); }
+    50% { transform: translateY(-30%); }
+    100% { transform: translateY(0%); }
+  }
+
+@keyframes transition {
+    from { margin-top: -50vh; }
+    to   { margin-top: 120vh; }
+  }
+
+
+@media screen and (max-width: 800px) {
+    #HomePage #LeftHomePage #buttonName{
+        width: 80vw;
+        margin-top: 10vw;
+        margin-left: 35vw;
+    }
+
+    #HomePage #LeftHomePage .arrow{
+        left: 35vw;
+    }
+
+    #HomePage #avatar{
+        width: min(25vw, 35vh);
+        height: min(25vw, 35vh);
+        margin-left: 5vw;
+    }
+
+    #HomePage #avatar .fond, #HomePage #avatar img, #HomePage #avatar .profilContainer{
+        height: min(25vw, 35vh);
+    }
+
+}
+
+@media screen and (max-width: 750px) {
+    #HomePage #LeftHomePage #name{
+        height: 20%;
+    }
+
+    #HomePage #LeftHomePage #buttonName{
+        margin-top: 0;
+    }
+
+    header nav{
+        width: calc(90vw - 50px);
+    }
+
+    #HomePage #avatar{
+        width: min(25vw, 35vh);
+        height: min(25vw, 35vh);
+        margin-left: 5vw;
+        margin-top: 3vh;
+    }
+
+    #HomePage #avatar .fond, #HomePage #avatar img, #HomePage #avatar .profilContainer{
+        height: min(25vw, 35vh);
+    }
+}
+
+@media screen and (max-width: 650px) {
+
+    header nav{
+        width: 70%;
+        margin-left: 6%;
+    }
+
+    header nav ul li{
+        font-size: 12px;
+    }
+
+    #HomePage #LeftHomePage #buttonName{
+        width: 100%;
+        margin-top: 0;
+        margin-left: 0;
+    }
+
+    #HomePage #LeftHomePage #name{
+        margin-top: -25px;
+        margin-bottom: 0px;
+    }
+
+    #HomePage #LeftHomePage .arrow{
+        left: auto;
+        bottom: -10px;
+    }
+
+    #HomePage{
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column-reverse;
+        padding-left: 5vw;
+        padding-right: 5vw;
+        width: 100vw;
+    }
+
+    #HomePage #avatar{
+        width: 40vw;
+        height: 40vw;
+        margin-top: 0;
+    }
+
+    #HomePage #avatar img{
+        object-fit: cover ;
+    }
+
+    #HomePage #avatar .fond, #HomePage #avatar img, #HomePage #avatar .profilContainer{
+        height: 30vw;
+        width: 30vw;
+    }
+
+    #HomePage #LeftHomePage{
+        height: 45vh;
+    }
+
+
+    #HomePage #LeftHomePage #name h1{
+        font-size: 40px;
+    }
+
+    #HomePage #LeftHomePage #name h2{
+        font-size: 15px;
+        width: 100%;
+    }
+
+    #HomePage #LeftHomePage #buttonName{
+        margin-top: 50px;
+        height: 25px;
+        margin-left: -5vw;
+        width: 90vw;
+        
+    }
+
+    #HomePage #LeftHomePage #buttonName #social{
+        width: 150px;
+    }
+
+    #HomePage #LeftHomePage #buttonName #social div{
+        height: 35px;
+        width: 35px;
+    }
+
+    #HomePage #LeftHomePage #buttonName #CV{
+        height: 35px;
+        font-size: 2.5vw;
+        margin-right: 0;
+    }
+}
+
+@media screen and (max-width: 550px) {
+
+    #HomePage #LeftHomePage{
+        height: 40vh;
+    }
+
+    #HomePage #avatar{
+        margin-top: 2vh;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    header{
+        height: 50px;
+    }
+
+    header #logo{
+        height: 30px;
+        width: 30px;
+    }
+    header nav ul li{
+        font-size: 2vw;
+    }
+    #HomePage #LeftHomePage{
+        height: 60vh;
+    }
+
+    #HomePage #LeftHomePage #buttonName{
+        margin-top: 30px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+    }
+
+    #HomePage #LeftHomePage #buttonName #social{
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    #HomePage #LeftHomePage #buttonName #CV{
+        font-size: 3.5vw;
+    }
+
+    #HomePage #LeftHomePage #name{
+        margin-top: 0px;
+    }
+
+    #HomePage{
+        height: calc(100vh - 50px);
+    }
+
+    main{
+        margin-top: 50px;
+    }
+
+    .Transition{
+        height: calc(100vh - 50px);
+    }
+
+    #HomePage #avatar{
+        margin-top: 5vh;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    #HomePage #avatar{
+        width: 50vw;
+        height: 50vw;
+        margin-top: 2vh;
+    }
+
+    #HomePage #avatar .fond, #HomePage #avatar img, #HomePage #avatar .profilContainer{
+        height: 50vw;
+        width: 50vw;
+    }
+}
+
+@media screen and (max-height: 500px) {
+    #HomePage{
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    #HomePage #LeftHomePage{
+        justify-content: space-between;
+    }
+}
+
+
+
+.reveal{
+    position: relative;
+    transform: translateY(-150px);
+    opacity: 0;
+    transition: 1s all ease;
+    }
+    
+.reveal.active{
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.reveal.disable{
+    transform: translateY(150px);
+    opacity: 0;
+}
+
+.active.fade-bottom {
+    animation: fade-bottom 1s ease;
+}
+.active.fade-left {
+    animation: fade-left 1s ease;
+}
+.active.fade-right {
+    animation: fade-right 1s ease;
+}
+
+@keyframes fade-bottom {
+    0% {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+@keyframes fade-left {
+0% {
+    transform: translateX(-100px);
+    opacity: 0;
+}
+100% {
+    transform: translateX(0);
+    opacity: 1;
+}
+}
+@keyframes fade-right {
+    0% {
+      transform: translateX(100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
