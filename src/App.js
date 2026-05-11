@@ -1,6 +1,7 @@
 import React from 'react';
 import BackgroundAnimation from './components/BackgroundAnimation';
 import CustomCursor from './components/CustomCursor/CustomCursor';
+import FooterSpacerScene from './components/FooterSpacerScene/FooterSpacerScene';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import Section from './components/Section/Section';
@@ -56,7 +57,7 @@ function App() {
         </Section>
       </main>
 
-      <div className="footer-spacer" aria-hidden="true" />
+      <FooterSpacerScene />
       
       <footer className="footer container">
         <div className="footer-panel">

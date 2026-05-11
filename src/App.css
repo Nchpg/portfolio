@@ -97,10 +97,6 @@
     opacity: 0.7;
 }
 
-.footer-spacer {
-    height: clamp(180px, 22vw, 360px);
-}
-
 /* Footer */
 .footer {
     margin-top: 0;
