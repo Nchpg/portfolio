@@ -3,7 +3,7 @@
     z-index: -1;
     border-bottom: 1px solid #fdfdfd40;
     width: 100%;
-    height: clamp(31rem, 18.75rem + 28vw, 62.5rem);
+    height: 100%;
     margin: 0;
     padding: 0;
     position: absolute;
@@ -14,27 +14,38 @@
 
 @media (max-width: 700px) {
     .style-module-scss-module__NLzJ3a__waves {
-        height: clamp(25.375rem, 19.27rem + 30.53vw, 32.625rem);
+        height: 100%;
     }
 }
 
 .style-module-scss-module__NLzJ3a__wavesCanvas {
     width: 100%;
-    height: clamp(31rem, 18.75rem + 28vw, 62.5rem);
+    height: 100%;
     display: block;
 }
 
 @media (max-width: 700px) {
     .style-module-scss-module__NLzJ3a__wavesCanvas {
-        height: clamp(25.375rem, 19.27rem + 30.53vw, 32.625rem);
+        height: 100%;
     }
 }
 
-/* Existing Styles */
-.app {
-    min-height: 100vh;
-    padding-top: clamp(28px, 3.5vw, 52px);
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--accent-green);
+    color: var(--bg-color);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease, fadeOut 0.3s ease 1.7s;
 }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
 .content {
     position: relative;

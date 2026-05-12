@@ -1,48 +1,94 @@
 .navbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-top: 0;
-    padding-top: 0;
-    padding-bottom: 40px;
+    align-items: flex-start;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(235, 237, 236, 0.1);
     position: relative;
     z-index: 10;
 }
 
-.logo span {
-    font-family: var(--font-heading);
-    font-size: 24px;
-    letter-spacing: 0;
-    text-transform: none;
+.nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-group:last-child {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.nav-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    opacity: 0.4;
+    font-weight: 600;
+}
+
+.nav-value, 
+.nav-links a {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.identity-wrapper {
+    display: inline-block;
+    cursor: default;
+}
+
+.wave-char {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+    transform: translateY(0);
+}
+
+.identity-wrapper:hover .wave-char {
+    animation: waveAnimation 0.4s ease forwards;
+    animation-delay: calc(var(--i) * 0.03s);
+}
+
+@keyframes waveAnimation {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0); }
 }
 
 .nav-links {
     display: flex;
-    gap: 30px;
-    align-items: center;
+    gap: 32px;
 }
 
 .nav-links a {
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
+    transition: color 0.3s ease;
+    position: relative;
 }
 
 .nav-links a:hover {
-    opacity: 1;
+    color: var(--accent-green);
 }
 
-.contact-link {
-    background-color: var(--text-primary);
-    color: var(--bg-color);
-    padding: 8px 20px;
-    border-radius: 100px;
-    opacity: 1 !important;
-}
-
-.contact-link:hover {
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
     background-color: var(--accent-green);
-    color: var(--text-primary);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 32px;
+        align-items: flex-start;
+    }
 }

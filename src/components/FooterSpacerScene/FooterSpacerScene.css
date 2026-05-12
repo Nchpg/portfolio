@@ -1,6 +1,7 @@
 .footer-spacer-scene {
     height: clamp(220px, 28vw, 430px);
-    margin-top: 200px;
+    margin-top: -100px;
+    margin-bottom: -25px;
     position: relative;
     overflow: hidden;
 }

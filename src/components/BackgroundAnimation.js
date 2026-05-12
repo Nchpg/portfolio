@@ -99,8 +99,9 @@ const BackgroundAnimation = ({
 
     const handleMouseMove = (e) => {
       const m = mouseRef.current;
-      m.x = e.clientX - boundsRef.current.left;
-      m.y = e.clientY - boundsRef.current.top;
+      const rect = containerRef.current.getBoundingClientRect();
+      m.x = e.clientX - rect.left;
+      m.y = e.clientY - rect.top;
       if (!m.set) {
         m.sx = m.x; m.sy = m.y;
         m.lx = m.x; m.ly = m.y;

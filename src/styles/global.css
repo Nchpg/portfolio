@@ -33,11 +33,11 @@ a {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 0 clamp(24px, 4vw, 72px);
+    padding-inline: clamp(24px, 4vw, 72px);
 }
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 22px;
+        padding-inline: 22px;
     }
 }
