@@ -91,9 +91,21 @@ const BackgroundAnimation = ({
 
     const handleResize = () => {
       const rect = container.getBoundingClientRect();
-      boundsRef.current = { width: rect.width, height: rect.height, left: rect.left, top: rect.top };
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      const dpr = window.devicePixelRatio || 1;
+      
+      boundsRef.current = { 
+        width: rect.width, 
+        height: rect.height, 
+        left: rect.left, 
+        top: rect.top 
+      };
+      
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      
+      ctxRef.current.setTransform(dpr, 0, 0, dpr, 0, 0);
       initPoints();
     };
 

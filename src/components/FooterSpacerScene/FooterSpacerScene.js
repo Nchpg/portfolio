@@ -12,8 +12,6 @@ const FooterSpacerScene = () => {
 
         if (!wrapper || !canvas) return;
 
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
         // 1. Initialisation du Rendu
         const renderer = new THREE.WebGLRenderer({
             canvas,
@@ -26,11 +24,11 @@ const FooterSpacerScene = () => {
 
         // 2. Scène et Caméra
         const scene = new THREE.Scene();
-        // Caméra surélevée pour bien voir la profondeur de la grille
         const camera = new THREE.PerspectiveCamera(45, wrapper.clientWidth / wrapper.clientHeight, 1, 500);
-        camera.position.set(0, 12, 35); 
+        camera.position.set(0, 20, 50); 
+        camera.lookAt(0, 0, 0);
 
-        // 3. Création de la grille de points (beaucoup plus large)
+        // 3. Création de la grille de points
         const AMOUNTX = 220; 
         const AMOUNTZ = 100;
         const SEPARATION = 1.0; 
@@ -55,11 +53,11 @@ const FooterSpacerScene = () => {
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
 
-        // 4. ShaderMaterial (C'est ici que la magie WebGL opère)
+        // 4. ShaderMaterial
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 uTime: { value: 0 },
-                uMouse: { value: new THREE.Vector2(-100, -100) }
+                uMouse: { value: new THREE.Vector2(-10, -10) }
             },
             vertexShader: `
                 uniform float uTime;
@@ -67,7 +65,6 @@ const FooterSpacerScene = () => {
                 attribute float scale;
                 varying vec3 vColor;
 
-                // Simplex 2D noise implementation
                 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
                 float snoise(vec2 v){
                     const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
@@ -94,126 +91,104 @@ const FooterSpacerScene = () => {
                 
                 void main() {
                     vec3 p = position;
-                    
-                    // 1. Calcul du bruit de base
                     float n = snoise(p.xz * 0.03 + uTime * 0.08);
                     p.y = n * 2.0;
                     
-                    // 2. Projection pour obtenir les coordonnées d'écran (clip space)
                     vec4 mvp = modelViewMatrix * vec4(p, 1.0);
                     vec4 projected = projectionMatrix * mvp;
                     vec2 screenPos = projected.xy / projected.w;
                     
-                    // Facteur h pour la taille/couleur
                     float h = (p.y + 2.0) / 4.0;
-                    
-                    // 3. Attraction souris (en 2D écran)
                     float dist = distance(screenPos, uMouse);
-                    float radius = 0.35; // Rayon d'action
+                    float radius = 0.5;
                     if (dist < radius) {
-                        float force = pow(1.0 - dist / radius, 2.0);
-                        
-                        // Normalisation de la force par rapport à la profondeur (mvp.z)
-                        // Les points plus loin sont multipliés pour compenser l'effet de perspective
-                        float depthFactor = 1.0 + abs(mvp.z) * 0.02;
-                        
-                        // Calcul du vecteur de direction du point vers la souris
+                        float force = pow(1.0 - dist / radius, 2.5);
+                        float depthFactor = 1.0 + abs(mvp.z) * 0.03;
                         vec2 dir = normalize(uMouse - screenPos);
-                        
-                        // Application de l'attraction avec compensation de profondeur
-                        p.x += dir.x * force * 4.0 * depthFactor;
-                        p.z += dir.y * force * 4.0 * depthFactor; 
+                        p.x += dir.x * force * 6.0 * depthFactor;
+                        p.z += dir.y * force * 6.0 * depthFactor; 
                     }
                     
-                    // Calcul couleur et taille standard
                     vColor = mix(vec3(0.45), vec3(1.0), smoothstep(0.0, 1.0, h));
-                    
-                    // 4. Projection finale
                     vec4 finalMv = modelViewMatrix * vec4(p, 1.0);
                     gl_Position = projectionMatrix * finalMv;
-                    
-                    // 5. Calcul de la taille finale (fixe)
-                    gl_PointSize = scale * (2.0 + h * 2.0) * (45.0 / -finalMv.z);
+                    gl_PointSize = scale * (2.0 + h * 2.0) * (45.0 / max(1.0, -finalMv.z));
                 }
             `,
             fragmentShader: `
                 varying vec3 vColor;
                 void main() {
-                    // Calcul pour transformer le carré du point WebGL en un cercle lisse
                     vec2 coord = gl_PointCoord - vec2(0.5);
-                    float dist = length(coord);
-                    
-                    if (dist > 0.5) discard;
-                    
-                    // Contour lissé (anti-aliasing)
-                    float alpha = smoothstep(0.5, 0.35, dist);
+                    if (length(coord) > 0.5) discard;
+                    float alpha = smoothstep(0.5, 0.35, length(coord));
                     gl_FragColor = vec4(vColor, alpha * 0.85);
                 }
             `,
             transparent: true,
             depthWrite: false,
-            blending: THREE.AdditiveBlending // Effet légèrement lumineux quand ils se chevauchent
+            blending: THREE.AdditiveBlending
         });
 
         const particles = new THREE.Points(geometry, material);
         scene.add(particles);
 
         // 5. Interaction Souris
-        const mouse = new THREE.Vector2(-100, -100);
-        const raycaster = new THREE.Raycaster();
-        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        const mousePos = new THREE.Vector3();
-
-        const handleMouseMove = (event) => {
+        const handlePointerMove = (event) => {
             const rect = wrapper.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            material.uniforms.uMouse.value.set(mouse.x, mouse.y);
+            const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            if (event.clientX >= rect.left - 50 && event.clientX <= rect.right + 50 &&
+                event.clientY >= rect.top - 50 && event.clientY <= rect.bottom + 50) {
+                material.uniforms.uMouse.value.set(x, y);
+            } else {
+                material.uniforms.uMouse.value.set(-10, -10);
+            }
         };
-        wrapper.addEventListener('mousemove', handleMouseMove);
-        
-        wrapper.addEventListener('mouseleave', () => {
+
+        const handlePointerLeave = () => {
             material.uniforms.uMouse.value.set(-10, -10);
-        });
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerleave', handlePointerLeave);
 
         // 6. Gestion du redimensionnement
-        const resize = () => {
-            const { width, height } = wrapper.getBoundingClientRect();
-            renderer.setSize(width, height, false);
-            camera.aspect = width / Math.max(height, 1);
-            camera.updateProjectionMatrix();
+        const renderSingleFrame = () => {
+            renderer.render(scene, camera);
         };
+
+        const resize = () => {
+            const rect = wrapper.getBoundingClientRect();
+            const width = rect.width || 1;
+            const height = rect.height || 1;
+            renderer.setSize(width, height, false);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderSingleFrame(); // Force un rendu après le resize
+        };
+
         const resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(wrapper);
-        resize();
 
         // 7. Boucle d'animation
         let frameId;
         const startedAt = performance.now();
 
-        const render = () => {
+        const animate = () => {
             const elapsed = (performance.now() - startedAt) / 1000;
-            
-            // Mise à jour du temps pour animer la vague dans le Shader
             material.uniforms.uTime.value = elapsed;
-
-            // Caméra fixe avec un angle plus prononcé
-            camera.position.set(0, 20, 50);
-            camera.lookAt(0, 0, 0);
-
-            renderer.render(scene, camera);
-
-            if (!reducedMotion) {
-                frameId = requestAnimationFrame(render);
-            }
+            renderSingleFrame();
+            frameId = requestAnimationFrame(animate);
         };
 
-        render();
+        animate();
 
         return () => {
             cancelAnimationFrame(frameId);
             resizeObserver.disconnect();
-            wrapper.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerleave', handlePointerLeave);
             geometry.dispose();
             material.dispose();
             renderer.dispose();
