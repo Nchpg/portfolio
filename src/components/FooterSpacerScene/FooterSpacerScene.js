@@ -29,10 +29,11 @@ const FooterSpacerScene = () => {
         camera.lookAt(0, 0, 0);
 
         // 3. Création de la grille de points
-        const AMOUNTX = 220; 
-        const AMOUNTZ = 100;
-        const SEPARATION = 1.0; 
-        
+        const isMobile = window.matchMedia('(pointer: coarse)').matches;
+        const AMOUNTX = Math.max(120, Math.round(550 * (wrapper.clientWidth / 1440)));
+        const AMOUNTZ = isMobile ? 60 : 100;
+        const SEPARATION = 1.0;
+
         const numParticles = AMOUNTX * AMOUNTZ;
         const positions = new Float32Array(numParticles * 3);
         const scales = new Float32Array(numParticles);
@@ -40,7 +41,7 @@ const FooterSpacerScene = () => {
         let i = 0, j = 0;
         for (let ix = 0; ix < AMOUNTX; ix++) {
             for (let iz = 0; iz < AMOUNTZ; iz++) {
-                positions[i] = ix * SEPARATION - ((AMOUNTX * SEPARATION) / 2); // X
+                positions[i]     = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // X
                 positions[i + 1] = 0; // Y
                 positions[i + 2] = iz * SEPARATION - ((AMOUNTZ * SEPARATION) / 2); // Z
                 scales[j] = 1;
@@ -174,20 +175,34 @@ const FooterSpacerScene = () => {
 
         // 7. Boucle d'animation
         let frameId;
+        let isVisible = false;
         const startedAt = performance.now();
 
         const animate = () => {
+            if (!isVisible) return;
             const elapsed = (performance.now() - startedAt) / 1000;
             material.uniforms.uTime.value = elapsed;
             renderSingleFrame();
             frameId = requestAnimationFrame(animate);
         };
 
-        animate();
+        const intersectionObserver = new IntersectionObserver(
+            ([entry]) => {
+                isVisible = entry.isIntersecting;
+                if (isVisible) {
+                    frameId = requestAnimationFrame(animate);
+                } else {
+                    cancelAnimationFrame(frameId);
+                }
+            },
+            { threshold: 0 }
+        );
+        intersectionObserver.observe(wrapper);
 
         return () => {
             cancelAnimationFrame(frameId);
             resizeObserver.disconnect();
+            intersectionObserver.disconnect();
             window.removeEventListener('pointermove', handlePointerMove);
             window.removeEventListener('pointerleave', handlePointerLeave);
             geometry.dispose();

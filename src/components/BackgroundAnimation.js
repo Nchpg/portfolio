@@ -66,7 +66,7 @@ for (let i = 0; i < TRIG_SIZE; i++) {
 }
 
 // ── Layout constants ─────────────────────────────────────────────────────────
-const PIXEL_BUDGET_TOUCH  = 350_000;
+const PIXEL_BUDGET_TOUCH  = 300_000;
 const PIXEL_BUDGET_MOUSE  = 750_000;
 const MAX_DPR      = 2;
 const S = 8;
