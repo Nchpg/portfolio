@@ -66,7 +66,7 @@ for (let i = 0; i < TRIG_SIZE; i++) {
 }
 
 // ── Layout constants ─────────────────────────────────────────────────────────
-const PIXEL_BUDGET = 2_000_000;
+const PIXEL_BUDGET = 1_000_000;
 const MAX_DPR      = 2;
 const S = 8;
 const NOISE_STEP = 4;
@@ -99,10 +99,10 @@ const BackgroundAnimation = ({
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    ctxRef.current   = canvas.getContext('2d');
+    ctxRef.current   = canvas.getContext('2d', { alpha: false, desynchronized: true });
     noiseCtxRef.current = buildPerm(Math.random());
 
-    const frameState = { lastTime: 0, avgWork: 8, drawStep: 1 };
+    const frameState = { lastTime: 0, avgWork: 8, drawStep: 2 };
 
     const initPoints = () => {
       const { width, height } = boundsRef.current;
@@ -241,9 +241,10 @@ const BackgroundAnimation = ({
         }
       }
 
-      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, width, height);
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth   = 1.2;
+      ctx.lineWidth   = 1;
 
       const fTension  = tension * dt;
       const fFriction = Math.pow(friction, dt);
@@ -314,25 +315,33 @@ const BackgroundAnimation = ({
         }
       }
 
-      // Draw pass — one stroke per column (faster than one giant path)
+      // Draw pass — single batched stroke for all columns. Firefox's Canvas2D
+      // has high per-stroke() overhead; batching cuts hundreds of GPU commits
+      // down to one. Chrome handles either approach comparably well.
+      ctx.beginPath();
       for (let c = 0; c <= cols; c++) {
         const colStart = c * rowCount;
         const b0 = colStart * S;
-        let px = data[b0] + data[b0 + 2] + data[b0 + 4];
-        let py = data[b0 + 1] + data[b0 + 3] + data[b0 + 5];
-        ctx.beginPath();
-        ctx.moveTo(px, py);
+        ctx.moveTo(data[b0] + data[b0 + 2] + data[b0 + 4], data[b0 + 1] + data[b0 + 3] + data[b0 + 5]);
         for (let r = ds; r < rows; r += ds) {
           const base = (colStart + r) * S;
           ctx.lineTo(data[base] + data[base + 2] + data[base + 4], data[base + 1] + data[base + 3] + data[base + 5]);
         }
         const last = (colStart + rows) * S;
         ctx.lineTo(data[last] + data[last + 2] + data[last + 4], data[last + 1] + data[last + 3] + data[last + 5]);
-        ctx.stroke();
       }
+      ctx.stroke();
 
       const workMs = performance.now() - t0;
       frameState.avgWork = frameState.avgWork * 0.9 + workMs * 0.1;
+
+      // Adaptive draw-step: starts at 2 (safe baseline) and self-tunes within [1, 4].
+      // Strong machines drop to 1 for max crispness; struggling machines climb higher.
+      if (frameState.avgWork > 14 && frameState.drawStep < 4) {
+        frameState.drawStep++;
+      } else if (frameState.avgWork < 7 && frameState.drawStep > 1) {
+        frameState.drawStep--;
+      }
     };
 
     const io = new IntersectionObserver(([entry]) => {
@@ -378,7 +387,7 @@ const BackgroundAnimation = ({
       ro.disconnect();
       cancelAnimationFrame(animationFrame);
     };
-  }, [friction, maxCursorMove, tension, waveAmpX, waveAmpY, waveSpeedX, waveSpeedY, xGap, yGap, lineColor]);
+  }, [friction, maxCursorMove, tension, waveAmpX, waveAmpY, waveSpeedX, waveSpeedY, xGap, yGap, lineColor, backgroundColor]);
 
   return (
     <div ref={containerRef} className="style-module-scss-module__NLzJ3a__waves" style={{ backgroundColor }}>
