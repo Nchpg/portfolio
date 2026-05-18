@@ -7,6 +7,7 @@
     background: transparent;
     padding-bottom: clamp(32px, 4vw, 64px);
     padding-top: clamp(24px, 3vw, 48px);
+    overflow: hidden;
 }
 
 .hero-content {

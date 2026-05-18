@@ -80,10 +80,10 @@ const BackgroundAnimation = ({
   waveAmpX       = 40,
   waveAmpY       = 20,
   xGap           = 8,
-  yGap           = 12,
+  yGap           = 4,
   friction       = 0.92,
   tension        = 0.008,
-  maxCursorMove  = 330,
+  maxCursorMove  = 200,
 }) => {
   const canvasRef    = useRef(null);
   const containerRef = useRef(null);
@@ -139,22 +139,28 @@ const BackgroundAnimation = ({
         colNoiseY: new Float32Array(subRows),
         trigFactor: TRIG_SIZE / (Math.PI * 2),
         mouseRadius: baseMouseRadius,
-        dynamicForceScale: 0.0004 / FIXED_SCALE 
+        dynamicForceScale: 0.00025 / FIXED_SCALE
       };
     };
 
+    const CANVAS_MARGIN = 80;
+
     const handleResize = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const w  = window.innerWidth;
+      const h  = window.innerHeight;
+      const hx = h + 2 * CANVAS_MARGIN;
       const natural = window.devicePixelRatio || 1;
       const cssArea = w * h;
       const dpr     = Math.min(natural, Math.sqrt(PIXEL_BUDGET / cssArea), MAX_DPR);
 
-      boundsRef.current = { width: w, height: h, left: 0, top: 0 };
+      boundsRef.current = { width: w, height: hx, left: 0, top: -CANVAS_MARGIN };
       canvas.width  = Math.round(w  * dpr);
-      canvas.height = Math.round(h * dpr);
-      canvas.style.width  = `${w}px`;
-      canvas.style.height = `${h}px`;
+      canvas.height = Math.round(hx * dpr);
+      canvas.style.position = 'absolute';
+      canvas.style.left     = '0';
+      canvas.style.top      = `-${CANVAS_MARGIN}px`;
+      canvas.style.width    = `${w}px`;
+      canvas.style.height   = `${hx}px`;
       ctxRef.current.setTransform(dpr, 0, 0, dpr, 0, 0);
       initPoints();
     };
@@ -163,7 +169,7 @@ const BackgroundAnimation = ({
       const m          = mouseRef.current;
       const { left, top } = boundsRef.current;
       m.x = e.clientX - left;
-      m.y = e.clientY - top;
+      m.y = e.clientY - top + window.scrollY;
       if (!m.set) { m.sx = m.x; m.sy = m.y; m.lx = m.x; m.ly = m.y; m.set = true; }
     };
 
@@ -231,12 +237,13 @@ const BackgroundAnimation = ({
 
       ctx.clearRect(0, 0, width, height);
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth   = 1;
+      ctx.lineWidth   = 1.2;
 
       const fTension  = tension * dt;
       const fFriction = Math.pow(friction, dt);
       const ds        = frameState.drawStep;
 
+      // Physics pass
       for (let c = 0; c <= cols; c++) {
         const colStart = c * rowCount;
         const cx = offsetX + c * pgx;
@@ -253,7 +260,6 @@ const BackgroundAnimation = ({
           colNoiseY[sr] = noiseY[sc0r + sr] + (noiseY[sc1r + sr] - noiseY[sc0r + sr]) * tc;
         }
 
-        let hasEnergy = false;
         for (let r = 0; r <= rows; r++) {
           const base = (colStart + r) * S;
           const rIdx = r * 3;
@@ -293,7 +299,6 @@ const BackgroundAnimation = ({
             if (Math.abs(data[base + 4]) < 0.01 && Math.abs(data[base + 6]) < 0.01) {
               data[base + 4] = data[base + 5] = data[base + 6] = data[base + 7] = 0;
             } else {
-              hasEnergy = true;
               if (data[base + 4] < -maxCursorMove) data[base + 4] = -maxCursorMove;
               else if (data[base + 4] > maxCursorMove) data[base + 4] = maxCursorMove;
               if (data[base + 5] < -maxCursorMove) data[base + 5] = -maxCursorMove;
@@ -301,10 +306,16 @@ const BackgroundAnimation = ({
             }
           }
         }
+      }
 
-        ctx.beginPath();
+      // Draw pass — one stroke per column (faster than one giant path)
+      for (let c = 0; c <= cols; c++) {
+        const colStart = c * rowCount;
         const b0 = colStart * S;
-        ctx.moveTo(data[b0] + data[b0 + 2] + data[b0 + 4], data[b0 + 1] + data[b0 + 3] + data[b0 + 5]);
+        let px = data[b0] + data[b0 + 2] + data[b0 + 4];
+        let py = data[b0 + 1] + data[b0 + 3] + data[b0 + 5];
+        ctx.beginPath();
+        ctx.moveTo(px, py);
         for (let r = ds; r < rows; r += ds) {
           const base = (colStart + r) * S;
           ctx.lineTo(data[base] + data[base + 2] + data[base + 4], data[base + 1] + data[base + 3] + data[base + 5]);
@@ -316,9 +327,6 @@ const BackgroundAnimation = ({
 
       const workMs = performance.now() - t0;
       frameState.avgWork = frameState.avgWork * 0.9 + workMs * 0.1;
-      if (frameState.avgWork > 16) frameState.drawStep = 3;
-      else if (frameState.avgWork > 12) frameState.drawStep = 2;
-      else frameState.drawStep = 1;
     };
 
     const io = new IntersectionObserver(([entry]) => {
