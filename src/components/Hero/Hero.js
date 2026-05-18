@@ -26,13 +26,6 @@ const Hero = () => {
                 <Navbar />
                 
                 <div className="hero-main-stack">
-                    <div className="hero-meta-top">
-                        <div className="status-badge">
-                            <span className="status-dot"></span>
-                            <span className="status-text">Available</span>
-                        </div>
-                    </div>
-
                     <div className="hero-title-wrapper">
                         <h1 className="hero-title">
                             <span className="title-line">Nathan</span>

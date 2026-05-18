@@ -1,12 +1,13 @@
 .hero {
     height: 100vh;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
     position: relative;
     z-index: 5;
     background: transparent;
-    padding-bottom: clamp(32px, 4vw, 64px);
-    padding-top: clamp(24px, 3vw, 48px);
+    padding-bottom: clamp(20px, 3vh, 64px);
+    padding-top: clamp(16px, 2.5vh, 48px);
     overflow: hidden;
 }
 
@@ -22,7 +23,7 @@
     position: relative;
     top: 0;
     width: 100%;
-    padding-bottom: 32px;
+    padding-bottom: clamp(12px, 2.5vh, 32px);
 }
 
 /* Main Vertical Stack */
@@ -32,7 +33,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: 50px;
+    gap: clamp(20px, 4vh, 50px);
     width: 100%;
 }
 
@@ -88,8 +89,8 @@
 }
 
 .hero-title {
-    font-size: clamp(100px, 18vw, 300px);
-    line-height: 0.8;
+    font-size: clamp(64px, min(14vw, 19vh), 240px);
+    line-height: 0.85;
     letter-spacing: -0.04em;
     text-transform: none;
     margin: 0;
@@ -126,12 +127,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: clamp(12px, 2vh, 20px);
     max-width: 900px;
 }
 
 .hero-role-primary {
-    font-size: clamp(28px, 4vw, 56px);
+    font-size: clamp(20px, min(3vw, 4vh), 48px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -139,14 +140,14 @@
 }
 
 .hero-role-separator {
-    width: 120px;
+    width: clamp(60px, 10vw, 120px);
     height: 3px;
     background-color: var(--accent-green);
     opacity: 0.9;
 }
 
 .hero-role-secondary {
-    font-size: 24px;
+    font-size: clamp(14px, min(1.7vw, 2.2vh), 20px);
     text-transform: uppercase;
     letter-spacing: 0.25em;
     color: var(--text-primary);
@@ -157,11 +158,11 @@
 
 /* Premium CTA Button */
 .hero-cta-button {
-    margin-top: 60px;
+    margin-top: clamp(20px, 5vh, 60px);
     background: transparent;
     border: 1px solid rgba(235, 237, 236, 0.2);
     color: var(--text-primary);
-    padding: 18px 42px;
+    padding: clamp(12px, 2vh, 18px) clamp(24px, 4vw, 42px);
     border-radius: 100px;
     display: flex;
     align-items: center;
@@ -218,8 +219,10 @@
     justify-content: space-between;
     align-items: flex-end;
     border-top: 1px solid rgba(235, 237, 236, 0.1);
-    padding-top: 32px;
+    padding-top: clamp(16px, 2.5vh, 32px);
     flex-shrink: 0;
+    gap: 24px;
+    flex-wrap: wrap;
 }
 
 .hero-info-group {
@@ -234,7 +237,7 @@
 }
 
 .info-label {
-    font-size: 14px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     opacity: 0.4;
@@ -242,7 +245,7 @@
 }
 
 .info-value {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 500;
 }
 
@@ -257,7 +260,7 @@
 }
 
 .contact-links a {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--text-primary);
     transition: color 0.3s ease;
@@ -283,15 +286,43 @@
     width: 100%;
 }
 
+/* Short viewports (landscape phones, small laptops) */
+@media (max-height: 700px) {
+    .hero {
+        min-height: 520px;
+    }
+
+    .hero-main-stack {
+        gap: clamp(14px, 2.5vh, 28px);
+    }
+
+    .hero-cta-button {
+        margin-top: clamp(12px, 3vh, 32px);
+    }
+}
+
 @media (max-width: 768px) {
     .hero {
         height: auto;
         min-height: 100vh;
-        padding-top: 40px;
+        padding-top: 32px;
     }
 
-    .hero-content {
-        gap: 60px;
+    .hero-title {
+        font-size: clamp(56px, 17vw, 140px);
+    }
+
+    .hero-role-primary {
+        font-size: clamp(20px, 6vw, 32px);
+    }
+
+    .hero-role-secondary {
+        font-size: clamp(13px, 3.5vw, 18px);
+    }
+
+    .status-badge {
+        font-size: 12px;
+        padding: 8px 16px;
     }
 
     .hero-info-group {
@@ -303,6 +334,53 @@
         position: relative;
         flex-direction: column;
         align-items: flex-start;
-        gap: 40px;
+        gap: 32px;
+    }
+
+    .hero-contact-group {
+        text-align: left;
+    }
+
+    .contact-links {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .info-label {
+        font-size: 11px;
+    }
+
+    .info-value {
+        font-size: 15px;
+    }
+
+    .contact-links {
+        gap: 16px;
+    }
+
+    .contact-links a {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: clamp(48px, 16vw, 96px);
+    }
+
+    .hero-role-separator {
+        width: 60px;
+    }
+
+    .info-label {
+        font-size: 10px;
+    }
+
+    .info-value {
+        font-size: 13px;
+    }
+
+    .contact-links a {
+        font-size: 12px;
     }
 }
