@@ -73,7 +73,7 @@ const NOISE_STEP = 4;
 const FIXED_SCALE = 1.4;
 
 const BackgroundAnimation = ({
-  lineColor      = '#fdfdfd21',
+  lineColor      = '#fdfdfd14',
   backgroundColor = '#212121',
   waveSpeedX     = 0.0125,
   waveSpeedY     = 0.011,
@@ -81,9 +81,9 @@ const BackgroundAnimation = ({
   waveAmpY       = 20,
   xGap           = 8,
   yGap           = 4,
-  friction       = 0.92,
-  tension        = 0.008,
-  maxCursorMove  = 200,
+  friction       = 0.90,
+  tension        = 0.011,
+  maxCursorMove  = 110,
 }) => {
   const canvasRef    = useRef(null);
   const containerRef = useRef(null);
@@ -106,8 +106,13 @@ const BackgroundAnimation = ({
 
     const initPoints = () => {
       const { width, height } = boundsRef.current;
-      const gx = xGap * FIXED_SCALE;
-      const gy = yGap * FIXED_SCALE;
+      // Pin the grid to a constant *physical* pixel size so the background looks
+      // identical regardless of browser zoom or screen resolution (HD/2K/4K/Retina).
+      // gx_css = gx_physical / devicePixelRatio  →  gx_css * dpr = constant on screen.
+      const dpr = window.devicePixelRatio || 1;
+      const effScale = FIXED_SCALE / dpr;
+      const gx = xGap * effScale;
+      const gy = yGap * effScale;
       const cols     = Math.ceil((width  + 200) / gx);
       const rows     = Math.ceil((height +  30) / gy);
       const offsetX  = (width  - gx * cols) / 2;
@@ -127,7 +132,7 @@ const BackgroundAnimation = ({
       const subRows = (rows / NOISE_STEP | 0) + 2;
       
       // Rayon d'influence dynamique : environ 15% de la largeur, bridé pour le confort
-      const baseMouseRadius = Math.max(140, Math.min(width * 0.15, 220)) * FIXED_SCALE;
+      const baseMouseRadius = Math.max(140, Math.min(width * 0.15, 220)) * effScale;
 
       ptsRef.current = { 
         data, cols, rows, rowCount, offsetX, offsetY, gx, gy,
@@ -139,7 +144,8 @@ const BackgroundAnimation = ({
         colNoiseY: new Float32Array(subRows),
         trigFactor: TRIG_SIZE / (Math.PI * 2),
         mouseRadius: baseMouseRadius,
-        dynamicForceScale: 0.00025 / FIXED_SCALE
+        dynamicForceScale: 0.00015 / effScale,
+        effScale
       };
     };
 
@@ -203,11 +209,11 @@ const BackgroundAnimation = ({
 
       const { perm, gx, gy } = noiseCtxRef.current;
       const { data, cols, rows, rowCount, offsetX, offsetY, gx: pgx, gy: pgy,
-              subCols, subRows, noiseX, noiseY, rowInfos, colNoiseX, colNoiseY, 
-              trigFactor, mouseRadius, dynamicForceScale } = ptsRef.current;
+              subCols, subRows, noiseX, noiseY, rowInfos, colNoiseX, colNoiseY,
+              trigFactor, mouseRadius, dynamicForceScale, effScale } = ptsRef.current;
       const { width, height } = boundsRef.current;
 
-      const influence   = Math.max(mouseRadius, m.vs * FIXED_SCALE);
+      const influence   = Math.max(mouseRadius, m.vs * effScale);
       const influenceSq = influence * influence;
       const forceScale  = influence * mvs * dynamicForceScale * dt;
 
@@ -346,6 +352,20 @@ const BackgroundAnimation = ({
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
 
+    // Detect browser zoom changes (Ctrl+/-): devicePixelRatio shifts,
+    // and matchMedia on the current resolution fires when that ratio changes.
+    let dprMql = null;
+    const watchDpr = () => {
+      if (dprMql) dprMql.removeEventListener('change', onDprChange);
+      dprMql = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+      dprMql.addEventListener('change', onDprChange);
+    };
+    const onDprChange = () => {
+      handleResize();
+      watchDpr();
+    };
+    watchDpr();
+
     handleResize();
     animationFrame = requestAnimationFrame(render);
 
@@ -353,6 +373,7 @@ const BackgroundAnimation = ({
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (dprMql) dprMql.removeEventListener('change', onDprChange);
       io.disconnect();
       ro.disconnect();
       cancelAnimationFrame(animationFrame);

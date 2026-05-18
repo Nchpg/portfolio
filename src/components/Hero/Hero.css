@@ -89,10 +89,11 @@
 }
 
 .hero-title {
+    font-weight: 700;
     font-size: clamp(64px, min(14vw, 19vh), 240px);
     line-height: 0.85;
-    letter-spacing: -0.04em;
-    text-transform: none;
+    letter-spacing: 0;
+    text-transform: uppercase;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -113,7 +114,10 @@
 
 .title-line.outline {
     color: transparent;
-    -webkit-text-stroke: 1.5px var(--text-primary);
+    -webkit-text-stroke-width: 0.008em;
+    -webkit-text-stroke-color: var(--text-primary);
+    paint-order: stroke fill;
+    text-rendering: geometricPrecision;
     opacity: 0.8;
 }
 
@@ -160,7 +164,7 @@
 .hero-cta-button {
     margin-top: clamp(20px, 5vh, 60px);
     background: transparent;
-    border: 1px solid rgba(235, 237, 236, 0.2);
+    border: 1px solid var(--border-strong);
     color: var(--text-primary);
     padding: clamp(12px, 2vh, 18px) clamp(24px, 4vw, 42px);
     border-radius: 100px;
@@ -218,11 +222,16 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    border-top: 1px solid rgba(235, 237, 236, 0.1);
+    border-top: 1px solid var(--border-soft);
     padding-top: clamp(16px, 2.5vh, 32px);
     flex-shrink: 0;
     gap: 24px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+}
+
+.hero-info-group,
+.hero-contact-group {
+    min-width: 0;
 }
 
 .hero-info-group {
@@ -326,40 +335,41 @@
     }
 
     .hero-info-group {
-        gap: 32px;
-        flex-wrap: wrap;
+        gap: 16px;
+        flex-wrap: nowrap;
     }
 
     .hero-bottom-bar {
         position: relative;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 32px;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: nowrap;
     }
 
     .hero-contact-group {
-        text-align: left;
+        text-align: right;
     }
 
     .contact-links {
-        justify-content: flex-start;
-        flex-wrap: wrap;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+        gap: 12px;
     }
 
     .info-label {
-        font-size: 11px;
+        font-size: 10px;
+        letter-spacing: 0.15em;
     }
 
     .info-value {
-        font-size: 15px;
-    }
-
-    .contact-links {
-        gap: 16px;
+        font-size: 13px;
+        white-space: nowrap;
     }
 
     .contact-links a {
-        font-size: 14px;
+        font-size: 12px;
+        white-space: nowrap;
     }
 }
 
@@ -372,15 +382,24 @@
         width: 60px;
     }
 
+    .hero-bottom-bar {
+        gap: 10px;
+    }
+
     .info-label {
-        font-size: 10px;
+        font-size: 9px;
+        letter-spacing: 0.12em;
     }
 
     .info-value {
-        font-size: 13px;
+        font-size: 11px;
+    }
+
+    .contact-links {
+        gap: 8px;
     }
 
     .contact-links a {
-        font-size: 12px;
+        font-size: 10px;
     }
 }
