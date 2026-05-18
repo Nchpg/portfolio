@@ -1,0 +1,31 @@
+/* Mirrors `example/portfolio-epita/ball.css` 1:1 (id selectors → class). */
+.balls-area {
+    height: 110vh;
+    width: 100vw;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    overflow: hidden;
+    /* The example relies on body bg #121120 showing through #ball-area. Our
+       body bg is #212121, so set it locally — needed for the rgba(71,89,255)
+       gradient to composite into the magenta/violet tones the example shows. */
+    background-color: #121120;
+}
+
+.balls-area * {
+    z-index: 0;
+}
+
+.balls-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    height: 110vh;
+    width: 100vw;
+    /* Bottom fades to the site's --bg-color (#212121) so the transition from
+       the ball area to the next section is seamless (no color jump at 110vh). */
+    background: rgb(33, 33, 33);
+    background: linear-gradient(0deg, rgba(33, 33, 33, 1) 0%, rgba(33, 33, 33, 0) 100vh);
+}
