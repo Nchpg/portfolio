@@ -10,11 +10,25 @@ const Navbar = () => {
         smoothScrollTo(id);
     };
 
+    const handleMouseEnter = (e) => {
+        const wrapper = e.currentTarget;
+        if (!wrapper.classList.contains('is-animating')) {
+            wrapper.classList.add('is-animating');
+            const chars = wrapper.querySelectorAll('.wave-char');
+            const lastChar = chars[chars.length - 1];
+            const onAnimationEnd = () => {
+                wrapper.classList.remove('is-animating');
+                lastChar.removeEventListener('animationend', onAnimationEnd);
+            };
+            lastChar.addEventListener('animationend', onAnimationEnd);
+        }
+    };
+
     return (
         <nav className="navbar">
             <div className="nav-group">
                 <span className="nav-label">Identity</span>
-                <span className="nav-value identity-wrapper">
+                <span className="nav-value identity-wrapper" onMouseEnter={handleMouseEnter}>
                     {name.split('').map((char, i) => (
                         <span key={i} className="wave-char" style={{ '--i': i }}>
                             {char === ' ' ? '\u00A0' : char}

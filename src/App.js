@@ -96,7 +96,7 @@ function App() {
             </div>
             <div className="contact-right">
               <div className="contact-list">
-                <ContactLink name="LinkedIn" id="/in/nathan-champagne" copyValue="nathan-champagne" />
+                <ContactLink name="LinkedIn" id="/in/nathan-champagne" copyValue="/in/nathan-champagne" />
                 <ContactLink name="GitHub" id="@Nchpg" copyValue="Nchpg" />
                 <ContactLink name="Email" id="nathan.champagne@epita.fr" copyValue="nathan.champagne@epita.fr" />
               </div>
@@ -110,7 +110,7 @@ function App() {
       <footer className="footer container">
         <div className="footer-bottom">
           <p>© 2026 Nathan Champagne</p>
-          <p>Portfolio</p>
+          <p className="footer-portfolio-label">Portfolio</p>
         </div>
       </footer>
     </div>

@@ -45,7 +45,7 @@
     transform: translateY(0);
 }
 
-.identity-wrapper:hover .wave-char {
+.identity-wrapper.is-animating .wave-char {
     animation: waveAnimation 0.4s ease forwards;
     animation-delay: calc(var(--i) * 0.03s);
 }

@@ -66,7 +66,8 @@ for (let i = 0; i < TRIG_SIZE; i++) {
 }
 
 // ── Layout constants ─────────────────────────────────────────────────────────
-const PIXEL_BUDGET = 600_000;
+const PIXEL_BUDGET_TOUCH  = 350_000;
+const PIXEL_BUDGET_MOUSE  = 750_000;
 const MAX_DPR      = 2;
 const S = 8;
 const NOISE_STEP = 4;
@@ -144,7 +145,7 @@ const BackgroundAnimation = ({
         colNoiseY: new Float32Array(subRows),
         trigFactor: TRIG_SIZE / (Math.PI * 2),
         mouseRadius: baseMouseRadius,
-        dynamicForceScale: 0.0002 / effScale,
+        dynamicForceScale: 0.0003 / effScale,
         effScale
       };
     };
@@ -156,8 +157,9 @@ const BackgroundAnimation = ({
       const h  = window.innerHeight;
       const hx = h + 2 * CANVAS_MARGIN;
       const natural = window.devicePixelRatio || 1;
-      const cssArea = w * h;
-      const dpr     = Math.min(natural, Math.sqrt(PIXEL_BUDGET / cssArea), MAX_DPR);
+      const cssArea    = w * h;
+      const pixelBudget = window.matchMedia('(pointer: coarse)').matches ? PIXEL_BUDGET_TOUCH : PIXEL_BUDGET_MOUSE;
+      const dpr        = Math.min(natural, Math.sqrt(pixelBudget / cssArea), MAX_DPR);
 
       boundsRef.current = { width: w, height: hx, left: 0, top: -CANVAS_MARGIN };
       canvas.width  = Math.round(w  * dpr);

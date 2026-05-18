@@ -134,6 +134,7 @@ const FooterSpacerScene = () => {
 
         // 5. Interaction Souris
         const handlePointerMove = (event) => {
+            if (event.pointerType === 'touch') return;
             const rect = wrapper.getBoundingClientRect();
             const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;

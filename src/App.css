@@ -243,7 +243,12 @@
     }
 
     .footer-bottom {
-        align-items: flex-start;
-        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+}
+
+@media (max-width: 420px) {
+    .footer-portfolio-label {
+        display: none;
     }
 }

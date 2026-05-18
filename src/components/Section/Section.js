@@ -7,11 +7,13 @@ const Section = ({ title, children, id }) => {
         const wrapper = e.currentTarget;
         if (!wrapper.classList.contains('is-animating')) {
             wrapper.classList.add('is-animating');
+            const chars = wrapper.querySelectorAll('.wave-char');
+            const lastChar = chars[chars.length - 1];
             const onAnimationEnd = () => {
                 wrapper.classList.remove('is-animating');
-                wrapper.removeEventListener('animationend', onAnimationEnd);
+                lastChar.removeEventListener('animationend', onAnimationEnd);
             };
-            wrapper.addEventListener('animationend', onAnimationEnd);
+            lastChar.addEventListener('animationend', onAnimationEnd);
         }
     };
 
