@@ -1,5 +1,6 @@
 .hero {
     height: 100vh;
+    height: 100dvh;
     min-height: 600px;
     display: flex;
     flex-direction: column;
@@ -33,7 +34,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: clamp(20px, 4vh, 50px);
+    gap: clamp(20px, 3.5vh, 40px);
     width: 100%;
 }
 
@@ -127,20 +128,34 @@
 }
 
 /* Details Stack */
-.hero-details-stack {
+.hero-text-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(12px, 2vh, 20px);
+    gap: clamp(24px, 4.5vh, 48px);
     max-width: 900px;
 }
 
 .hero-role-primary {
-    font-size: clamp(20px, min(3vw, 4vh), 48px);
-    font-weight: 700;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+    font-family: var(--font-body);
+    font-size: clamp(16px, min(1.8vw, 2.6vh), 26px);
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.28em;
     color: var(--text-primary);
+    opacity: 0.85;
+}
+
+.role-amp {
+    color: var(--text-primary);
+    opacity: 0.6;
+    letter-spacing: 0;
+    margin: 0 0.2em;
 }
 
 .hero-role-separator {
@@ -160,57 +175,92 @@
     margin-right: -0.25em;
 }
 
-/* Premium CTA Button */
+/* Premium CTA Button — filled green by default */
 .hero-cta-button {
-    margin-top: clamp(20px, 5vh, 60px);
-    background: transparent;
-    border: 1px solid var(--border-strong);
-    color: var(--text-primary);
+    margin-top: 0;
+    background-color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+    color: var(--bg-color);
     padding: clamp(12px, 2vh, 18px) clamp(24px, 4vw, 42px);
     border-radius: 100px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 1em;
     cursor: pointer;
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: clamp(11px, min(1.2vw, 1.7vh), 14px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+    transition:
+        transform 0.4s cubic-bezier(0.2, 1, 0.3, 1),
+        box-shadow 0.4s cubic-bezier(0.2, 1, 0.3, 1),
+        background-color 0.4s ease;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 16px rgba(114, 158, 132, 0.18);
 }
 
-.hero-cta-button::before {
+/* Pulsing ring on hover */
+.hero-cta-button::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 0%;
-    height: 100%;
-    background-color: var(--accent-green);
-    transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
-    z-index: -1;
+    inset: -2px;
+    border-radius: 100px;
+    border: 1.5px solid var(--accent-green);
+    opacity: 0;
+    pointer-events: none;
 }
 
 .hero-cta-button:hover {
-    border-color: var(--accent-green);
-    color: var(--bg-color);
-    transform: scale(1.05);
-    box-shadow: 0 10px 40px rgba(114, 158, 132, 0.25);
+    transform: translateY(-3px);
+    background-color: #85B197;
+    box-shadow: 0 14px 36px rgba(114, 158, 132, 0.45);
 }
 
-.hero-cta-button:hover::before {
-    width: 100%;
+.hero-cta-button:hover::after {
+    animation: ctaPulse 1.4s cubic-bezier(0.2, 1, 0.3, 1) infinite;
 }
 
+@keyframes ctaPulse {
+    0%   { transform: scale(1);    opacity: 0.7; }
+    100% { transform: scale(1.22); opacity: 0;   }
+}
+
+/* Infinite scrolling arrow icon */
 .cta-icon {
+    width: 1.15em;
+    height: 1.15em;
+    overflow: hidden;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.cta-icon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
-.hero-cta-button:hover .cta-icon {
-    transform: translateY(4px);
+.cta-icon svg + svg {
+    transform: translateY(-100%);
+}
+
+.hero-cta-button:hover .cta-icon svg {
+    animation: ctaArrow 0.9s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+}
+
+.hero-cta-button:hover .cta-icon svg + svg {
+    animation-delay: -0.45s;
+}
+
+@keyframes ctaArrow {
+    0%   { transform: translateY(-100%); }
+    50%  { transform: translateY(0); }
+    100% { transform: translateY(100%); }
 }
 
 .accent {
@@ -296,6 +346,22 @@
 }
 
 /* Short viewports (landscape phones, small laptops) */
+/* Landscape phones — short height, wide width: split into 2 columns */
+/* Larger than HD — give the centerpiece a touch more presence */
+@media (min-width: 1920px) {
+    .hero-title {
+        font-size: clamp(240px, 13vw, 270px);
+    }
+
+    .hero-role-primary {
+        font-size: clamp(20px, 1.3vw, 28px);
+    }
+
+    .hero-cta-button {
+        font-size: clamp(13px, 0.75vw, 15px);
+    }
+}
+
 @media (max-height: 700px) {
     .hero {
         min-height: 520px;
@@ -314,6 +380,7 @@
     .hero {
         height: auto;
         min-height: 100vh;
+        min-height: 100dvh;
         padding-top: 32px;
     }
 
@@ -322,16 +389,13 @@
     }
 
     .hero-role-primary {
-        font-size: clamp(20px, 6vw, 32px);
-    }
-
-    .hero-role-secondary {
         font-size: clamp(13px, 3.5vw, 18px);
+        letter-spacing: 0.22em;
+        gap: 0.35em;
     }
 
-    .status-badge {
-        font-size: 12px;
-        padding: 8px 16px;
+    .role-amp {
+        margin: 0 0.1em;
     }
 
     .hero-info-group {
@@ -378,8 +442,9 @@
         font-size: clamp(48px, 16vw, 96px);
     }
 
-    .hero-role-separator {
-        width: 60px;
+    .hero-role-primary {
+        font-size: clamp(11px, 3vw, 14px);
+        letter-spacing: 0.18em;
     }
 
     .hero-bottom-bar {
@@ -401,5 +466,71 @@
 
     .contact-links a {
         font-size: 10px;
+    }
+}
+
+/* Landscape phones — short height, wide width: split into 2 columns */
+/* Declared last so it overrides max-height: 700px and max-width: 768px rules */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        height: 100vh;
+        height: 100dvh;
+        min-height: 360px;
+        padding-top: 8px;
+        padding-bottom: 12px;
+    }
+
+    .hero .navbar {
+        padding-bottom: 8px;
+    }
+
+    .hero-main-stack {
+        display: grid;
+        grid-template-areas:
+            "title subtitle"
+            "title cta";
+        grid-template-columns: auto auto;
+        grid-template-rows: auto auto;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+        justify-items: end;
+        gap: clamp(8px, 2vh, 16px) clamp(24px, 5vw, 64px);
+        text-align: right;
+        height: 100%;
+    }
+
+    .hero-text-block {
+        display: contents;
+    }
+
+    .hero-title-wrapper {
+        grid-area: title;
+        justify-self: end;
+    }
+
+    .hero-title {
+        font-size: clamp(36px, 8vw, 72px);
+        line-height: 0.85;
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .hero-role-primary {
+        grid-area: subtitle;
+        justify-self: end;
+        align-self: end;
+        font-size: clamp(11px, 2vw, 14px);
+        letter-spacing: 0.18em;
+        justify-content: flex-end;
+        margin: 0;
+    }
+
+    .hero-cta-button {
+        grid-area: cta;
+        margin-top: 0;
+        justify-self: end;
+        align-self: start;
+        white-space: nowrap;
     }
 }

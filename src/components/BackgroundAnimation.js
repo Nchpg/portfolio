@@ -66,7 +66,7 @@ for (let i = 0; i < TRIG_SIZE; i++) {
 }
 
 // ── Layout constants ─────────────────────────────────────────────────────────
-const PIXEL_BUDGET = 1_000_000;
+const PIXEL_BUDGET = 600_000;
 const MAX_DPR      = 2;
 const S = 8;
 const NOISE_STEP = 4;
@@ -83,7 +83,7 @@ const BackgroundAnimation = ({
   yGap           = 4,
   friction       = 0.90,
   tension        = 0.011,
-  maxCursorMove  = 110,
+  maxCursorMove  = 150,
 }) => {
   const canvasRef    = useRef(null);
   const containerRef = useRef(null);
@@ -144,7 +144,7 @@ const BackgroundAnimation = ({
         colNoiseY: new Float32Array(subRows),
         trigFactor: TRIG_SIZE / (Math.PI * 2),
         mouseRadius: baseMouseRadius,
-        dynamicForceScale: 0.00015 / effScale,
+        dynamicForceScale: 0.0002 / effScale,
         effScale
       };
     };

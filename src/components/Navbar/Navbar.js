@@ -1,14 +1,13 @@
 import React from 'react';
+import { smoothScrollTo } from '../../utils/smoothScroll';
 import './Navbar.css';
 
 const Navbar = () => {
     const name = "Nathan Champagne";
-    
-    const scrollToSection = (id) => {
-        const element = document.querySelector(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
+
+    const handleNavClick = (e, id) => {
+        e.preventDefault();
+        smoothScrollTo(id);
     };
 
     return (
@@ -23,13 +22,13 @@ const Navbar = () => {
                     ))}
                 </span>
             </div>
-            
+
             <div className="nav-group">
                 <span className="nav-label">Navigation</span>
                 <div className="nav-links">
-                    <a href="#about" onClick={(e) => { e.preventDefault(); scrollToSection('#about'); }}>About</a>
-                    <a href="#projects" onClick={(e) => { e.preventDefault(); scrollToSection('#projects'); }}>Projects</a>
-                    <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection('#contact'); }}>Contact</a>
+                    <a href="#about" onClick={(e) => handleNavClick(e, 'about')}>About</a>
+                    <a href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>Projects</a>
+                    <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
                 </div>
             </div>
         </nav>
