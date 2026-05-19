@@ -76,7 +76,8 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .project-row:hover {
+    .project-row:hover,
+    .project-row:has(.project-thumb--active) {
         background-color: rgba(255, 255, 255, 0.1);
         padding-inline: 24px;
     }
@@ -115,10 +116,11 @@
     overflow: hidden;
     box-shadow: 0 50px 120px rgba(0, 0, 0, 0.7);
     z-index: 1000;
-    pointer-events: none;
+    pointer-events: auto;
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.96);
     transition: opacity 0.25s ease, transform 0.25s ease;
+    cursor: pointer;
 }
 
 .project-thumb-preview--visible {
@@ -168,6 +170,99 @@
 
 .project-thumb-close:hover {
     background: rgba(0, 0, 0, 0.85);
+}
+
+.project-thumb-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 16px 14px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0) 100%);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.project-thumb-preview:hover.project-thumb-preview--active .project-thumb-controls,
+.project-thumb-preview--open.project-thumb-preview--active .project-thumb-controls {
+    opacity: 1;
+}
+
+.project-thumb-preview:hover:not(.project-thumb-preview--active) {
+    cursor: none;
+}
+
+.project-thumb-ctrl {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+}
+
+.project-thumb-ctrl:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.project-thumb-progress {
+    flex: 1;
+    height: 16px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.project-thumb-progress::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+}
+
+.project-thumb-progress-fill {
+    position: absolute;
+    left: 0;
+    height: 4px;
+    background: var(--accent-green);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.project-thumb-progress-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.project-thumb-progress:hover .project-thumb-progress-handle {
+    opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+    .project-thumb-progress-handle {
+        opacity: 1;
+    }
 }
 
 .project-index {
@@ -266,7 +361,8 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .project-row:hover .project-meta span {
+    .project-row:hover .project-meta span,
+    .project-row:has(.project-thumb--active) .project-meta span {
         color: var(--accent-green);
         border-color: var(--accent-green);
         opacity: 1;

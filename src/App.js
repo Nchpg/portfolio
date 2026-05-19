@@ -33,15 +33,107 @@ const computePreviewSize = (naturalW, naturalH) => {
   return { width: `${w}px`, height: `${h}px` };
 };
 
+const PREVIEW_OPEN_EVENT = 'project-preview-open';
+let nextPreviewId = 0;
+
 const ProjectThumb = ({ type, src, alt }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   const [isShown, setIsShown] = React.useState(false);
   const [previewStyle, setPreviewStyle] = React.useState(null);
+  const [isPlaying, setIsPlaying] = React.useState(true);
+  const [progress, setProgress] = React.useState(0);
+  const [isMouseActive, setIsMouseActive] = React.useState(true);
+  const inactivityTimer = React.useRef(null);
+  const hoverLeaveTimer = React.useRef(null);
+  const videoRef = React.useRef(null);
+  const idRef = React.useRef(++nextPreviewId);
+  const closingRef = React.useRef(false);
+
+  const handleThumbEnter = () => {
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    closingRef.current = false;
+    window.dispatchEvent(new CustomEvent(PREVIEW_OPEN_EVENT, { detail: idRef.current }));
+    setIsHovered(true);
+  };
+  const handleThumbLeave = () => {
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    hoverLeaveTimer.current = setTimeout(() => setIsHovered(false), 200);
+  };
+  const handlePreviewEnter = () => {
+    if (closingRef.current) return;
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    setIsHovered(true);
+  };
+  const handlePreviewLeave = () => {
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    closingRef.current = true;
+    setIsHovered(false);
+  };
+
+  React.useEffect(() => {
+    const handler = (e) => {
+      if (e.detail !== idRef.current) {
+        if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+        setIsHovered(false);
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener(PREVIEW_OPEN_EVENT, handler);
+    return () => window.removeEventListener(PREVIEW_OPEN_EVENT, handler);
+  }, []);
   const supportsHover = React.useRef(
     typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
   ).current;
+
+  const togglePlay = (e) => {
+    e.stopPropagation();
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play();
+    else v.pause();
+  };
+
+  const seekFromEvent = (clientX, bar) => {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    const rect = bar.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    v.currentTime = ratio * v.duration;
+    setProgress(ratio);
+  };
+
+  const handleScrubStart = (e) => {
+    e.stopPropagation();
+    const bar = e.currentTarget;
+    const isTouch = e.type === 'touchstart';
+    const getX = (ev) => isTouch ? ev.touches[0].clientX : ev.clientX;
+    seekFromEvent(getX(e), bar);
+    const move = (ev) => seekFromEvent(getX(ev), bar);
+    const stop = () => {
+      window.removeEventListener(isTouch ? 'touchmove' : 'mousemove', move);
+      window.removeEventListener(isTouch ? 'touchend' : 'mouseup', stop);
+    };
+    window.addEventListener(isTouch ? 'touchmove' : 'mousemove', move);
+    window.addEventListener(isTouch ? 'touchend' : 'mouseup', stop);
+  };
+
+  const handleTimeUpdate = (e) => {
+    const v = e.currentTarget;
+    if (v.duration) setProgress(v.currentTime / v.duration);
+  };
+
+  const handlePreviewMouseMove = () => {
+    setIsMouseActive(true);
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    inactivityTimer.current = setTimeout(() => setIsMouseActive(false), 2000);
+  };
+
+  React.useEffect(() => () => {
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+  }, []);
 
   const isVisible = isOpen || (supportsHover && isHovered);
 
@@ -68,17 +160,58 @@ const ProjectThumb = ({ type, src, alt }) => {
 
   const preview = isMounted && ReactDOM.createPortal(
     <div
-      className={`project-thumb-preview${isShown ? ' project-thumb-preview--visible' : ''}${isOpen ? ' project-thumb-preview--open' : ''}`}
+      className={`project-thumb-preview${isShown ? ' project-thumb-preview--visible' : ''}${isOpen ? ' project-thumb-preview--open' : ''}${isMouseActive ? ' project-thumb-preview--active' : ''}`}
       style={previewStyle || undefined}
+      onMouseEnter={() => { handlePreviewEnter(); handlePreviewMouseMove(); }}
+      onMouseLeave={handlePreviewLeave}
+      onMouseMove={handlePreviewMouseMove}
+      onClick={() => setIsOpen(true)}
       aria-hidden="true"
     >
       {type === 'video'
-        ? <video src={src} autoPlay loop muted playsInline onLoadedMetadata={handleVideoLoad} />
+        ? (
+          <video
+            ref={videoRef}
+            src={src}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onLoadedMetadata={handleVideoLoad}
+            onTimeUpdate={handleTimeUpdate}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          />
+        )
         : <img src={src} alt="" onLoad={handleImgLoad} />}
+      {type === 'video' && (
+        <div className="project-thumb-controls" onClick={(e) => e.stopPropagation()}>
+          <button className="project-thumb-ctrl" onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'}>
+            {isPlaying
+              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>}
+          </button>
+          <div
+            className="project-thumb-progress"
+            onMouseDown={handleScrubStart}
+            onTouchStart={handleScrubStart}
+            role="slider"
+            aria-label="Seek"
+          >
+            <div className="project-thumb-progress-fill" style={{ width: `${progress * 100}%` }} />
+            <div className="project-thumb-progress-handle" style={{ left: `${progress * 100}%` }} />
+          </div>
+        </div>
+      )}
       {isOpen && (
         <button
           className="project-thumb-close"
-          onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(false);
+            setIsHovered(false);
+            if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+          }}
           aria-label="Close preview"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -91,10 +224,13 @@ const ProjectThumb = ({ type, src, alt }) => {
   return (
     <>
       <div
-        className="project-thumb"
-        onClick={() => setIsOpen(true)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className={`project-thumb${isVisible ? ' project-thumb--active' : ''}`}
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent(PREVIEW_OPEN_EVENT, { detail: idRef.current }));
+          setIsOpen(true);
+        }}
+        onMouseEnter={handleThumbEnter}
+        onMouseLeave={handleThumbLeave}
       >
         {media}
       </div>
