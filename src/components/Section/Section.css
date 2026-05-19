@@ -1,67 +1,77 @@
 .section {
-    padding: 100px 0;
-    position: relative;
-    z-index: 5;
+  padding: 100px 0;
+  position: relative;
+  z-index: 5;
 }
 
 .section-header {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    margin-bottom: 80px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 80px;
 }
 
 .section-title-tag {
-    font-size: clamp(42px, 5vw, 64px);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--accent-green);
-    position: relative;
-    padding-left: 36px;
-    display: inline-block;
-    cursor: default;
-    white-space: nowrap;
+  font-size: clamp(42px, 5vw, 64px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-green);
+  position: relative;
+  padding-left: 36px;
+  display: inline-block;
+  cursor: default;
+  white-space: nowrap;
 }
 
-#projects .section-title-tag::before { content: '01'; }
-#contact .section-title-tag::before { content: '02'; }
+#projects .section-title-tag::before {
+  content: '01';
+}
+#contact .section-title-tag::before {
+  content: '02';
+}
 
 .section-title-tag::before {
-    position: absolute;
-    left: -10px;
-    top: 0;
-    font-size: 16px;
-    opacity: 0.4;
-    font-family: var(--font-body);
+  position: absolute;
+  left: -10px;
+  top: 0;
+  font-size: 16px;
+  opacity: 0.4;
+  font-family: var(--font-body);
 }
 
 .wave-char {
-    display: inline-block;
-    transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-    transform: translateY(0);
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  transform: translateY(0);
 }
 
 .identity-wrapper.is-animating .wave-char {
-    animation: waveAnimation 0.4s ease forwards;
-    animation-delay: calc(var(--i) * 0.03s);
+  animation: waveAnimation 0.4s ease forwards;
+  animation-delay: calc(var(--i) * 0.03s);
 }
 
 @keyframes waveAnimation {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-    100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .section-line {
-    height: 1px;
-    background-color: var(--text-primary);
-    width: 100%;
-    opacity: 0.15;
+  height: 1px;
+  background-color: var(--text-primary);
+  width: 100%;
+  opacity: 0.15;
 }
 
 .section-content {
-    display: flex;
-    flex-direction: column;
-    gap: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
 }

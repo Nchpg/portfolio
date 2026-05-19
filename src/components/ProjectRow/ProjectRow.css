@@ -1,146 +1,150 @@
 .projects-list {
-    border-top: 1px solid rgba(235, 237, 236, 0.24);
-    overflow: visible;
+  border-top: 1px solid rgba(235, 237, 236, 0.24);
+  overflow: visible;
 }
 
 .project-row {
-    overflow: visible;
-    display: grid;
-    grid-template-columns: 60px clamp(200px, 22vw, 300px) minmax(0, 1fr) 160px;
-    gap: 40px;
-    align-items: center;
-    min-height: 180px;
-    border-bottom: 1px solid rgba(235, 237, 236, 0.24);
-    padding: 28px 0;
-    transition:
-        background-color 0.25s ease,
-        color 0.25s ease,
-        padding-inline 0.25s ease;
+  overflow: visible;
+  display: grid;
+  grid-template-columns: 60px clamp(200px, 22vw, 300px) minmax(0, 1fr) 160px;
+  gap: 40px;
+  align-items: center;
+  min-height: 180px;
+  border-bottom: 1px solid rgba(235, 237, 236, 0.24);
+  padding: 28px 0;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    padding-inline 0.25s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .project-row:hover,
-    .project-row:has(.project-thumb--active) {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding-inline: 24px;
-    }
+  .project-row:hover,
+  .project-row:has(.project-thumb--active) {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding-inline: 24px;
+  }
 }
 
 .project-index {
-    font-size: 14px;
-    opacity: 0.4;
+  font-size: 14px;
+  opacity: 0.4;
 }
 
 .project-main {
-    display: grid;
-    gap: 12px;
+  display: grid;
+  gap: 12px;
 }
 
 .project-main h3 {
-    font-size: clamp(32px, 5vw, 76px);
-    line-height: 0.9;
+  font-size: clamp(32px, 5vw, 76px);
+  line-height: 0.9;
 }
 
 .project-main p {
-    max-width: 680px;
-    font-size: 16px;
-    opacity: 0.68;
+  max-width: 680px;
+  font-size: 16px;
+  opacity: 0.68;
 }
 
 .project-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 20px;
 }
 
 .project-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text-primary);
-    position: relative;
-    transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  position: relative;
+  transition: color 0.3s ease;
 }
 
 .project-link svg {
-    flex-shrink: 0;
+  flex-shrink: 0;
 }
 
 .project-link::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 1px;
-    bottom: -2px;
-    left: 0;
-    background-color: var(--accent-green);
-    transition: width 0.3s ease;
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--accent-green);
+  transition: width 0.3s ease;
 }
 
 .project-link:hover {
-    color: var(--accent-green);
+  color: var(--accent-green);
 }
 
 .project-link:hover::after {
-    width: 100%;
+  width: 100%;
 }
 
 .project-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: flex-end;
-    justify-self: end;
-    max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  justify-self: end;
+  max-width: 100%;
 }
 
 .project-meta span {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    border: 1.5px solid currentColor;
-    border-radius: 100px;
-    opacity: 0.55;
-    white-space: nowrap;
-    transition: color 0.35s ease, border-color 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 100px;
+  opacity: 0.55;
+  white-space: nowrap;
+  transition:
+    color 0.35s ease,
+    border-color 0.35s ease,
+    opacity 0.35s ease,
+    transform 0.35s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .project-row:hover .project-meta span,
-    .project-row:has(.project-thumb--active) .project-meta span {
-        color: var(--accent-green);
-        border-color: var(--accent-green);
-        opacity: 1;
-    }
+  .project-row:hover .project-meta span,
+  .project-row:has(.project-thumb--active) .project-meta span {
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 992px) {
-    .project-row {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas:
-            "thumb"
-            "index"
-            "main"
-            "meta";
-        gap: 16px;
-    }
+  .project-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'thumb'
+      'index'
+      'main'
+      'meta';
+    gap: 16px;
+  }
 
-    .project-index {
-        grid-area: index;
-    }
+  .project-index {
+    grid-area: index;
+  }
 
-    .project-main {
-        grid-area: main;
-    }
+  .project-main {
+    grid-area: main;
+  }
 
-    .project-meta {
-        grid-area: meta;
-        justify-self: start;
-        justify-content: flex-start;
-    }
+  .project-meta {
+    grid-area: meta;
+    justify-self: start;
+    justify-content: flex-start;
+  }
 }

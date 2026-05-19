@@ -1,47 +1,47 @@
 .custom-cursor {
-    pointer-events: none;
-    z-index: 999998;
-    mix-blend-mode: difference;
-    position: fixed;
-    inset: 0;
+  pointer-events: none;
+  z-index: 999998;
+  mix-blend-mode: difference;
+  position: fixed;
+  inset: 0;
 }
 
 .custom-cursor__dot {
-    opacity: 0;
-    background-color: #fdfdfd;
-    border-radius: 50%;
-    width: 8px;
-    height: 8px;
-    transition: opacity 0.6s;
-    position: absolute;
-    transform: translate3d(var(--x, 0), var(--y, 0), 0) translate(-50%, -50%);
-    will-change: transform;
+  opacity: 0;
+  background-color: #fdfdfd;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  transition: opacity 0.6s;
+  position: absolute;
+  transform: translate3d(var(--x, 0), var(--y, 0), 0) translate(-50%, -50%);
+  will-change: transform;
 }
 
 .custom-cursor__dot.is-visible {
-    opacity: 1;
+  opacity: 1;
 }
 
 .custom-cursor__ring {
-    opacity: 0;
-    border: 1px solid #fdfdfd;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    transition:
-        opacity 0.6s,
-        width 0.25s,
-        height 0.25s;
-    position: absolute;
-    transform: translate3d(var(--x, 0), var(--y, 0), 0) translate(-50%, -50%);
-    will-change: transform;
+  opacity: 0;
+  border: 1px solid #fdfdfd;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  transition:
+    opacity 0.6s,
+    width 0.25s,
+    height 0.25s;
+  position: absolute;
+  transform: translate3d(var(--x, 0), var(--y, 0), 0) translate(-50%, -50%);
+  will-change: transform;
 }
 
 .custom-cursor__ring.is-visible {
-    opacity: 1;
+  opacity: 1;
 }
 
 .custom-cursor__ring.is-hovering {
-    width: 50px;
-    height: 50px;
+  width: 50px;
+  height: 50px;
 }

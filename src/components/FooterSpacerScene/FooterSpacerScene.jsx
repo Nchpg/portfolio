@@ -1,84 +1,90 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import './FooterSpacerScene.css';
 
 const FooterSpacerScene = () => {
-    const wrapperRef = useRef(null);
-    const canvasRef = useRef(null);
-    const [isActive, setIsActive] = useState(false);
+  const wrapperRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [isActive, setIsActive] = useState(false);
 
-    useEffect(() => {
-        const wrapper = wrapperRef.current;
-        if (!wrapper) return;
-        const io = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsActive(true);
-                    io.disconnect();
-                }
-            },
-            { rootMargin: '300px 0px' }
-        );
-        io.observe(wrapper);
-        return () => io.disconnect();
-    }, []);
-
-    useEffect(() => {
-        if (!isActive) return;
-        const wrapper = wrapperRef.current;
-        const canvas = canvasRef.current;
-
-        if (!wrapper || !canvas) return;
-
-        // 1. Initialisation du Rendu
-        const renderer = new THREE.WebGLRenderer({
-            canvas,
-            alpha: true,
-            antialias: true,
-            powerPreference: 'high-performance',
-        });
-        renderer.setClearColor(0x000000, 0);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        // 2. Scène et Caméra
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, wrapper.clientWidth / wrapper.clientHeight, 1, 500);
-        camera.position.set(0, 20, 50); 
-        camera.lookAt(0, 0, 0);
-
-        // 3. Création de la grille de points
-        const isMobile = window.matchMedia('(pointer: coarse)').matches;
-        const AMOUNTX = Math.max(120, Math.round(550 * (wrapper.clientWidth / 1440)));
-        const AMOUNTZ = isMobile ? 60 : 100;
-        const SEPARATION = 1.0;
-
-        const numParticles = AMOUNTX * AMOUNTZ;
-        const positions = new Float32Array(numParticles * 3);
-        const scales = new Float32Array(numParticles);
-
-        let i = 0, j = 0;
-        for (let ix = 0; ix < AMOUNTX; ix++) {
-            for (let iz = 0; iz < AMOUNTZ; iz++) {
-                positions[i]     = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // X
-                positions[i + 1] = 0; // Y
-                positions[i + 2] = iz * SEPARATION - ((AMOUNTZ * SEPARATION) / 2); // Z
-                scales[j] = 1;
-                i += 3;
-                j++;
-            }
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsActive(true);
+          io.disconnect();
         }
+      },
+      { rootMargin: '300px 0px' }
+    );
+    io.observe(wrapper);
+    return () => io.disconnect();
+  }, []);
 
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+  useEffect(() => {
+    if (!isActive) return;
+    const wrapper = wrapperRef.current;
+    const canvas = canvasRef.current;
 
-        // 4. ShaderMaterial
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                uTime: { value: 0 },
-                uMouse: { value: new THREE.Vector2(-10, -10) }
-            },
-            vertexShader: `
+    if (!wrapper || !canvas) return;
+
+    // 1. Initialisation du Rendu
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // 2. Scène et Caméra
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      wrapper.clientWidth / wrapper.clientHeight,
+      1,
+      500
+    );
+    camera.position.set(0, 20, 50);
+    camera.lookAt(0, 0, 0);
+
+    // 3. Création de la grille de points
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    const AMOUNTX = Math.max(120, Math.round(550 * (wrapper.clientWidth / 1440)));
+    const AMOUNTZ = isMobile ? 60 : 100;
+    const SEPARATION = 1.0;
+
+    const numParticles = AMOUNTX * AMOUNTZ;
+    const positions = new Float32Array(numParticles * 3);
+    const scales = new Float32Array(numParticles);
+
+    let i = 0,
+      j = 0;
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iz = 0; iz < AMOUNTZ; iz++) {
+        positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // X
+        positions[i + 1] = 0; // Y
+        positions[i + 2] = iz * SEPARATION - (AMOUNTZ * SEPARATION) / 2; // Z
+        scales[j] = 1;
+        i += 3;
+        j++;
+      }
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+
+    // 4. ShaderMaterial
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(-10, -10) },
+      },
+      vertexShader: `
                 uniform float uTime;
                 uniform vec2 uMouse;
                 attribute float scale;
@@ -134,7 +140,7 @@ const FooterSpacerScene = () => {
                     gl_PointSize = scale * (2.0 + h * 2.0) * (45.0 / max(1.0, -finalMv.z));
                 }
             `,
-            fragmentShader: `
+      fragmentShader: `
                 varying vec3 vColor;
                 void main() {
                     vec2 coord = gl_PointCoord - vec2(0.5);
@@ -143,102 +149,102 @@ const FooterSpacerScene = () => {
                     gl_FragColor = vec4(vColor, alpha * 0.85);
                 }
             `,
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending
-        });
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
 
-        const particles = new THREE.Points(geometry, material);
-        scene.add(particles);
+    const particles = new THREE.Points(geometry, material);
+    scene.add(particles);
 
-        // 5. Interaction Souris
-        const handlePointerMove = (event) => {
-            if (event.pointerType === 'touch') return;
-            const rect = wrapper.getBoundingClientRect();
-            const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            
-            if (event.clientX >= rect.left - 50 && event.clientX <= rect.right + 50 &&
-                event.clientY >= rect.top - 50 && event.clientY <= rect.bottom + 50) {
-                material.uniforms.uMouse.value.set(x, y);
-            } else {
-                material.uniforms.uMouse.value.set(-10, -10);
-            }
-        };
+    // 5. Interaction Souris
+    const handlePointerMove = (event) => {
+      if (event.pointerType === 'touch') return;
+      const rect = wrapper.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-        const handlePointerLeave = () => {
-            material.uniforms.uMouse.value.set(-10, -10);
-        };
+      if (
+        event.clientX >= rect.left - 50 &&
+        event.clientX <= rect.right + 50 &&
+        event.clientY >= rect.top - 50 &&
+        event.clientY <= rect.bottom + 50
+      ) {
+        material.uniforms.uMouse.value.set(x, y);
+      } else {
+        material.uniforms.uMouse.value.set(-10, -10);
+      }
+    };
 
-        window.addEventListener('pointermove', handlePointerMove);
-        window.addEventListener('pointerleave', handlePointerLeave);
+    const handlePointerLeave = () => {
+      material.uniforms.uMouse.value.set(-10, -10);
+    };
 
-        // 6. Gestion du redimensionnement
-        const renderSingleFrame = () => {
-            renderer.render(scene, camera);
-        };
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerleave', handlePointerLeave);
 
-        const resize = () => {
-            const rect = wrapper.getBoundingClientRect();
-            const width = rect.width || 1;
-            const height = rect.height || 1;
-            renderer.setSize(width, height, false);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderSingleFrame(); // Force un rendu après le resize
-        };
+    // 6. Gestion du redimensionnement
+    const renderSingleFrame = () => {
+      renderer.render(scene, camera);
+    };
 
-        const resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(wrapper);
+    const resize = () => {
+      const rect = wrapper.getBoundingClientRect();
+      const width = rect.width || 1;
+      const height = rect.height || 1;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderSingleFrame(); // Force un rendu après le resize
+    };
 
-        // 7. Boucle d'animation
-        let frameId;
-        let isVisible = false;
-        const startedAt = performance.now();
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(wrapper);
 
-        const animate = () => {
-            if (!isVisible) return;
-            const elapsed = (performance.now() - startedAt) / 1000;
-            material.uniforms.uTime.value = elapsed;
-            renderSingleFrame();
-            frameId = requestAnimationFrame(animate);
-        };
+    // 7. Boucle d'animation
+    let frameId;
+    let isVisible = false;
+    const startedAt = performance.now();
 
-        const intersectionObserver = new IntersectionObserver(
-            ([entry]) => {
-                isVisible = entry.isIntersecting;
-                if (isVisible) {
-                    frameId = requestAnimationFrame(animate);
-                } else {
-                    cancelAnimationFrame(frameId);
-                }
-            },
-            { threshold: 0 }
-        );
-        intersectionObserver.observe(wrapper);
+    const animate = () => {
+      if (!isVisible) return;
+      const elapsed = (performance.now() - startedAt) / 1000;
+      material.uniforms.uTime.value = elapsed;
+      renderSingleFrame();
+      frameId = requestAnimationFrame(animate);
+    };
 
-        return () => {
-            cancelAnimationFrame(frameId);
-            resizeObserver.disconnect();
-            intersectionObserver.disconnect();
-            window.removeEventListener('pointermove', handlePointerMove);
-            window.removeEventListener('pointerleave', handlePointerLeave);
-            geometry.dispose();
-            material.dispose();
-            renderer.dispose();
-        };
-    }, [isActive]);
-
-    return (
-        <div className="footer-spacer-scene" ref={wrapperRef} aria-hidden="true">
-            <canvas
-                ref={canvasRef}
-                className="footer-spacer-scene__canvas"
-                data-engine="three.js"
-            />
-            <div className="footer-spacer-scene__veil" />
-        </div>
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          frameId = requestAnimationFrame(animate);
+        } else {
+          cancelAnimationFrame(frameId);
+        }
+      },
+      { threshold: 0 }
     );
+    intersectionObserver.observe(wrapper);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerleave', handlePointerLeave);
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
+    };
+  }, [isActive]);
+
+  return (
+    <div className="footer-spacer-scene" ref={wrapperRef} aria-hidden="true">
+      <canvas ref={canvasRef} className="footer-spacer-scene__canvas" data-engine="three.js" />
+      <div className="footer-spacer-scene__veil" />
+    </div>
+  );
 };
 
 export default FooterSpacerScene;

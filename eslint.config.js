@@ -10,7 +10,7 @@ export default [
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       globals: globals.browser,
       parserOptions: {
         ecmaFeatures: { jsx: true },
@@ -27,6 +27,7 @@ export default [
       ...reactHooks.configs.recommended.rules,
       ...eslintConfigPrettier.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-hooks/set-state-in-effect': 'off',
       'prettier/prettier': 'warn',
     },
   },

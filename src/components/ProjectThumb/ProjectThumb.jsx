@@ -1,6 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { GithubIcon, ExternalLinkIcon, DocumentIcon, PlayIcon, PauseIcon, CloseIcon } from '../icons';
+import {
+  GithubIcon,
+  ExternalLinkIcon,
+  DocumentIcon,
+  PlayIcon,
+  PauseIcon,
+  CloseIcon,
+} from '../icons';
 import { cx } from '../../utils/cx';
 import './ProjectThumb.css';
 
@@ -42,21 +49,26 @@ const ProjectThumbContext = React.createContext(null);
 
 export const ProjectThumbProvider = ({ children }) => {
   const stateRef = React.useRef({ pinnedId: null, listeners: new Set() });
-  const api = React.useMemo(() => ({
-    isPinnedElsewhere: (id) => {
-      const p = stateRef.current.pinnedId;
-      return p !== null && p !== id;
-    },
-    setPinned: (id) => { stateRef.current.pinnedId = id; },
-    clearPinnedIf: (id) => {
-      if (stateRef.current.pinnedId === id) stateRef.current.pinnedId = null;
-    },
-    notifyActivated: (id) => stateRef.current.listeners.forEach((cb) => cb(id)),
-    subscribe: (cb) => {
-      stateRef.current.listeners.add(cb);
-      return () => stateRef.current.listeners.delete(cb);
-    },
-  }), []);
+  const api = React.useMemo(
+    () => ({
+      isPinnedElsewhere: (id) => {
+        const p = stateRef.current.pinnedId;
+        return p !== null && p !== id;
+      },
+      setPinned: (id) => {
+        stateRef.current.pinnedId = id;
+      },
+      clearPinnedIf: (id) => {
+        if (stateRef.current.pinnedId === id) stateRef.current.pinnedId = null;
+      },
+      notifyActivated: (id) => stateRef.current.listeners.forEach((cb) => cb(id)),
+      subscribe: (cb) => {
+        stateRef.current.listeners.add(cb);
+        return () => stateRef.current.listeners.delete(cb);
+      },
+    }),
+    []
+  );
   return <ProjectThumbContext.Provider value={api}>{children}</ProjectThumbContext.Provider>;
 };
 
@@ -110,15 +122,19 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
     setIsHovered(false);
   };
 
-  React.useEffect(() => coord.subscribe((activatedId) => {
-    if (activatedId === id) return;
-    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-    setIsHovered(false);
-    setIsOpen(false);
-  }), [coord, id]);
-  const supportsHover = React.useRef(
-    typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
-  ).current;
+  React.useEffect(
+    () =>
+      coord.subscribe((activatedId) => {
+        if (activatedId === id) return;
+        if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+        setIsHovered(false);
+        setIsOpen(false);
+      }),
+    [coord, id]
+  );
+  const supportsHover =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   const togglePlay = (e) => {
     e.stopPropagation();
@@ -141,7 +157,7 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
     e.stopPropagation();
     const bar = e.currentTarget;
     const isTouch = e.type === 'touchstart';
-    const getX = (ev) => isTouch ? ev.touches[0].clientX : ev.clientX;
+    const getX = (ev) => (isTouch ? ev.touches[0].clientX : ev.clientX);
     seekFromEvent(getX(e), bar);
     const move = (ev) => seekFromEvent(getX(ev), bar);
     const stop = () => {
@@ -163,11 +179,14 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
     inactivityTimer.current = setTimeout(() => setIsMouseActive(false), 2000);
   };
 
-  React.useEffect(() => () => {
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-    coord.clearPinnedIf(id);
-  }, [coord, id]);
+  React.useEffect(
+    () => () => {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+      coord.clearPinnedIf(id);
+    },
+    [coord, id]
+  );
 
   React.useEffect(() => {
     if (isOpen) coord.setPinned(id);
@@ -195,27 +214,35 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
     if (!isShown) setIsMounted(false);
   };
 
-  const handleImgLoad = (e) => setPreviewStyle(computePreviewSize(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight));
-  const handleVideoLoad = (e) => setPreviewStyle(computePreviewSize(e.currentTarget.videoWidth, e.currentTarget.videoHeight));
+  const handleImgLoad = (e) =>
+    setPreviewStyle(
+      computePreviewSize(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)
+    );
+  const handleVideoLoad = (e) =>
+    setPreviewStyle(computePreviewSize(e.currentTarget.videoWidth, e.currentTarget.videoHeight));
 
-  const preview = isMounted && ReactDOM.createPortal(
-    <div
-      className={cx(
-        'project-thumb-preview',
-        isShown && 'project-thumb-preview--visible',
-        isOpen && 'project-thumb-preview--open',
-        isMouseActive && 'project-thumb-preview--active',
-      )}
-      style={previewStyle || undefined}
-      onMouseEnter={() => { handlePreviewEnter(); handlePreviewMouseMove(); }}
-      onMouseLeave={handlePreviewLeave}
-      onMouseMove={handlePreviewMouseMove}
-      onTransitionEnd={handlePreviewTransitionEnd}
-      onClick={() => setIsOpen(true)}
-      aria-hidden="true"
-    >
-      {type === 'video'
-        ? (
+  const preview =
+    isMounted &&
+    ReactDOM.createPortal(
+      <div
+        className={cx(
+          'project-thumb-preview',
+          isShown && 'project-thumb-preview--visible',
+          isOpen && 'project-thumb-preview--open',
+          isMouseActive && 'project-thumb-preview--active'
+        )}
+        style={previewStyle || undefined}
+        onMouseEnter={() => {
+          handlePreviewEnter();
+          handlePreviewMouseMove();
+        }}
+        onMouseLeave={handlePreviewLeave}
+        onMouseMove={handlePreviewMouseMove}
+        onTransitionEnd={handlePreviewTransitionEnd}
+        onClick={() => setIsOpen(true)}
+        aria-hidden="true"
+      >
+        {type === 'video' ? (
           <video
             ref={videoRef}
             src={src}
@@ -229,45 +256,56 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />
-        )
-        : <img src={src} alt="" onLoad={handleImgLoad} />}
-      {type === 'video' && (
-        <div className="project-thumb-controls" onClick={(e) => e.stopPropagation()}>
-          <button className="project-thumb-ctrl" onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'}>
-            {isPlaying ? <PauseIcon /> : <PlayIcon />}
-          </button>
-          <div
-            className="project-thumb-progress"
-            onMouseDown={handleScrubStart}
-            onTouchStart={handleScrubStart}
-            role="slider"
-            aria-label="Seek"
-            aria-valuenow={Math.round(progress * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div className="project-thumb-progress-fill" style={{ width: `${progress * 100}%` }} />
-            <div className="project-thumb-progress-handle" style={{ left: `${progress * 100}%` }} />
+        ) : (
+          <img src={src} alt="" onLoad={handleImgLoad} />
+        )}
+        {type === 'video' && (
+          <div className="project-thumb-controls" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="project-thumb-ctrl"
+              onClick={togglePlay}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+            >
+              {isPlaying ? <PauseIcon /> : <PlayIcon />}
+            </button>
+            <div
+              className="project-thumb-progress"
+              onMouseDown={handleScrubStart}
+              onTouchStart={handleScrubStart}
+              role="slider"
+              aria-label="Seek"
+              aria-valuenow={Math.round(progress * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="project-thumb-progress-fill"
+                style={{ width: `${progress * 100}%` }}
+              />
+              <div
+                className="project-thumb-progress-handle"
+                style={{ left: `${progress * 100}%` }}
+              />
+            </div>
           </div>
-        </div>
-      )}
-      {isOpen && (
-        <button
-          className="project-thumb-close"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(false);
-            setIsHovered(false);
-            if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-          }}
-          aria-label="Close preview"
-        >
-          <CloseIcon />
-        </button>
-      )}
-    </div>,
-    document.body
-  );
+        )}
+        {isOpen && (
+          <button
+            className="project-thumb-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+              setIsHovered(false);
+              if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+            }}
+            aria-label="Close preview"
+          >
+            <CloseIcon />
+          </button>
+        )}
+      </div>,
+      document.body
+    );
 
   return (
     <>
