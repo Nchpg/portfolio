@@ -35,6 +35,7 @@ const computePreviewSize = (naturalW, naturalH) => {
 
 const PREVIEW_OPEN_EVENT = 'project-preview-open';
 let nextPreviewId = 0;
+let pinnedPreviewId = null;
 
 const ProjectThumb = ({ type, src, alt }) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -48,10 +49,13 @@ const ProjectThumb = ({ type, src, alt }) => {
   const inactivityTimer = React.useRef(null);
   const hoverLeaveTimer = React.useRef(null);
   const videoRef = React.useRef(null);
+  const thumbVideoRef = React.useRef(null);
+  const thumbContainerRef = React.useRef(null);
   const idRef = React.useRef(++nextPreviewId);
   const closingRef = React.useRef(false);
 
   const handleThumbEnter = () => {
+    if (pinnedPreviewId !== null && pinnedPreviewId !== idRef.current) return;
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     closingRef.current = false;
     window.dispatchEvent(new CustomEvent(PREVIEW_OPEN_EVENT, { detail: idRef.current }));
@@ -133,9 +137,40 @@ const ProjectThumb = ({ type, src, alt }) => {
   React.useEffect(() => () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    if (pinnedPreviewId === idRef.current) pinnedPreviewId = null;
   }, []);
 
+  // Pause the thumb video when off-screen
+  React.useEffect(() => {
+    if (type !== 'video') return;
+    const el = thumbContainerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      const v = thumbVideoRef.current;
+      if (!v) return;
+      if (entry.isIntersecting) v.play().catch(() => {});
+      else v.pause();
+    }, { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [type]);
+
+
+  React.useEffect(() => {
+    if (isOpen) pinnedPreviewId = idRef.current;
+    else if (pinnedPreviewId === idRef.current) pinnedPreviewId = null;
+  }, [isOpen]);
+
   const isVisible = isOpen || (supportsHover && isHovered);
+
+  // Pause the small thumb video while the big preview is visible (no double decode)
+  React.useEffect(() => {
+    if (type !== 'video') return;
+    const v = thumbVideoRef.current;
+    if (!v) return;
+    if (isVisible) v.pause();
+    else v.play().catch(() => {});
+  }, [isVisible, type]);
 
   React.useEffect(() => {
     if (isVisible) {
@@ -155,8 +190,8 @@ const ProjectThumb = ({ type, src, alt }) => {
   const handleVideoLoad = (e) => setPreviewStyle(computePreviewSize(e.currentTarget.videoWidth, e.currentTarget.videoHeight));
 
   const media = type === 'video'
-    ? <video src={src} autoPlay loop muted playsInline />
-    : <img src={src} alt={alt} />;
+    ? <video ref={thumbVideoRef} src={src} autoPlay loop muted playsInline preload="metadata" />
+    : <img ref={thumbVideoRef} src={src} alt={alt} loading="lazy" />;
 
   const preview = isMounted && ReactDOM.createPortal(
     <div
@@ -177,6 +212,7 @@ const ProjectThumb = ({ type, src, alt }) => {
             loop
             muted
             playsInline
+            preload="metadata"
             onLoadedMetadata={handleVideoLoad}
             onTimeUpdate={handleTimeUpdate}
             onPlay={() => setIsPlaying(true)}
@@ -224,6 +260,7 @@ const ProjectThumb = ({ type, src, alt }) => {
   return (
     <>
       <div
+        ref={thumbContainerRef}
         className={`project-thumb${isVisible ? ' project-thumb--active' : ''}`}
         onClick={() => {
           window.dispatchEvent(new CustomEvent(PREVIEW_OPEN_EVENT, { detail: idRef.current }));
