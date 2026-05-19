@@ -2,10 +2,11 @@ import CustomCursor from './components/CustomCursor/CustomCursor';
 import FooterSpacerScene from './components/FooterSpacerScene/FooterSpacerScene';
 import Hero from './components/Hero/Hero';
 import Section from './components/Section/Section';
-import { ProjectThumbProvider } from './components/ProjectThumb/ProjectThumb';
+import { ProjectThumbProvider } from './components/ProjectThumb/ProjectThumbContext';
 import ProjectRow from './components/ProjectRow/ProjectRow';
 import ContactLink from './components/ContactLink/ContactLink';
 import Footer from './components/Footer/Footer';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { projects } from './data/projects';
 import { contacts } from './data/contacts';
 import './App.css';
@@ -16,7 +17,9 @@ function App() {
       <div className="app">
         <CustomCursor />
         <main className="content">
-          <Hero />
+          <ErrorBoundary>
+            <Hero />
+          </ErrorBoundary>
 
           <Section id="projects" title="Projects">
             <div className="projects-list">
@@ -46,7 +49,9 @@ function App() {
           </Section>
         </main>
 
-        <FooterSpacerScene />
+        <ErrorBoundary>
+          <FooterSpacerScene />
+        </ErrorBoundary>
         <Footer />
       </div>
     </ProjectThumbProvider>

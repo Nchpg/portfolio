@@ -5,8 +5,8 @@ import './CustomCursor.css';
 const interactiveSelector = 'a, button, img, input, textarea, select';
 
 const CustomCursor = () => {
-  const dotEl = useRef(null);
-  const ringEl = useRef(null);
+  const dotEl = useRef<HTMLDivElement>(null);
+  const ringEl = useRef<HTMLDivElement>(null);
 
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -32,7 +32,7 @@ const CustomCursor = () => {
     const dot = { x: startX, y: startY };
     const ring = { x: startX, y: startY };
 
-    const writeTransform = (el, x, y) => {
+    const writeTransform = (el: HTMLDivElement | null, x: number, y: number) => {
       if (!el) return;
       el.style.setProperty('--x', `${x}px`);
       el.style.setProperty('--y', `${y}px`);
@@ -42,7 +42,7 @@ const CustomCursor = () => {
     writeTransform(ringEl.current, startX, startY);
 
     let hasMoved = false;
-    const handleMouseMove = (event) => {
+    const handleMouseMove = (event: MouseEvent) => {
       target.x = event.clientX;
       target.y = event.clientY;
       if (!hasMoved) {
@@ -51,16 +51,16 @@ const CustomCursor = () => {
       }
     };
 
-    const handlePointerOver = (event) => {
-      if (event.target.closest(interactiveSelector)) setIsHovering(true);
+    const handlePointerOver = (event: MouseEvent) => {
+      if ((event.target as Element).closest(interactiveSelector)) setIsHovering(true);
     };
-    const handlePointerOut = (event) => {
-      if (event.target.closest(interactiveSelector)) setIsHovering(false);
+    const handlePointerOut = (event: MouseEvent) => {
+      if ((event.target as Element).closest(interactiveSelector)) setIsHovering(false);
     };
 
-    const lerp = (from, to, amount) => from + (to - from) * amount;
+    const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
 
-    let rafId;
+    let rafId: number;
     const animate = () => {
       dot.x = lerp(dot.x, target.x, 0.2);
       dot.y = lerp(dot.y, target.y, 0.2);

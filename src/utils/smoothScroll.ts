@@ -1,4 +1,4 @@
-export function smoothScrollTo(id, duration = 900) {
+export function smoothScrollTo(id: string, duration = 900): void {
   const el = document.getElementById(id);
   if (!el) return;
   const startY = window.scrollY;
@@ -6,9 +6,9 @@ export function smoothScrollTo(id, duration = 900) {
   const distance = targetY - startY;
   if (Math.abs(distance) < 1) return;
   const startT = performance.now();
-  const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  const step = (now) => {
+  const step = (now: number) => {
     const elapsed = now - startT;
     const t = Math.min(1, elapsed / duration);
     window.scrollTo(0, startY + distance * easeInOutCubic(t));

@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 import {
   GithubIcon,
   ExternalLinkIcon,
@@ -9,15 +9,19 @@ import {
   CloseIcon,
 } from '../icons';
 import { cx } from '../../utils/cx';
+import type { LinkIcon, ProjectLinkItem } from '../../data/projects';
+import { useCoordinator } from './ProjectThumbContext';
 import './ProjectThumb.css';
 
-const LINK_ICONS = {
+export { ProjectThumbProvider } from './ProjectThumbContext';
+
+const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
   github: GithubIcon,
   link: ExternalLinkIcon,
   doc: DocumentIcon,
 };
 
-export const ProjectLink = ({ href, icon, label }) => {
+export const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
   const Icon = LINK_ICONS[icon];
   return (
     <a className="project-link" href={href} target="_blank" rel="noreferrer">
@@ -27,7 +31,10 @@ export const ProjectLink = ({ href, icon, label }) => {
   );
 };
 
-const computePreviewSize = (naturalW, naturalH) => {
+const computePreviewSize = (
+  naturalW: number,
+  naturalH: number
+): { width: string; height: string } | null => {
   if (!naturalW || !naturalH) return null;
   const maxW = window.innerWidth * 0.9;
   const maxH = window.innerHeight * 0.85;
@@ -41,44 +48,9 @@ const computePreviewSize = (naturalW, naturalH) => {
   return { width: `${w}px`, height: `${h}px` };
 };
 
-// Cross-instance coordination: exposes the "currently pinned" id and a pub/sub
-// for "another thumb just claimed activity, close yourself if you're not it".
-// All shared state lives in a ref inside the provider - no module-level mutables,
-// no window events. HMR-safe (state resets when the provider re-mounts).
-const ProjectThumbContext = React.createContext(null);
+type ProjectThumbProps = { slug: string; previewExt: string; alt: string };
 
-export const ProjectThumbProvider = ({ children }) => {
-  const stateRef = React.useRef({ pinnedId: null, listeners: new Set() });
-  const api = React.useMemo(
-    () => ({
-      isPinnedElsewhere: (id) => {
-        const p = stateRef.current.pinnedId;
-        return p !== null && p !== id;
-      },
-      setPinned: (id) => {
-        stateRef.current.pinnedId = id;
-      },
-      clearPinnedIf: (id) => {
-        if (stateRef.current.pinnedId === id) stateRef.current.pinnedId = null;
-      },
-      notifyActivated: (id) => stateRef.current.listeners.forEach((cb) => cb(id)),
-      subscribe: (cb) => {
-        stateRef.current.listeners.add(cb);
-        return () => stateRef.current.listeners.delete(cb);
-      },
-    }),
-    []
-  );
-  return <ProjectThumbContext.Provider value={api}>{children}</ProjectThumbContext.Provider>;
-};
-
-const useCoordinator = () => {
-  const ctx = React.useContext(ProjectThumbContext);
-  if (!ctx) throw new Error('ProjectThumb must be inside <ProjectThumbProvider>');
-  return ctx;
-};
-
-const ProjectThumb = ({ slug, previewExt, alt }) => {
+const ProjectThumb = ({ slug, previewExt, alt }: ProjectThumbProps) => {
   const thumbSrc = `/projects/${slug}/thumbnail.webp`;
   const src = `/projects/${slug}/preview.${previewExt}`;
   const type = previewExt === 'mp4' ? 'video' : 'img';
@@ -88,17 +60,35 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   const [isShown, setIsShown] = React.useState(false);
-  const [previewStyle, setPreviewStyle] = React.useState(null);
+  const [previewStyle, setPreviewStyle] = React.useState<{ width: string; height: string } | null>(
+    null
+  );
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [progress, setProgress] = React.useState(0);
   const [isMouseActive, setIsMouseActive] = React.useState(true);
-  const inactivityTimer = React.useRef(null);
-  const hoverLeaveTimer = React.useRef(null);
-  const videoRef = React.useRef(null);
-  // Once the user has actually left the preview (mouseLeave fired), suppress
-  // any mouseEnter that bubbles back during the fade-out - the fading element
-  // can still sit under the cursor and would otherwise re-open the hover.
+  const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
   const closingRef = React.useRef(false);
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+  const thumbButtonRef = React.useRef<HTMLButtonElement>(null);
+  const previewRef = React.useRef<HTMLDivElement>(null);
+  const scrubCleanupRef = React.useRef<(() => void) | null>(null);
+  const [supportsHover, setSupportsHover] = React.useState(false);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    setSupportsHover(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setSupportsHover(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const closePreview = React.useCallback(() => {
+    setIsOpen(false);
+    setIsHovered(false);
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+  }, []);
 
   const handleThumbEnter = () => {
     if (coord.isPinnedElsewhere(id)) return;
@@ -132,19 +122,61 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
       }),
     [coord, id]
   );
-  const supportsHover =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  const togglePlay = (e) => {
+  React.useEffect(() => {
+    if (!isOpen || !isMounted) return;
+    closeButtonRef.current?.focus();
+  }, [isOpen, isMounted]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const thumbButton = thumbButtonRef.current;
+    return () => {
+      thumbButton?.focus();
+    };
+  }, [isOpen]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closePreview();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const container = previewRef.current;
+      if (!container) return;
+      const focusable = Array.from(
+        container.querySelectorAll<HTMLElement>('button, [role="slider"][tabindex]')
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, closePreview]);
+
+  const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     const v = videoRef.current;
     if (!v) return;
-    if (v.paused) v.play();
+    if (v.paused) v.play().catch(() => {});
     else v.pause();
   };
 
-  const seekFromEvent = (clientX, bar) => {
+  const seekFromEvent = (clientX: number, bar: HTMLElement) => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
     const rect = bar.getBoundingClientRect();
@@ -153,22 +185,47 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
     setProgress(ratio);
   };
 
-  const handleScrubStart = (e) => {
+  const handleScrubStart = (e: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>) => {
     e.stopPropagation();
     const bar = e.currentTarget;
     const isTouch = e.type === 'touchstart';
-    const getX = (ev) => (isTouch ? ev.touches[0].clientX : ev.clientX);
-    seekFromEvent(getX(e), bar);
-    const move = (ev) => seekFromEvent(getX(ev), bar);
+    const getX = (ev: MouseEvent | TouchEvent) =>
+      isTouch ? ((ev as TouchEvent).touches[0]?.clientX ?? 0) : (ev as MouseEvent).clientX;
+    seekFromEvent(
+      isTouch
+        ? ((e as React.TouchEvent).touches[0]?.clientX ?? 0)
+        : (e as React.MouseEvent).clientX,
+      bar
+    );
+    const moveEvent = isTouch ? 'touchmove' : 'mousemove';
+    const stopEvent = isTouch ? 'touchend' : 'mouseup';
+    const move = (ev: MouseEvent | TouchEvent) => seekFromEvent(getX(ev), bar);
     const stop = () => {
-      window.removeEventListener(isTouch ? 'touchmove' : 'mousemove', move);
-      window.removeEventListener(isTouch ? 'touchend' : 'mouseup', stop);
+      window.removeEventListener(moveEvent, move);
+      window.removeEventListener(stopEvent, stop);
+      scrubCleanupRef.current = null;
     };
-    window.addEventListener(isTouch ? 'touchmove' : 'mousemove', move);
-    window.addEventListener(isTouch ? 'touchend' : 'mouseup', stop);
+    scrubCleanupRef.current = () => {
+      window.removeEventListener(moveEvent, move);
+      window.removeEventListener(stopEvent, stop);
+    };
+    window.addEventListener(moveEvent, move);
+    window.addEventListener(stopEvent, stop);
   };
 
-  const handleTimeUpdate = (e) => {
+  const handleSliderKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      v.currentTime = Math.min(v.duration, v.currentTime + 5);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      v.currentTime = Math.max(0, v.currentTime - 5);
+    }
+  };
+
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
     if (v.duration) setProgress(v.currentTime / v.duration);
   };
@@ -183,6 +240,7 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
     () => () => {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
       if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+      scrubCleanupRef.current?.();
       coord.clearPinnedIf(id);
     },
     [coord, id]
@@ -195,36 +253,33 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
 
   const isVisible = isOpen || (supportsHover && isHovered);
 
-  // Mount/unmount the preview around its CSS opacity+scale transition:
-  // - on open: mount first (renders at opacity 0), then add --visible next frame
-  //   so the browser has a starting style to transition from.
-  // - on close: drop --visible to fade out; the actual unmount happens on
-  //   transitionend (handler below). No magic timeout.
   React.useEffect(() => {
-    if (isVisible) {
-      setIsMounted(true);
-      const r = requestAnimationFrame(() => setIsShown(true));
-      return () => cancelAnimationFrame(r);
+    if (!isVisible) {
+      setIsShown(false);
+      return;
     }
-    setIsShown(false);
+    setIsMounted(true);
+    const r = requestAnimationFrame(() => setIsShown(true));
+    return () => cancelAnimationFrame(r);
   }, [isVisible]);
 
-  const handlePreviewTransitionEnd = (e) => {
-    if (e.target !== e.currentTarget) return; // ignore bubbled child transitions
+  const handlePreviewTransitionEnd = (e: React.TransitionEvent) => {
+    if (e.target !== e.currentTarget) return;
     if (!isShown) setIsMounted(false);
   };
 
-  const handleImgLoad = (e) =>
+  const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) =>
     setPreviewStyle(
       computePreviewSize(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)
     );
-  const handleVideoLoad = (e) =>
+  const handleVideoLoad = (e: React.SyntheticEvent<HTMLVideoElement>) =>
     setPreviewStyle(computePreviewSize(e.currentTarget.videoWidth, e.currentTarget.videoHeight));
 
   const preview =
     isMounted &&
-    ReactDOM.createPortal(
+    createPortal(
       <div
+        ref={previewRef}
         className={cx(
           'project-thumb-preview',
           isShown && 'project-thumb-preview--visible',
@@ -240,7 +295,9 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
         onMouseMove={handlePreviewMouseMove}
         onTransitionEnd={handlePreviewTransitionEnd}
         onClick={() => setIsOpen(true)}
-        aria-hidden="true"
+        {...(isOpen
+          ? { role: 'dialog' as const, 'aria-modal': true, 'aria-label': `${alt} preview` }
+          : { 'aria-hidden': true as const })}
       >
         {type === 'video' ? (
           <video
@@ -257,7 +314,7 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
             onPause={() => setIsPlaying(false)}
           />
         ) : (
-          <img src={src} alt="" onLoad={handleImgLoad} />
+          <img src={src} alt={alt} onLoad={handleImgLoad} />
         )}
         {type === 'video' && (
           <div className="project-thumb-controls" onClick={(e) => e.stopPropagation()}>
@@ -272,7 +329,9 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
               className="project-thumb-progress"
               onMouseDown={handleScrubStart}
               onTouchStart={handleScrubStart}
+              onKeyDown={handleSliderKeyDown}
               role="slider"
+              tabIndex={0}
               aria-label="Seek"
               aria-valuenow={Math.round(progress * 100)}
               aria-valuemin={0}
@@ -291,12 +350,11 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
         )}
         {isOpen && (
           <button
+            ref={closeButtonRef}
             className="project-thumb-close"
             onClick={(e) => {
               e.stopPropagation();
-              setIsOpen(false);
-              setIsHovered(false);
-              if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+              closePreview();
             }}
             aria-label="Close preview"
           >
@@ -309,7 +367,8 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
 
   return (
     <>
-      <div
+      <button
+        ref={thumbButtonRef}
         className={cx('project-thumb', isVisible && 'project-thumb--active')}
         onClick={() => {
           coord.notifyActivated(id);
@@ -317,9 +376,10 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
         }}
         onMouseEnter={handleThumbEnter}
         onMouseLeave={handleThumbLeave}
+        aria-label={`Preview ${alt}`}
       >
-        <img src={thumbSrc} alt={alt} loading="lazy" />
-      </div>
+        <img src={thumbSrc} alt="" loading="lazy" />
+      </button>
       {preview}
     </>
   );

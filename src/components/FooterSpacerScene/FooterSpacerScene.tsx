@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import './FooterSpacerScene.css';
 
 const FooterSpacerScene = () => {
-  const wrapperRef = useRef(null);
-  const canvasRef = useRef(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ const FooterSpacerScene = () => {
     if (!wrapper) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           setIsActive(true);
           io.disconnect();
         }
@@ -30,7 +30,6 @@ const FooterSpacerScene = () => {
 
     if (!wrapper || !canvas) return;
 
-    // 1. Initialisation du Rendu
     const renderer = new THREE.WebGLRenderer({
       canvas,
       alpha: true,
@@ -40,7 +39,6 @@ const FooterSpacerScene = () => {
     renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // 2. Scène et Caméra
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       45,
@@ -51,7 +49,6 @@ const FooterSpacerScene = () => {
     camera.position.set(0, 20, 50);
     camera.lookAt(0, 0, 0);
 
-    // 3. Création de la grille de points
     const isMobile = window.matchMedia('(pointer: coarse)').matches;
     const AMOUNTX = Math.max(120, Math.round(550 * (wrapper.clientWidth / 1440)));
     const AMOUNTZ = isMobile ? 60 : 100;
@@ -65,9 +62,9 @@ const FooterSpacerScene = () => {
       j = 0;
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iz = 0; iz < AMOUNTZ; iz++) {
-        positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // X
-        positions[i + 1] = 0; // Y
-        positions[i + 2] = iz * SEPARATION - (AMOUNTZ * SEPARATION) / 2; // Z
+        positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+        positions[i + 1] = 0;
+        positions[i + 2] = iz * SEPARATION - (AMOUNTZ * SEPARATION) / 2;
         scales[j] = 1;
         i += 3;
         j++;
@@ -78,12 +75,11 @@ const FooterSpacerScene = () => {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
 
-    // 4. ShaderMaterial
+    const uTime = { value: 0 };
+    const uMouse = { value: new THREE.Vector2(-10, -10) };
+
     const material = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uMouse: { value: new THREE.Vector2(-10, -10) },
-      },
+      uniforms: { uTime, uMouse },
       vertexShader: `
                 uniform float uTime;
                 uniform vec2 uMouse;
@@ -113,16 +109,16 @@ const FooterSpacerScene = () => {
                     g.yz = a0.yz * x12.xz + h.yz * x12.yw;
                     return 130.0 * dot(m, g);
                 }
-                
+
                 void main() {
                     vec3 p = position;
                     float n = snoise(p.xz * 0.03 + uTime * 0.08);
                     p.y = n * 2.0;
-                    
+
                     vec4 mvp = modelViewMatrix * vec4(p, 1.0);
                     vec4 projected = projectionMatrix * mvp;
                     vec2 screenPos = projected.xy / projected.w;
-                    
+
                     float h = (p.y + 2.0) / 4.0;
                     float dist = distance(screenPos, uMouse);
                     float radius = 0.5;
@@ -131,9 +127,9 @@ const FooterSpacerScene = () => {
                         float depthFactor = 1.0 + abs(mvp.z) * 0.03;
                         vec2 dir = normalize(uMouse - screenPos);
                         p.x += dir.x * force * 6.0 * depthFactor;
-                        p.z += dir.y * force * 6.0 * depthFactor; 
+                        p.z += dir.y * force * 6.0 * depthFactor;
                     }
-                    
+
                     vColor = mix(vec3(0.45), vec3(1.0), smoothstep(0.0, 1.0, h));
                     vec4 finalMv = modelViewMatrix * vec4(p, 1.0);
                     gl_Position = projectionMatrix * finalMv;
@@ -157,8 +153,7 @@ const FooterSpacerScene = () => {
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // 5. Interaction Souris
-    const handlePointerMove = (event) => {
+    const handlePointerMove = (event: PointerEvent) => {
       if (event.pointerType === 'touch') return;
       const rect = wrapper.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -170,20 +165,19 @@ const FooterSpacerScene = () => {
         event.clientY >= rect.top - 50 &&
         event.clientY <= rect.bottom + 50
       ) {
-        material.uniforms.uMouse.value.set(x, y);
+        uMouse.value.set(x, y);
       } else {
-        material.uniforms.uMouse.value.set(-10, -10);
+        uMouse.value.set(-10, -10);
       }
     };
 
     const handlePointerLeave = () => {
-      material.uniforms.uMouse.value.set(-10, -10);
+      uMouse.value.set(-10, -10);
     };
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerleave', handlePointerLeave);
 
-    // 6. Gestion du redimensionnement
     const renderSingleFrame = () => {
       renderer.render(scene, camera);
     };
@@ -195,28 +189,27 @@ const FooterSpacerScene = () => {
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderSingleFrame(); // Force un rendu après le resize
+      renderSingleFrame();
     };
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(wrapper);
 
-    // 7. Boucle d'animation
-    let frameId;
+    let frameId = 0;
     let isVisible = false;
     const startedAt = performance.now();
 
     const animate = () => {
       if (!isVisible) return;
       const elapsed = (performance.now() - startedAt) / 1000;
-      material.uniforms.uTime.value = elapsed;
+      uTime.value = elapsed;
       renderSingleFrame();
       frameId = requestAnimationFrame(animate);
     };
 
     const intersectionObserver = new IntersectionObserver(
       ([entry]) => {
-        isVisible = entry.isIntersecting;
+        isVisible = entry?.isIntersecting ?? false;
         if (isVisible) {
           frameId = requestAnimationFrame(animate);
         } else {

@@ -1,7 +1,13 @@
 import ProjectThumb, { ProjectLink } from '../ProjectThumb/ProjectThumb';
+import type { Project } from '../../data/projects';
 import './ProjectRow.css';
 
-const ProjectRow = ({ project, index }) => (
+type Props = {
+  project: Project;
+  index: number;
+};
+
+const ProjectRow = ({ project, index }: Props) => (
   <article className="project-row">
     <span className="project-index">{String(index + 1).padStart(2, '0')}</span>
     <ProjectThumb slug={project.slug} previewExt={project.previewExt} alt={project.title} />

@@ -1,8 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { buildPerm, perlin2 } from './perlin';
-import './BackgroundAnimation.css';
+import { useRef, useEffect } from 'react';
+import { buildPerm, perlin2, type PerlinCtx } from './perlin';
 
-// ── Trig LUT ─────────────────────────────────────────────────────────────────
 const TRIG_SIZE = 4096;
 const TRIG_MASK = TRIG_SIZE - 1;
 const SIN_TABLE = new Float32Array(TRIG_SIZE);
@@ -13,7 +11,6 @@ for (let i = 0; i < TRIG_SIZE; i++) {
   COS_TABLE[i] = Math.cos(angle);
 }
 
-// ── Layout constants ─────────────────────────────────────────────────────────
 const PIXEL_BUDGET_TOUCH = 300_000;
 const PIXEL_BUDGET_MOUSE = 750_000;
 const MAX_DPR = 2;
@@ -21,26 +18,75 @@ const S = 8;
 const NOISE_STEP = 4;
 const FIXED_SCALE = 1.4;
 
-const BackgroundAnimation = ({
-  lineColor = '#fdfdfd14',
-  backgroundColor = '#212121',
-  waveSpeedX = 0.0125,
-  waveSpeedY = 0.011,
-  waveAmpX = 40,
-  waveAmpY = 20,
-  xGap = 8,
-  yGap = 4,
-  friction = 0.9,
-  tension = 0.011,
-  maxCursorMove = 150,
-}) => {
-  const canvasRef = useRef(null);
-  const containerRef = useRef(null);
-  const ctxRef = useRef(null);
+type MouseState = {
+  x: number;
+  y: number;
+  lx: number;
+  ly: number;
+  sx: number;
+  sy: number;
+  v: number;
+  vs: number;
+  a: number;
+  set: boolean;
+};
+
+type PtsData = {
+  data: Float32Array;
+  cols: number;
+  rows: number;
+  rowCount: number;
+  offsetX: number;
+  offsetY: number;
+  gx: number;
+  gy: number;
+  subCols: number;
+  subRows: number;
+  noiseX: Float32Array;
+  noiseY: Float32Array;
+  rowInfos: Float32Array;
+  colNoiseX: Float32Array;
+  colNoiseY: Float32Array;
+  trigFactor: number;
+  mouseRadius: number;
+  dynamicForceScale: number;
+  effScale: number;
+};
+
+export type AnimationProps = {
+  lineColor: string;
+  backgroundColor: string;
+  waveSpeedX: number;
+  waveSpeedY: number;
+  waveAmpX: number;
+  waveAmpY: number;
+  xGap: number;
+  yGap: number;
+  friction: number;
+  tension: number;
+  maxCursorMove: number;
+};
+
+export function useBackgroundAnimation({
+  lineColor,
+  backgroundColor,
+  waveSpeedX,
+  waveSpeedY,
+  waveAmpX,
+  waveAmpY,
+  xGap,
+  yGap,
+  friction,
+  tension,
+  maxCursorMove,
+}: AnimationProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const boundsRef = useRef({ width: 0, height: 0, left: 0, top: 0 });
-  const noiseCtxRef = useRef(null);
-  const ptsRef = useRef(null);
-  const mouseRef = useRef({
+  const noiseCtxRef = useRef<PerlinCtx | null>(null);
+  const ptsRef = useRef<PtsData | null>(null);
+  const mouseRef = useRef<MouseState>({
     x: -10,
     y: 0,
     lx: 0,
@@ -66,24 +112,22 @@ const BackgroundAnimation = ({
 
     const initPoints = () => {
       const { width, height } = boundsRef.current;
-      // Pin the grid to a constant physical pixel size so the background looks
-      // identical regardless of browser zoom or screen resolution.
       const dpr = window.devicePixelRatio || 1;
       const effScale = FIXED_SCALE / dpr;
-      const gx = xGap * effScale;
-      const gy = yGap * effScale;
-      const cols = Math.ceil((width + 200) / gx);
-      const rows = Math.ceil((height + 30) / gy);
-      const offsetX = (width - gx * cols) / 2;
-      const offsetY = (height - gy * rows) / 2;
+      const pgx = xGap * effScale;
+      const pgy = yGap * effScale;
+      const cols = Math.ceil((width + 200) / pgx);
+      const rows = Math.ceil((height + 30) / pgy);
+      const offsetX = (width - pgx * cols) / 2;
+      const offsetY = (height - pgy * rows) / 2;
       const rowCount = rows + 1;
       const data = new Float32Array((cols + 1) * rowCount * S);
 
       for (let c = 0; c <= cols; c++) {
         for (let r = 0; r <= rows; r++) {
           const base = (c * rowCount + r) * S;
-          data[base] = offsetX + c * gx;
-          data[base + 1] = offsetY + r * gy;
+          data[base] = offsetX + c * pgx;
+          data[base + 1] = offsetY + r * pgy;
         }
       }
 
@@ -98,8 +142,8 @@ const BackgroundAnimation = ({
         rowCount,
         offsetX,
         offsetY,
-        gx,
-        gy,
+        gx: pgx,
+        gy: pgy,
         subCols,
         subRows,
         noiseX: new Float32Array(subCols * subRows),
@@ -117,6 +161,8 @@ const BackgroundAnimation = ({
     const CANVAS_MARGIN = 80;
 
     const handleResize = () => {
+      const ctx = ctxRef.current;
+      if (!ctx) return;
       const w = window.innerWidth;
       const h = window.innerHeight;
       const hx = h + 2 * CANVAS_MARGIN;
@@ -135,11 +181,11 @@ const BackgroundAnimation = ({
       canvas.style.top = `-${CANVAS_MARGIN}px`;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${hx}px`;
-      ctxRef.current.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       initPoints();
     };
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       const m = mouseRef.current;
       const { left, top } = boundsRef.current;
       m.x = e.clientX - left;
@@ -154,7 +200,7 @@ const BackgroundAnimation = ({
     };
 
     let animationFrame = 0;
-    const render = (time) => {
+    const render = (time: number) => {
       animationFrame = 0;
       if (!isVisibleRef.current) return;
 
@@ -163,7 +209,8 @@ const BackgroundAnimation = ({
       frameState.lastTime = t0;
 
       const ctx = ctxRef.current;
-      if (!ctx || !ptsRef.current) return;
+      const noiseCtx = noiseCtxRef.current;
+      if (!ctx || !ptsRef.current || !noiseCtx) return;
 
       const m = mouseRef.current;
       m.sx += (m.x - m.sx) * 0.1 * dt;
@@ -185,7 +232,7 @@ const BackgroundAnimation = ({
       const txOff = time * waveSpeedX * 0.002;
       const tyOff = time * waveSpeedY * 0.0015;
 
-      const { perm, gx, gy } = noiseCtxRef.current;
+      const { perm, gx, gy } = noiseCtx;
       const {
         data,
         cols,
@@ -213,8 +260,8 @@ const BackgroundAnimation = ({
       const influenceSq = influence * influence;
       const forceScale = influence * mvs * dynamicForceScale * dt;
 
-      const cosA = COS_TABLE[(m.a * trigFactor) & TRIG_MASK];
-      const sinA = SIN_TABLE[(m.a * trigFactor) & TRIG_MASK];
+      const cosA = COS_TABLE[(m.a * trigFactor) & TRIG_MASK] ?? 0;
+      const sinA = SIN_TABLE[(m.a * trigFactor) & TRIG_MASK] ?? 0;
 
       for (let r = 0; r <= rows; r++) {
         const fr = r / NOISE_STEP;
@@ -232,8 +279,8 @@ const BackgroundAnimation = ({
           const py = offsetY + sr * NOISE_STEP * pgy;
           const n = 12 * perlin2(perm, gx, gy, nx, py * 0.0015 + tyOff);
           const idx = (n * trigFactor) & TRIG_MASK;
-          noiseX[scB + sr] = COS_TABLE[idx] * waveAmpX;
-          noiseY[scB + sr] = SIN_TABLE[idx] * waveAmpY;
+          noiseX[scB + sr] = (COS_TABLE[idx] ?? 0) * waveAmpX;
+          noiseY[scB + sr] = (SIN_TABLE[idx] ?? 0) * waveAmpY;
         }
       }
 
@@ -246,7 +293,6 @@ const BackgroundAnimation = ({
       const fFriction = Math.pow(friction, dt);
       const ds = frameState.drawStep;
 
-      // Physics pass
       for (let c = 0; c <= cols; c++) {
         const colStart = c * rowCount;
         const cx = offsetX + c * pgx;
@@ -259,19 +305,23 @@ const BackgroundAnimation = ({
         const sc1r = sc1 * subRows;
 
         for (let sr = 0; sr < subRows; sr++) {
-          colNoiseX[sr] = noiseX[sc0r + sr] + (noiseX[sc1r + sr] - noiseX[sc0r + sr]) * tc;
-          colNoiseY[sr] = noiseY[sc0r + sr] + (noiseY[sc1r + sr] - noiseY[sc0r + sr]) * tc;
+          colNoiseX[sr] =
+            (noiseX[sc0r + sr] ?? 0) + ((noiseX[sc1r + sr] ?? 0) - (noiseX[sc0r + sr] ?? 0)) * tc;
+          colNoiseY[sr] =
+            (noiseY[sc0r + sr] ?? 0) + ((noiseY[sc1r + sr] ?? 0) - (noiseY[sc0r + sr] ?? 0)) * tc;
         }
 
         for (let r = 0; r <= rows; r++) {
           const base = (colStart + r) * S;
           const rIdx = r * 3;
-          const sr0 = rowInfos[rIdx];
-          const sr1 = rowInfos[rIdx + 1];
-          const tr = rowInfos[rIdx + 2];
+          const sr0 = rowInfos[rIdx] ?? 0;
+          const sr1 = rowInfos[rIdx + 1] ?? 0;
+          const tr = rowInfos[rIdx + 2] ?? 0;
 
-          data[base + 2] = colNoiseX[sr0] + (colNoiseX[sr1] - colNoiseX[sr0]) * tr;
-          data[base + 3] = colNoiseY[sr0] + (colNoiseY[sr1] - colNoiseY[sr0]) * tr;
+          data[base + 2] =
+            (colNoiseX[sr0] ?? 0) + ((colNoiseX[sr1] ?? 0) - (colNoiseX[sr0] ?? 0)) * tr;
+          data[base + 3] =
+            (colNoiseY[sr0] ?? 0) + ((colNoiseY[sr1] ?? 0) - (colNoiseY[sr0] ?? 0)) * tr;
 
           const hasEnergyPoint =
             data[base + 4] !== 0 ||
@@ -289,66 +339,59 @@ const BackgroundAnimation = ({
                 if (cDistSq < influenceSq) {
                   const cDist = Math.sqrt(cDistSq);
                   const fIdx = (cDist * 0.001 * trigFactor) & TRIG_MASK;
-                  const f = COS_TABLE[fIdx] * (1 - cDist / influence);
-                  data[base + 6] += cosA * f * forceScale;
-                  data[base + 7] += sinA * f * forceScale;
+                  const f = (COS_TABLE[fIdx] ?? 0) * (1 - cDist / influence);
+                  data[base + 6] = (data[base + 6] ?? 0) + cosA * f * forceScale;
+                  data[base + 7] = (data[base + 7] ?? 0) + sinA * f * forceScale;
                 }
               }
             }
 
-            data[base + 6] += (0 - data[base + 4]) * fTension;
-            data[base + 7] += (0 - data[base + 5]) * fTension;
-            data[base + 6] *= fFriction;
-            data[base + 7] *= fFriction;
-            data[base + 4] += 2 * data[base + 6] * dt;
-            data[base + 5] += 2 * data[base + 7] * dt;
+            data[base + 6] = (data[base + 6] ?? 0) + (0 - (data[base + 4] ?? 0)) * fTension;
+            data[base + 7] = (data[base + 7] ?? 0) + (0 - (data[base + 5] ?? 0)) * fTension;
+            data[base + 6] = (data[base + 6] ?? 0) * fFriction;
+            data[base + 7] = (data[base + 7] ?? 0) * fFriction;
+            data[base + 4] = (data[base + 4] ?? 0) + 2 * (data[base + 6] ?? 0) * dt;
+            data[base + 5] = (data[base + 5] ?? 0) + 2 * (data[base + 7] ?? 0) * dt;
 
-            if (Math.abs(data[base + 4]) < 0.01 && Math.abs(data[base + 6]) < 0.01) {
+            if (Math.abs(data[base + 4] ?? 0) < 0.01 && Math.abs(data[base + 6] ?? 0) < 0.01) {
               data[base + 4] = data[base + 5] = data[base + 6] = data[base + 7] = 0;
             } else {
-              if (data[base + 4] < -maxCursorMove) data[base + 4] = -maxCursorMove;
-              else if (data[base + 4] > maxCursorMove) data[base + 4] = maxCursorMove;
-              if (data[base + 5] < -maxCursorMove) data[base + 5] = -maxCursorMove;
-              else if (data[base + 5] > maxCursorMove) data[base + 5] = maxCursorMove;
+              if ((data[base + 4] ?? 0) < -maxCursorMove) data[base + 4] = -maxCursorMove;
+              else if ((data[base + 4] ?? 0) > maxCursorMove) data[base + 4] = maxCursorMove;
+              if ((data[base + 5] ?? 0) < -maxCursorMove) data[base + 5] = -maxCursorMove;
+              else if ((data[base + 5] ?? 0) > maxCursorMove) data[base + 5] = maxCursorMove;
             }
           }
         }
       }
 
-      // Single batched stroke: Firefox's Canvas2D has high per-stroke() overhead;
-      // batching cuts hundreds of GPU commits down to one.
       ctx.beginPath();
       for (let c = 0; c <= cols; c++) {
         const colStart = c * rowCount;
         const b0 = colStart * S;
         ctx.moveTo(
-          data[b0] + data[b0 + 2] + data[b0 + 4],
-          data[b0 + 1] + data[b0 + 3] + data[b0 + 5]
+          (data[b0] ?? 0) + (data[b0 + 2] ?? 0) + (data[b0 + 4] ?? 0),
+          (data[b0 + 1] ?? 0) + (data[b0 + 3] ?? 0) + (data[b0 + 5] ?? 0)
         );
         for (let r = ds; r < rows; r += ds) {
           const base = (colStart + r) * S;
           ctx.lineTo(
-            data[base] + data[base + 2] + data[base + 4],
-            data[base + 1] + data[base + 3] + data[base + 5]
+            (data[base] ?? 0) + (data[base + 2] ?? 0) + (data[base + 4] ?? 0),
+            (data[base + 1] ?? 0) + (data[base + 3] ?? 0) + (data[base + 5] ?? 0)
           );
         }
         const last = (colStart + rows) * S;
         ctx.lineTo(
-          data[last] + data[last + 2] + data[last + 4],
-          data[last + 1] + data[last + 3] + data[last + 5]
+          (data[last] ?? 0) + (data[last + 2] ?? 0) + (data[last + 4] ?? 0),
+          (data[last + 1] ?? 0) + (data[last + 3] ?? 0) + (data[last + 5] ?? 0)
         );
       }
       ctx.stroke();
 
       const workMs = performance.now() - t0;
       frameState.avgWork = frameState.avgWork * 0.9 + workMs * 0.1;
-
-      // Adaptive draw-step self-tunes within [1, 4].
-      if (frameState.avgWork > 14 && frameState.drawStep < 4) {
-        frameState.drawStep++;
-      } else if (frameState.avgWork < 7 && frameState.drawStep > 1) {
-        frameState.drawStep--;
-      }
+      if (frameState.avgWork > 14 && frameState.drawStep < 4) frameState.drawStep++;
+      else if (frameState.avgWork < 7 && frameState.drawStep > 1) frameState.drawStep--;
 
       animationFrame = requestAnimationFrame(render);
     };
@@ -361,8 +404,8 @@ const BackgroundAnimation = ({
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
-        if (entry.isIntersecting) ensureRunning();
+        isVisibleRef.current = entry?.isIntersecting ?? false;
+        if (entry?.isIntersecting) ensureRunning();
       },
       { threshold: 0 }
     );
@@ -379,17 +422,15 @@ const BackgroundAnimation = ({
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Detect browser zoom changes (Ctrl+/-): devicePixelRatio shifts and the
-    // matchMedia on the current resolution fires.
-    let dprMql = null;
+    let dprMql: MediaQueryList | null = null;
+    const onDprChange = () => {
+      handleResize();
+      watchDpr();
+    };
     const watchDpr = () => {
       if (dprMql) dprMql.removeEventListener('change', onDprChange);
       dprMql = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
       dprMql.addEventListener('change', onDprChange);
-    };
-    const onDprChange = () => {
-      handleResize();
-      watchDpr();
     };
     watchDpr();
 
@@ -419,11 +460,5 @@ const BackgroundAnimation = ({
     backgroundColor,
   ]);
 
-  return (
-    <div ref={containerRef} className="bg-waves" style={{ backgroundColor }}>
-      <canvas ref={canvasRef} className="bg-waves__canvas" />
-    </div>
-  );
-};
-
-export default BackgroundAnimation;
+  return { canvasRef, containerRef };
+}

@@ -1,9 +1,10 @@
+import type { MouseEvent } from 'react';
 import { smoothScrollTo } from '../../utils/smoothScroll';
 import WaveText from '../WaveText/WaveText';
 import './Navbar.css';
 
 const Navbar = () => {
-  const handleNavClick = (e, id) => {
+  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     smoothScrollTo(id);
   };

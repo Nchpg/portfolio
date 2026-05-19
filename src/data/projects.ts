@@ -1,4 +1,21 @@
-export const projects = [
+export type LinkIcon = 'github' | 'link' | 'doc';
+
+export type ProjectLinkItem = {
+  href: string;
+  icon: LinkIcon;
+  label: string;
+};
+
+export type Project = {
+  slug: string;
+  previewExt: string;
+  title: string;
+  description: string;
+  tags: string[];
+  links: ProjectLinkItem[];
+};
+
+export const projects: Project[] = [
   {
     slug: 'hrevolution',
     previewExt: 'mp4',

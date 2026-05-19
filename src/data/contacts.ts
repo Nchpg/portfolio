@@ -1,4 +1,11 @@
-export const contacts = [
+export type Contact = {
+  name: string;
+  id: string;
+  href: string;
+  copyValue: string;
+};
+
+export const contacts: Contact[] = [
   {
     name: 'LinkedIn',
     id: '/in/nathan-champagne',

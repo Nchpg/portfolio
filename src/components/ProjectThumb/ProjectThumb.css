@@ -5,6 +5,9 @@
   background: rgba(255, 255, 255, 0.04);
   position: relative;
   cursor: zoom-in;
+  border: none;
+  padding: 0;
+  display: block;
 }
 
 .project-thumb > img,
@@ -101,7 +104,8 @@
 }
 
 .project-thumb-preview:hover.project-thumb-preview--active .project-thumb-controls,
-.project-thumb-preview--open.project-thumb-preview--active .project-thumb-controls {
+.project-thumb-preview--open.project-thumb-preview--active .project-thumb-controls,
+.project-thumb-preview--open .project-thumb-controls:focus-within {
   opacity: 1;
 }
 

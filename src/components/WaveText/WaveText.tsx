@@ -1,8 +1,15 @@
+import type { ElementType, MouseEvent, CSSProperties } from 'react';
 import { cx } from '../../utils/cx';
 
 const NBSP = ' ';
 
-const handleMouseEnter = (e) => {
+type Props = {
+  text: string;
+  className?: string;
+  as?: ElementType;
+};
+
+const handleMouseEnter = (e: MouseEvent<HTMLElement>) => {
   const wrapper = e.currentTarget;
   if (wrapper.classList.contains('is-animating')) return;
   const chars = wrapper.querySelectorAll('.wave-char');
@@ -16,10 +23,10 @@ const handleMouseEnter = (e) => {
   lastChar.addEventListener('animationend', onAnimationEnd);
 };
 
-const WaveText = ({ text, className = '', as: Tag = 'span' }) => (
+const WaveText = ({ text, className = '', as: Tag = 'span' }: Props) => (
   <Tag className={cx('identity-wrapper', className)} onMouseEnter={handleMouseEnter}>
     {text.split('').map((char, i) => (
-      <span key={i} className="wave-char" style={{ '--i': i }}>
+      <span key={`${char}-${i}`} className="wave-char" style={{ '--i': i } as CSSProperties}>
         {char === ' ' ? NBSP : char}
       </span>
     ))}

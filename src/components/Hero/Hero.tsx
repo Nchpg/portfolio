@@ -14,7 +14,7 @@ const Hero = () => {
     if (!isHovered) return;
     const updateClock = () => {
       const now = new Date();
-      const options = {
+      const options: Intl.DateTimeFormatOptions = {
         timeZone: 'Europe/Paris',
         hour: '2-digit',
         minute: '2-digit',
