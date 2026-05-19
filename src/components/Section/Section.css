@@ -12,22 +12,20 @@
 }
 
 .section-title-tag {
-    font-size: 36px;
+    font-size: clamp(42px, 5vw, 64px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--accent-green);
     position: relative;
-    padding-left: 30px;
+    padding-left: 36px;
     display: inline-block;
     cursor: default;
     white-space: nowrap;
 }
 
-/* Reset the numbering or style it individually if needed */
-#about .section-title-tag::before { content: '01'; }
-#projects .section-title-tag::before { content: '02'; }
-#contact .section-title-tag::before { content: '03'; }
+#projects .section-title-tag::before { content: '01'; }
+#contact .section-title-tag::before { content: '02'; }
 
 .section-title-tag::before {
     position: absolute;

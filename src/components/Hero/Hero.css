@@ -97,6 +97,27 @@
     100% { opacity: 1; transform: translateX(0); }
 }
 
+.location-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+}
+
+.location-time--visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.location-sep {
+    opacity: 0.3;
+    margin: 0 15px;
+}
+
 /* Title Wrapper */
 .hero-title-wrapper {
     position: relative;
@@ -337,6 +358,9 @@
     color: var(--text-primary);
     transition: color 0.3s ease;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .contact-links a:hover {

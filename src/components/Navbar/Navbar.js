@@ -40,7 +40,6 @@ const Navbar = () => {
             <div className="nav-group">
                 <span className="nav-label">Navigation</span>
                 <div className="nav-links">
-                    <a href="#about" onClick={(e) => handleNavClick(e, 'about')}>About</a>
                     <a href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>Projects</a>
                     <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a>
                 </div>

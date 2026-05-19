@@ -37,15 +37,6 @@ function App() {
       <main className="content">
         <Hero />
 
-        <Section id="about" title="About">
-          <div className="about-content">
-            <p style={{fontSize: "24px", maxWidth: "800px", lineHeight: "1.6", opacity: "0.8"}}>
-              Software Engineer and AI enthusiast focused on building performant, scalable, and intelligent systems. 
-              Currently exploring retrieval-augmented generation and low-level system optimizations.
-            </p>
-          </div>
-        </Section>
-
         <Section id="projects" title="Projets">
           <div className="projects-list">
             <article className="project-row">
