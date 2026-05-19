@@ -1,12 +1,30 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import './FooterSpacerScene.css';
 
 const FooterSpacerScene = () => {
     const wrapperRef = useRef(null);
     const canvasRef = useRef(null);
+    const [isActive, setIsActive] = useState(false);
 
     useEffect(() => {
+        const wrapper = wrapperRef.current;
+        if (!wrapper) return;
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsActive(true);
+                    io.disconnect();
+                }
+            },
+            { rootMargin: '300px 0px' }
+        );
+        io.observe(wrapper);
+        return () => io.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (!isActive) return;
         const wrapper = wrapperRef.current;
         const canvas = canvasRef.current;
 
@@ -209,7 +227,7 @@ const FooterSpacerScene = () => {
             material.dispose();
             renderer.dispose();
         };
-    }, []);
+    }, [isActive]);
 
     return (
         <div className="footer-spacer-scene" ref={wrapperRef} aria-hidden="true">

@@ -1,22 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { cx } from '../../utils/cx';
 import './CustomCursor.css';
 
 const interactiveSelector = 'a, button, img, input, textarea, select';
 
-const isTouchPointer = () =>
-    typeof window !== 'undefined' &&
-    window.matchMedia('(hover: none), (pointer: coarse)').matches;
-
 const CustomCursor = () => {
-    const target = useRef({ x: 0, y: 0 });
-    const dot = useRef({ x: 0, y: 0 });
-    const ring = useRef({ x: 0, y: 0 });
-    const raf = useRef(null);
+    const dotEl = useRef(null);
+    const ringEl = useRef(null);
 
-    const [position, setPosition] = useState({
-        dot: { x: 0, y: 0 },
-        ring: { x: 0, y: 0 },
-    });
     const [isHovering, setIsHovering] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
@@ -32,80 +23,80 @@ const CustomCursor = () => {
     }, []);
 
     useEffect(() => {
-        if (isDisabled || isTouchPointer()) {
-            return undefined;
-        }
+        if (isDisabled) return undefined;
 
         const startX = window.innerWidth / 2;
         const startY = window.innerHeight / 2;
 
-        target.current = { x: startX, y: startY };
-        dot.current = { x: startX, y: startY };
-        ring.current = { x: startX, y: startY };
-        setPosition({
-            dot: { x: startX, y: startY },
-            ring: { x: startX, y: startY },
-        });
+        const target = { x: startX, y: startY };
+        const dot = { x: startX, y: startY };
+        const ring = { x: startX, y: startY };
 
+        const writeTransform = (el, x, y) => {
+            if (!el) return;
+            el.style.setProperty('--x', `${x}px`);
+            el.style.setProperty('--y', `${y}px`);
+        };
+
+        writeTransform(dotEl.current, startX, startY);
+        writeTransform(ringEl.current, startX, startY);
+
+        let hasMoved = false;
         const handleMouseMove = (event) => {
-            target.current = { x: event.clientX, y: event.clientY };
-            setIsVisible(true);
+            target.x = event.clientX;
+            target.y = event.clientY;
+            if (!hasMoved) {
+                hasMoved = true;
+                setIsVisible(true);
+            }
         };
 
         const handlePointerOver = (event) => {
-            if (event.target.closest(interactiveSelector)) {
-                setIsHovering(true);
-            }
+            if (event.target.closest(interactiveSelector)) setIsHovering(true);
         };
-
         const handlePointerOut = (event) => {
-            if (event.target.closest(interactiveSelector)) {
-                setIsHovering(false);
-            }
+            if (event.target.closest(interactiveSelector)) setIsHovering(false);
         };
 
         const lerp = (from, to, amount) => from + (to - from) * amount;
 
+        let rafId;
         const animate = () => {
-            dot.current.x = lerp(dot.current.x, target.current.x, 0.2);
-            dot.current.y = lerp(dot.current.y, target.current.y, 0.2);
-            ring.current.x = lerp(ring.current.x, target.current.x, 0.1);
-            ring.current.y = lerp(ring.current.y, target.current.y, 0.1);
+            dot.x = lerp(dot.x, target.x, 0.2);
+            dot.y = lerp(dot.y, target.y, 0.2);
+            ring.x = lerp(ring.x, target.x, 0.1);
+            ring.y = lerp(ring.y, target.y, 0.1);
 
-            setPosition({
-                dot: { x: dot.current.x, y: dot.current.y },
-                ring: { x: ring.current.x, y: ring.current.y },
-            });
+            writeTransform(dotEl.current, dot.x, dot.y);
+            writeTransform(ringEl.current, ring.x, ring.y);
 
-            raf.current = requestAnimationFrame(animate);
+            rafId = requestAnimationFrame(animate);
         };
 
         window.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseover', handlePointerOver);
         document.addEventListener('mouseout', handlePointerOut);
-        raf.current = requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseover', handlePointerOver);
             document.removeEventListener('mouseout', handlePointerOut);
-            cancelAnimationFrame(raf.current);
+            cancelAnimationFrame(rafId);
         };
     }, [isDisabled]);
 
-    if (isDisabled) {
-        return null;
-    }
+    if (isDisabled) return null;
 
     return (
         <div className="custom-cursor" aria-hidden="true">
             <div
-                className={`custom-cursor__dot ${isVisible ? 'is-visible' : ''}`}
-                style={{ left: `${position.dot.x}px`, top: `${position.dot.y}px` }}
+                ref={dotEl}
+                className={cx('custom-cursor__dot', isVisible && 'is-visible')}
             />
             <div
-                className={`custom-cursor__ring ${isVisible ? 'is-visible' : ''} ${isHovering ? 'is-hovering' : ''}`}
-                style={{ left: `${position.ring.x}px`, top: `${position.ring.y}px` }}
+                ref={ringEl}
+                className={cx('custom-cursor__ring', isVisible && 'is-visible', isHovering && 'is-hovering')}
             />
         </div>
     );
