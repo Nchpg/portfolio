@@ -12,6 +12,7 @@ const svgProps = (size, rest) => ({
     width: size,
     height: size,
     viewBox: '0 0 24 24',
+    'aria-hidden': true,
     ...rest,
 });
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import ProjectThumb, { ProjectLink } from '../ProjectThumb/ProjectThumb';
+import './ProjectRow.css';
 
 const ProjectRow = ({ project, index }) => (
     <article className="project-row">

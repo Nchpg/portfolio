@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { GithubIcon, ExternalLinkIcon, DocumentIcon, PlayIcon, PauseIcon, CloseIcon } from '../icons';
 import { cx } from '../../utils/cx';
+import './ProjectThumb.css';
 
 const LINK_ICONS = {
   github: GithubIcon,
@@ -35,7 +36,7 @@ const computePreviewSize = (naturalW, naturalH) => {
 
 // Cross-instance coordination: exposes the "currently pinned" id and a pub/sub
 // for "another thumb just claimed activity, close yourself if you're not it".
-// All shared state lives in a ref inside the provider — no module-level mutables,
+// All shared state lives in a ref inside the provider - no module-level mutables,
 // no window events. HMR-safe (state resets when the provider re-mounts).
 const ProjectThumbContext = React.createContext(null);
 
@@ -83,7 +84,7 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
   const hoverLeaveTimer = React.useRef(null);
   const videoRef = React.useRef(null);
   // Once the user has actually left the preview (mouseLeave fired), suppress
-  // any mouseEnter that bubbles back during the fade-out — the fading element
+  // any mouseEnter that bubbles back during the fade-out - the fading element
   // can still sit under the cursor and would otherwise re-open the hover.
   const closingRef = React.useRef(false);
 
@@ -241,6 +242,9 @@ const ProjectThumb = ({ slug, previewExt, alt }) => {
             onTouchStart={handleScrubStart}
             role="slider"
             aria-label="Seek"
+            aria-valuenow={Math.round(progress * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
           >
             <div className="project-thumb-progress-fill" style={{ width: `${progress * 100}%` }} />
             <div className="project-thumb-progress-handle" style={{ left: `${progress * 100}%` }} />

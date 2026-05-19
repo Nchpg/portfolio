@@ -209,7 +209,7 @@
     margin-right: -0.25em;
 }
 
-/* Premium CTA Button — filled green by default */
+/* Premium CTA Button - filled green by default */
 .hero-cta-button {
     margin-top: 0;
     background-color: var(--accent-green);
@@ -383,8 +383,8 @@
 }
 
 /* Short viewports (landscape phones, small laptops) */
-/* Landscape phones — short height, wide width: split into 2 columns */
-/* Larger than HD — give the centerpiece a touch more presence */
+/* Landscape phones - short height, wide width: split into 2 columns */
+/* Larger than HD - give the centerpiece a touch more presence */
 @media (min-width: 1920px) {
     .hero-title {
         font-size: clamp(240px, 13vw, 270px);
@@ -506,7 +506,7 @@
     }
 }
 
-/* Landscape phones — short height, wide width: split into 2 columns */
+/* Landscape phones - short height, wide width: split into 2 columns */
 /* Declared last so it overrides max-height: 700px and max-width: 768px rules */
 @media (max-height: 500px) and (orientation: landscape) {
     .hero {

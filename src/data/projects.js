@@ -65,7 +65,7 @@ export const projects = [
         slug: 'advent-of-code',
         previewExt: 'mp4',
         title: 'Advent of Code',
-        description: 'My Advent of Code solutions — an annual programming challenge with daily puzzles throughout December.',
+        description: 'My Advent of Code solutions - an annual programming challenge with daily puzzles throughout December.',
         tags: ['Python'],
         links: [
             { href: 'https://github.com/Nchpg/Advent-of-Code', icon: 'github', label: 'GitHub' },

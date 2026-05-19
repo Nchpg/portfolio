@@ -6,6 +6,7 @@ import Section from './components/Section/Section';
 import { ProjectThumbProvider } from './components/ProjectThumb/ProjectThumb';
 import ProjectRow from './components/ProjectRow/ProjectRow';
 import ContactLink from './components/ContactLink/ContactLink';
+import Footer from './components/Footer/Footer';
 import { projects } from './data/projects';
 import { contacts } from './data/contacts';
 import './App.css';
@@ -18,7 +19,7 @@ function App() {
       <main className="content">
         <Hero />
 
-        <Section id="projects" title="Projets">
+        <Section id="projects" title="Projects">
           <div className="projects-list">
             {projects.map((project, i) => (
               <ProjectRow key={project.slug} project={project} index={i} />
@@ -46,13 +47,7 @@ function App() {
       </main>
 
       <FooterSpacerScene />
-      
-      <footer className="footer container">
-        <div className="footer-bottom">
-          <p>© 2026 Nathan Champagne</p>
-          <p className="footer-portfolio-label">Portfolio</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
     </ProjectThumbProvider>
   );
