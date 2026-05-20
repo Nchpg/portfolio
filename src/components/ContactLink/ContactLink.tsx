@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { CopyIcon } from '../icons';
 import './ContactLink.css';

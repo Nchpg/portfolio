@@ -1,12 +1,17 @@
+'use client';
+
 import type { ElementType, MouseEvent, CSSProperties } from 'react';
 import { cx } from '../../utils/cx';
+import './WaveText.css';
 
-const NBSP = ' ';
+const NBSP = ' ';
 
 type Props = {
   text: string;
   className?: string;
   as?: ElementType;
+  'aria-hidden'?: boolean | 'true' | 'false';
+  'data-index'?: string;
 };
 
 const handleMouseEnter = (e: MouseEvent<HTMLElement>) => {
@@ -23,8 +28,19 @@ const handleMouseEnter = (e: MouseEvent<HTMLElement>) => {
   lastChar.addEventListener('animationend', onAnimationEnd);
 };
 
-const WaveText = ({ text, className = '', as: Tag = 'span' }: Props) => (
-  <Tag className={cx('identity-wrapper', className)} onMouseEnter={handleMouseEnter}>
+const WaveText = ({
+  text,
+  className = '',
+  as: Tag = 'span',
+  'aria-hidden': ariaHidden,
+  'data-index': dataIndex,
+}: Props) => (
+  <Tag
+    className={cx('identity-wrapper', className)}
+    onMouseEnter={handleMouseEnter}
+    aria-hidden={ariaHidden}
+    data-index={dataIndex}
+  >
     {text.split('').map((char, i) => (
       <span key={`${char}-${i}`} className="wave-char" style={{ '--i': i } as CSSProperties}>
         {char === ' ' ? NBSP : char}

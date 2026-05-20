@@ -9,7 +9,7 @@ export const contacts: Contact[] = [
   {
     name: 'LinkedIn',
     id: '/in/nathan-champagne',
-    href: 'https://linkedin.com/in/nathan-champagne',
+    href: 'https://www.linkedin.com/in/nathan-champagne',
     copyValue: '/in/nathan-champagne',
   },
   {

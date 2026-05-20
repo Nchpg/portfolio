@@ -1,0 +1,18 @@
+.error-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.error-screen button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--text-primary);
+  color: var(--bg-color);
+  border: none;
+  cursor: pointer;
+}

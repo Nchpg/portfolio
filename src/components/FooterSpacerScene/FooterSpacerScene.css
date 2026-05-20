@@ -4,7 +4,7 @@
   margin-bottom: -25px;
   position: relative;
   overflow: hidden;
-  z-index: 10;
+  z-index: var(--z-dropdown);
   touch-action: pan-y;
 }
 
@@ -35,7 +35,7 @@
     radial-gradient(
       circle at 50% 50%,
       transparent 10%,
-      rgba(33, 33, 33, 0.1) 60%,
+      color-mix(in srgb, var(--bg-color) 10%, transparent) 60%,
       var(--bg-color) 100%
     );
 }

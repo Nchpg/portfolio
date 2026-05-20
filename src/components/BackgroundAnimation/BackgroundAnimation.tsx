@@ -1,3 +1,5 @@
+'use client';
+
 import { useBackgroundAnimation, type AnimationProps } from './useBackgroundAnimation';
 import './BackgroundAnimation.css';
 

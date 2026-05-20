@@ -1,6 +1,6 @@
 .custom-cursor {
   pointer-events: none;
-  z-index: 999998;
+  z-index: var(--z-cursor);
   mix-blend-mode: difference;
   position: fixed;
   inset: 0;
@@ -8,7 +8,7 @@
 
 .custom-cursor__dot {
   opacity: 0;
-  background-color: #fdfdfd;
+  background-color: var(--text-primary);
   border-radius: 50%;
   width: 8px;
   height: 8px;
@@ -24,7 +24,7 @@
 
 .custom-cursor__ring {
   opacity: 0;
-  border: 1px solid #fdfdfd;
+  border: 1px solid var(--text-primary);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -44,4 +44,11 @@
 .custom-cursor__ring.is-hovering {
   width: 50px;
   height: 50px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor__dot,
+  .custom-cursor__ring {
+    transition: none;
+  }
 }

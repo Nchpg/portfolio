@@ -1,0 +1,131 @@
+/* Premium CTA Button - filled green by default */
+.hero-cta-button {
+  background-color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  color: var(--bg-color);
+  padding: clamp(12px, 2vh, 18px) clamp(24px, 4vw, 42px);
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: clamp(11px, min(1.2vw, 1.7vh), 14px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  transition:
+    transform 0.4s cubic-bezier(0.2, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.2, 1, 0.3, 1),
+    background-color 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent-green) 18%, transparent);
+}
+
+/* Pulsing ring on hover */
+.hero-cta-button::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 100px;
+  border: 1.5px solid var(--accent-green);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-cta-button:hover {
+  transform: translateY(-3px);
+  background-color: var(--accent-green-hover);
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--accent-green) 45%, transparent);
+}
+
+.hero-cta-button:hover::after {
+  animation: ctaPulse 1.4s cubic-bezier(0.2, 1, 0.3, 1) infinite;
+}
+
+@keyframes ctaPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+/* Infinite scrolling arrow icon */
+.cta-icon {
+  width: 1.15em;
+  height: 1.15em;
+  overflow: hidden;
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.cta-icon svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.cta-icon svg + svg {
+  transform: translateY(-100%);
+}
+
+.hero-cta-button:hover .cta-icon svg {
+  animation: ctaArrow 0.9s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+}
+
+.hero-cta-button:hover .cta-icon svg + svg {
+  animation-delay: -0.45s;
+}
+
+@keyframes ctaArrow {
+  0% {
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@media (min-width: 1920px) {
+  .hero-cta-button {
+    font-size: clamp(13px, 0.75vw, 15px);
+  }
+}
+
+@media (max-height: 700px) {
+  .hero-cta-button {
+    margin-top: clamp(12px, 3vh, 32px);
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-cta-button {
+    grid-area: cta;
+    margin-top: 0;
+    justify-self: end;
+    align-self: start;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta-button {
+    transition: none;
+  }
+
+  .hero-cta-button:hover::after,
+  .hero-cta-button:hover .cta-icon svg {
+    animation: none;
+  }
+}

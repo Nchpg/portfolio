@@ -5,61 +5,12 @@
   padding-bottom: 32px;
   border-bottom: 1px solid var(--border-soft);
   position: relative;
-  z-index: 10;
+  z-index: var(--z-dropdown);
 }
 
-.nav-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.nav-group:last-child {
+.navbar .bar-group:last-child {
   align-items: flex-end;
   text-align: right;
-}
-
-.nav-label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  opacity: 0.4;
-  font-weight: 600;
-}
-
-.nav-value,
-.nav-links a {
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.identity-wrapper {
-  display: inline-block;
-  cursor: default;
-}
-
-.wave-char {
-  display: inline-block;
-  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-  transform: translateY(0);
-}
-
-.identity-wrapper.is-animating .wave-char {
-  animation: waveAnimation 0.4s ease forwards;
-  animation-delay: calc(var(--i) * 0.03s);
-}
-
-@keyframes waveAnimation {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-  100% {
-    transform: translateY(0);
-  }
 }
 
 .nav-links {
@@ -68,27 +19,9 @@
 }
 
 .nav-links a {
-  transition: color 0.3s ease;
-  position: relative;
-}
-
-.nav-links a:hover {
-  color: var(--accent-green);
-}
-
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 1px;
-  bottom: -2px;
-  left: 0;
-  background-color: var(--accent-green);
-  transition: width 0.3s ease;
-}
-
-.nav-links a:hover::after {
-  width: 100%;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {
@@ -100,25 +33,19 @@
     flex-wrap: nowrap;
   }
 
-  .nav-group {
+  .navbar .bar-group {
     min-width: 0;
     flex-shrink: 1;
   }
 
-  .nav-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
+  .navbar .bar-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .nav-value,
   .nav-links a {
     font-size: 13px;
     white-space: nowrap;
-  }
-
-  .nav-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .nav-links {
@@ -133,12 +60,6 @@
     padding-bottom: 12px;
   }
 
-  .nav-label {
-    font-size: 9px;
-    letter-spacing: 0.12em;
-  }
-
-  .nav-value,
   .nav-links a {
     font-size: 11px;
   }

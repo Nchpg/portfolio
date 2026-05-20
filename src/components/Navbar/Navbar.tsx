@@ -1,3 +1,5 @@
+'use client';
+
 import type { MouseEvent } from 'react';
 import { smoothScrollTo } from '../../utils/smoothScroll';
 import WaveText from '../WaveText/WaveText';
@@ -10,19 +12,19 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
-      <div className="nav-group">
-        <span className="nav-label">Identity</span>
-        <WaveText text="Nathan Champagne" className="nav-value" />
+    <nav className="navbar" aria-label="Main Navigation">
+      <div className="bar-group">
+        <span className="bar-label">Identity</span>
+        <WaveText text="Nathan Champagne" className="bar-value" />
       </div>
 
-      <div className="nav-group">
-        <span className="nav-label">Navigation</span>
+      <div className="bar-group">
+        <span className="bar-label">Navigation</span>
         <div className="nav-links">
-          <a href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>
+          <a className="hover-underline" href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>
             Projects
           </a>
-          <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>
+          <a className="hover-underline" href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>
             Contact
           </a>
         </div>

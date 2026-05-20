@@ -1,0 +1,37 @@
+.identity-wrapper {
+  display: inline-block;
+  cursor: default;
+}
+
+.wave-char {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  transform: translateY(0);
+}
+
+.identity-wrapper.is-animating .wave-char {
+  animation: waveAnimation 0.4s ease forwards;
+  animation-delay: calc(var(--i) * 0.03s);
+}
+
+@keyframes waveAnimation {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-char {
+    transition: none;
+  }
+
+  .identity-wrapper.is-animating .wave-char {
+    animation: none;
+  }
+}

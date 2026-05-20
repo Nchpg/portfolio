@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 type Props = { children: React.ReactNode; fallback?: React.ReactNode };

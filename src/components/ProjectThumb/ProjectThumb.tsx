@@ -1,3 +1,6 @@
+'use client';
+
+import Image from 'next/image';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -24,7 +27,7 @@ const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
 export const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
   const Icon = LINK_ICONS[icon];
   return (
-    <a className="project-link" href={href} target="_blank" rel="noreferrer">
+    <a className="project-link hover-underline" href={href} target="_blank" rel="noreferrer">
       {Icon ? <Icon /> : null}
       <span>{label}</span>
     </a>
@@ -48,9 +51,21 @@ const computePreviewSize = (
   return { width: `${w}px`, height: `${h}px` };
 };
 
-type ProjectThumbProps = { slug: string; previewExt: string; alt: string };
+type ProjectThumbProps = {
+  slug: string;
+  previewExt: string;
+  alt: string;
+  priority?: boolean;
+  animated?: boolean;
+};
 
-const ProjectThumb = ({ slug, previewExt, alt }: ProjectThumbProps) => {
+const ProjectThumb = ({
+  slug,
+  previewExt,
+  alt,
+  priority = false,
+  animated = false,
+}: ProjectThumbProps) => {
   const thumbSrc = `/projects/${slug}/thumbnail.webp`;
   const src = `/projects/${slug}/preview.${previewExt}`;
   const type = previewExt === 'mp4' ? 'video' : 'img';
@@ -314,7 +329,7 @@ const ProjectThumb = ({ slug, previewExt, alt }: ProjectThumbProps) => {
             onPause={() => setIsPlaying(false)}
           />
         ) : (
-          <img src={src} alt={alt} onLoad={handleImgLoad} />
+          <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} />
         )}
         {type === 'video' && (
           <div className="project-thumb-controls" onClick={(e) => e.stopPropagation()}>
@@ -378,7 +393,14 @@ const ProjectThumb = ({ slug, previewExt, alt }: ProjectThumbProps) => {
         onMouseLeave={handleThumbLeave}
         aria-label={`Preview ${alt}`}
       >
-        <img src={thumbSrc} alt="" loading="lazy" />
+        <Image
+          src={thumbSrc}
+          alt={`Thumbnail for ${alt}`}
+          width={600}
+          height={400}
+          priority={priority}
+          unoptimized={animated}
+        />
       </button>
       {preview}
     </>
