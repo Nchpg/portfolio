@@ -1,7 +1,17 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+import {
+  WebGLRenderer,
+  Scene,
+  PerspectiveCamera,
+  Points,
+  BufferGeometry,
+  BufferAttribute,
+  ShaderMaterial,
+  Vector2,
+  AdditiveBlending,
+} from 'three';
 import { vertexShader, fragmentShader } from './shaders.glsl';
 import './FooterSpacerScene.css';
 
@@ -21,7 +31,7 @@ const FooterSpacerScene = () => {
         if (!entry?.isIntersecting) return;
         initObserver.disconnect();
 
-        const renderer = new THREE.WebGLRenderer({
+        const renderer = new WebGLRenderer({
           canvas,
           alpha: true,
           antialias: true,
@@ -30,8 +40,8 @@ const FooterSpacerScene = () => {
         renderer.setClearColor(0x000000, 0);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(
+        const scene = new Scene();
+        const camera = new PerspectiveCamera(
           45,
           wrapper.clientWidth / wrapper.clientHeight,
           1,
@@ -61,23 +71,23 @@ const FooterSpacerScene = () => {
           }
         }
 
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+        const geometry = new BufferGeometry();
+        geometry.setAttribute('position', new BufferAttribute(positions, 3));
+        geometry.setAttribute('scale', new BufferAttribute(scales, 1));
 
         const uTime = { value: 0 };
-        const uMouse = { value: new THREE.Vector2(-10, -10) };
+        const uMouse = { value: new Vector2(-10, -10) };
 
-        const material = new THREE.ShaderMaterial({
+        const material = new ShaderMaterial({
           uniforms: { uTime, uMouse },
           vertexShader,
           fragmentShader,
           transparent: true,
           depthWrite: false,
-          blending: THREE.AdditiveBlending,
+          blending: AdditiveBlending,
         });
 
-        scene.add(new THREE.Points(geometry, material));
+        scene.add(new Points(geometry, material));
 
         const handlePointerMove = (event: PointerEvent) => {
           if (event.pointerType === 'touch') return;

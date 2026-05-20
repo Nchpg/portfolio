@@ -10,27 +10,12 @@ export const inter = Inter({
 export const bebasNeue = localFont({
   src: [
     {
-      path: '../../public/fonts/bebas-neue/BebasNeue-Thin.ttf',
-      weight: '100',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/bebas-neue/BebasNeue-Light.ttf',
+      path: '../../public/fonts/bebas-neue/BebasNeue-Light.woff2',
       weight: '200',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/bebas-neue/BebasNeue-Book.ttf',
-      weight: '300',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/bebas-neue/BebasNeue-Regular.ttf',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/bebas-neue/BebasNeue-Bold.ttf',
+      path: '../../public/fonts/bebas-neue/BebasNeue-Bold.woff2',
       weight: '700',
       style: 'normal',
     },

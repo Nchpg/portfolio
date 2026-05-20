@@ -30,11 +30,12 @@ const computePreviewSize = (naturalW: number, naturalH: number): PreviewStyle | 
 
 type VideoControlsProps = {
   src: string;
+  poster: string;
   isOpen: boolean;
   onDimensionsLoaded: (style: PreviewStyle | null) => void;
 };
 
-const VideoControls = React.memo(({ src, isOpen, onDimensionsLoaded }: VideoControlsProps) => {
+const VideoControls = React.memo(({ src, poster, isOpen, onDimensionsLoaded }: VideoControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [progress, setProgress] = React.useState(0);
   const [hasError, setHasError] = React.useState(false);
@@ -119,6 +120,7 @@ const VideoControls = React.memo(({ src, isOpen, onDimensionsLoaded }: VideoCont
       <video
         ref={videoRef}
         src={src}
+        poster={poster}
         autoPlay loop muted playsInline preload="metadata"
         onLoadedMetadata={handleVideoLoad}
         onTimeUpdate={handleTimeUpdate}
@@ -215,15 +217,15 @@ function reducer(state: State, action: Action): State {
 type ProjectThumbProps = {
   slug: string;
   previewExt: string;
+  animatedThumb?: boolean;
   alt: string;
   priority?: boolean;
 };
 
-const ProjectThumb = ({ slug, previewExt, alt, priority = false }: ProjectThumbProps) => {
+const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority = false }: ProjectThumbProps) => {
   const thumbSrc = `/projects/${slug}/thumbnail.webp`;
   const src = `/projects/${slug}/preview.${previewExt}`;
   const type = previewExt === 'mp4' ? 'video' : 'img';
-  const unoptimized = previewExt === 'mp4';
   const id = React.useId();
   const coord = useCoordinator();
   const [state, dispatch] = React.useReducer(reducer, initialState);
@@ -391,7 +393,7 @@ const ProjectThumb = ({ slug, previewExt, alt, priority = false }: ProjectThumbP
         : { 'aria-hidden': true as const })}
     >
       {type === 'video'
-        ? <VideoControls src={src} isOpen={isOpen} onDimensionsLoaded={handleDimensionsLoaded} />
+        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} onDimensionsLoaded={handleDimensionsLoaded} />
         : imgError
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />
@@ -425,8 +427,9 @@ const ProjectThumb = ({ slug, previewExt, alt, priority = false }: ProjectThumbP
           alt={`Thumbnail for ${alt}`}
           width={600}
           height={400}
+          sizes="(max-width: 768px) calc(100vw - 44px), (max-width: 992px) 92vw, 300px"
           priority={priority}
-          unoptimized={unoptimized}
+          unoptimized={animatedThumb}
         />
       </button>
       {preview}

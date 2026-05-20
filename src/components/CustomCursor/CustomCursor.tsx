@@ -34,6 +34,33 @@ const CustomCursor = () => {
     writeTransform(dotEl.current, startX, startY);
     writeTransform(ringEl.current, startX, startY);
 
+    const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
+
+    let rafId = 0;
+
+    const scheduleFrame = () => {
+      if (!rafId) rafId = requestAnimationFrame(animate);
+    };
+
+    const animate = () => {
+      rafId = 0;
+      dot.x = lerp(dot.x, target.x, 0.2);
+      dot.y = lerp(dot.y, target.y, 0.2);
+      ring.x = lerp(ring.x, target.x, 0.1);
+      ring.y = lerp(ring.y, target.y, 0.1);
+
+      writeTransform(dotEl.current, dot.x, dot.y);
+      writeTransform(ringEl.current, ring.x, ring.y);
+
+      const stillMoving =
+        Math.abs(dot.x - target.x) > 0.05 ||
+        Math.abs(dot.y - target.y) > 0.05 ||
+        Math.abs(ring.x - target.x) > 0.05 ||
+        Math.abs(ring.y - target.y) > 0.05;
+
+      if (stillMoving) rafId = requestAnimationFrame(animate);
+    };
+
     let hasMoved = false;
     const handleMouseMove = (event: MouseEvent) => {
       target.x = event.clientX;
@@ -42,6 +69,7 @@ const CustomCursor = () => {
         hasMoved = true;
         setIsVisible(true);
       }
+      scheduleFrame();
     };
 
     const handlePointerOver = (event: MouseEvent) => {
@@ -51,31 +79,15 @@ const CustomCursor = () => {
       if ((event.target as Element).closest(interactiveSelector)) setIsHovering(false);
     };
 
-    const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
-
-    let rafId: number;
-    const animate = () => {
-      dot.x = lerp(dot.x, target.x, 0.2);
-      dot.y = lerp(dot.y, target.y, 0.2);
-      ring.x = lerp(ring.x, target.x, 0.1);
-      ring.y = lerp(ring.y, target.y, 0.1);
-
-      writeTransform(dotEl.current, dot.x, dot.y);
-      writeTransform(ringEl.current, ring.x, ring.y);
-
-      rafId = requestAnimationFrame(animate);
-    };
-
     window.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseover', handlePointerOver);
     document.addEventListener('mouseout', handlePointerOut);
-    rafId = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseover', handlePointerOver);
       document.removeEventListener('mouseout', handlePointerOut);
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [isDisabled]);
 

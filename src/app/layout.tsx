@@ -49,7 +49,7 @@ export const metadata: Metadata = {
       'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
     images: [
       {
-        url: `${siteUrl}/og-image.png`,
+        url: `${siteUrl}/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: 'Nathan Champagne - AI & Software Engineer Portfolio',
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: 'Nathan Champagne - AI & Software Engineer Portfolio',
     description:
       'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
-    images: [`${siteUrl}/og-image.png`],
+    images: [`${siteUrl}/og-image.jpg`],
   },
   other: {
     'geo.region': 'FR-IDF',
@@ -83,7 +83,7 @@ const jsonLd = {
         'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
       url: siteUrl,
       email: 'nathan.champagne@epita.fr',
-      image: `${siteUrl}/og-image.png`,
+      image: `${siteUrl}/og-image.jpg`,
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Paris',

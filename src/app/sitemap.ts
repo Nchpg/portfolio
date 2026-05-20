@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
-      images: [`${baseUrl}/og-image.png`],
+      images: [`${baseUrl}/og-image.jpg`],
     },
   ];
 }

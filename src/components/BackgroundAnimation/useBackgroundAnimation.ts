@@ -411,10 +411,18 @@ export function useBackgroundAnimation({
       animationFrame = requestAnimationFrame(render);
     };
 
+    const addMouseListener = () => window.addEventListener('mousemove', handleMouseMove);
+    const removeMouseListener = () => window.removeEventListener('mousemove', handleMouseMove);
+
     const io = new IntersectionObserver(
       ([entry]) => {
         isVisibleRef.current = entry?.isIntersecting ?? false;
-        if (entry?.isIntersecting) ensureRunning();
+        if (entry?.isIntersecting) {
+          addMouseListener();
+          ensureRunning();
+        } else {
+          removeMouseListener();
+        }
       },
       { threshold: 0 }
     );
@@ -422,14 +430,18 @@ export function useBackgroundAnimation({
 
     const onVisibilityChange = () => {
       isVisibleRef.current = !document.hidden;
-      if (!document.hidden) ensureRunning();
+      if (!document.hidden) {
+        addMouseListener();
+        ensureRunning();
+      } else {
+        removeMouseListener();
+      }
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     const ro = new ResizeObserver(handleResize);
     ro.observe(container);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
 
     let dprMql: MediaQueryList | null = null;
     const onDprChange = () => {

@@ -47,6 +47,7 @@ const ProjectRow = ({ project, index, priority = false }: Props) => {
       <ProjectThumb
         slug={project.slug}
         previewExt={project.previewExt}
+        animatedThumb={project.animatedThumb}
         alt={project.title}
         priority={priority}
       />
