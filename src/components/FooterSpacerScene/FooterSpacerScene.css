@@ -8,8 +8,8 @@
   touch-action: pan-y;
 }
 
-.footer-spacer-scene__canvas,
-.footer-spacer-scene__veil {
+.footer-spacer-scene-canvas,
+.footer-spacer-scene-veil {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -17,11 +17,11 @@
   touch-action: pan-y;
 }
 
-.footer-spacer-scene__canvas {
+.footer-spacer-scene-canvas {
   opacity: 0.95;
 }
 
-.footer-spacer-scene__veil {
+.footer-spacer-scene-veil {
   pointer-events: none;
   background:
     linear-gradient(
@@ -40,7 +40,7 @@
     );
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .footer-spacer-scene {
     height: 260px;
   }

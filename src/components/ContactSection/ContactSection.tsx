@@ -1,3 +1,4 @@
+import TitleLine from '../TitleLine/TitleLine';
 import ContactLink from '../ContactLink/ContactLink';
 import { contacts } from '../../data/contacts';
 import './ContactSection.css';
@@ -6,9 +7,9 @@ const ContactSection = () => (
   <div className="contact-split">
     <div>
       <h3 className="contact-name">
-        <span className="title-line">Nathan</span>
+        <TitleLine text="Nathan" />
         <br />
-        <span className="title-line outline">Champagne</span>
+        <TitleLine text="Champagne" outline />
       </h3>
     </div>
     <div>

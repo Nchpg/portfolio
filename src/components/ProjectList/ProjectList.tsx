@@ -2,7 +2,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { projects } from '../../data/projects';
 import ProjectRow from '../ProjectRow/ProjectRow';
 
-export async function ProjectList() {
+async function ProjectList() {
   'use cache';
   cacheLife('max');
   cacheTag('projects');
@@ -15,3 +15,5 @@ export async function ProjectList() {
     </div>
   );
 }
+
+export default ProjectList;

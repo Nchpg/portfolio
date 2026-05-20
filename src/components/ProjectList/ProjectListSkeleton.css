@@ -1,0 +1,92 @@
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 60px clamp(200px, 22vw, 300px) minmax(0, 1fr) 160px;
+  gap: 40px;
+  align-items: center;
+  min-height: 180px;
+  border-bottom: 1px solid var(--border-divider);
+  padding: 28px 0;
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--border-faint) 0%,
+    var(--border-soft) 50%,
+    var(--border-faint) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.skeleton-index {
+  height: 16px;
+  width: 24px;
+  opacity: 0.5;
+}
+
+.skeleton-thumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+}
+
+.skeleton-main {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-title {
+  height: clamp(32px, 5vw, 48px);
+  width: 60%;
+}
+
+.skeleton-desc {
+  height: 14px;
+  width: 85%;
+}
+
+.skeleton-desc-short {
+  height: 14px;
+  width: 55%;
+}
+
+.skeleton-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.skeleton-tag {
+  height: 34px;
+  width: 80px;
+  border-radius: 100px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+  }
+}
+
+@media (width <= 992px) {
+  .skeleton-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .skeleton-meta {
+    justify-content: flex-start;
+  }
+}

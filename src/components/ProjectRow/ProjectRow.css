@@ -18,7 +18,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .project-row:hover,
-  .project-row:has(.project-thumb--active) {
+  .project-row:has(.project-thumb-active) {
     background-color: var(--border-soft);
     padding-inline: 24px;
   }
@@ -80,7 +80,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 8px 14px;
-  border: 1.5px solid currentColor;
+  border: 1.5px solid currentcolor;
   border-radius: 100px;
   opacity: 0.55;
   white-space: nowrap;
@@ -92,7 +92,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .project-row:hover .project-meta span,
-  .project-row:has(.project-thumb--active) .project-meta span {
+  .project-row:has(.project-thumb-active) .project-meta span {
     color: var(--accent-green);
     border-color: var(--accent-green);
     opacity: 1;
@@ -106,7 +106,7 @@
   }
 }
 
-@media (max-width: 992px) {
+@media (width <= 992px) {
   .project-row {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:

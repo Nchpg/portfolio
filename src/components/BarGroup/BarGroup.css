@@ -1,0 +1,40 @@
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bar-gap);
+}
+
+.bar-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0.4;
+  font-weight: 600;
+}
+
+.bar-value {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+@media (width <= 768px) {
+  .bar-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  .bar-value {
+    font-size: 13px;
+  }
+}
+
+@media (width <= 480px) {
+  .bar-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+
+  .bar-value {
+    font-size: 11px;
+  }
+}

@@ -13,13 +13,13 @@
   opacity: 0.55;
 }
 
-@media (max-width: 992px) {
+@media (width <= 992px) {
   .footer-bottom {
     flex-wrap: nowrap;
   }
 }
 
-@media (max-width: 420px) {
+@media (width <= 420px) {
   .footer-portfolio-label {
     display: none;
   }

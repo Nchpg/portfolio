@@ -2,6 +2,8 @@
 
 import type { MouseEvent } from 'react';
 import { smoothScrollTo } from '../../utils/smoothScroll';
+import BarGroup from '../BarGroup/BarGroup';
+import HoverLink from '../HoverLink/HoverLink';
 import WaveText from '../WaveText/WaveText';
 import './Navbar.css';
 
@@ -13,22 +15,21 @@ const Navbar = () => {
 
   return (
     <nav className="navbar" aria-label="Main Navigation">
-      <div className="bar-group">
-        <span className="bar-label">Identity</span>
-        <WaveText text="Nathan Champagne" className="bar-value" />
-      </div>
+      <BarGroup label="Identity" value={<WaveText text="Nathan Champagne" />} />
 
-      <div className="bar-group">
-        <span className="bar-label">Navigation</span>
-        <div className="nav-links">
-          <a className="hover-underline" href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>
-            Projects
-          </a>
-          <a className="hover-underline" href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>
-            Contact
-          </a>
-        </div>
-      </div>
+      <BarGroup
+        label="Navigation"
+        value={
+          <div className="nav-links">
+            <HoverLink href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>
+              Projects
+            </HoverLink>
+            <HoverLink href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>
+              Contact
+            </HoverLink>
+          </div>
+        }
+      />
     </nav>
   );
 };

@@ -1,7 +1,29 @@
-import ProjectThumb, { ProjectLink } from '../ProjectThumb/ProjectThumb';
-import type { Project } from '../../data/projects';
+import ProjectThumb from '../ProjectThumb/ProjectThumb';
+import HoverLink from '../HoverLink/HoverLink';
+import {
+  GithubIcon,
+  ExternalLinkIcon,
+  DocumentIcon,
+} from '../icons';
+import type { Project, ProjectLinkItem, LinkIcon } from '../../data/projects';
 import { generateProjectJsonLd } from '../../utils/jsonLd';
 import './ProjectRow.css';
+
+const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
+  github: GithubIcon,
+  link: ExternalLinkIcon,
+  doc: DocumentIcon,
+};
+
+const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
+  const Icon = LINK_ICONS[icon];
+  return (
+    <HoverLink className="project-link" href={href} target="_blank" rel="noreferrer">
+      {Icon ? <Icon /> : null}
+      <span>{label}</span>
+    </HoverLink>
+  );
+};
 
 type Props = {
   project: Project;
@@ -27,7 +49,6 @@ const ProjectRow = ({ project, index, priority = false }: Props) => {
         previewExt={project.previewExt}
         alt={project.title}
         priority={priority}
-        animated={project.animatedThumbnail}
       />
       <div className="project-main">
         <h3>{project.title}</h3>

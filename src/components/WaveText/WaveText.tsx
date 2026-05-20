@@ -42,7 +42,7 @@ const WaveText = ({
     data-index={dataIndex}
   >
     {text.split('').map((char, i) => (
-      <span key={`${char}-${i}`} className="wave-char" style={{ '--i': i } as CSSProperties}>
+      <span key={i} className="wave-char" style={{ '--i': i } as CSSProperties}>
         {char === ' ' ? NBSP : char}
       </span>
     ))}

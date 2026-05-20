@@ -9,7 +9,6 @@ export type ProjectLinkItem = {
 export type Project = {
   slug: string;
   previewExt: string;
-  animatedThumbnail?: boolean;
   title: string;
   description: string;
   tags: string[];
@@ -20,7 +19,6 @@ export const projects: Project[] = [
   {
     slug: 'hrevolution',
     previewExt: 'mp4',
-    animatedThumbnail: true,
     title: 'HRévolution',
     description:
       '2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.',
@@ -36,7 +34,6 @@ export const projects: Project[] = [
   {
     slug: 'rlkart',
     previewExt: 'mp4',
-    animatedThumbnail: true,
     title: 'RLkart',
     description:
       'Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.',
@@ -49,7 +46,6 @@ export const projects: Project[] = [
   {
     slug: 'mnist',
     previewExt: 'mp4',
-    animatedThumbnail: true,
     title: 'MNIST CNN from Scratch',
     description:
       'Implementation of a Convolutional Neural Network from scratch in C++ to classify the MNIST handwritten digit dataset.',
@@ -59,7 +55,6 @@ export const projects: Project[] = [
   {
     slug: 'ocr-sudoku',
     previewExt: 'mp4',
-    animatedThumbnail: true,
     title: 'OCR Sudoku Solver',
     description:
       'Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.',
@@ -69,7 +64,6 @@ export const projects: Project[] = [
   {
     slug: 'ms402',
     previewExt: 'mp4',
-    animatedThumbnail: true,
     title: 'MS402',
     description:
       'Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.',
@@ -96,7 +90,6 @@ export const projects: Project[] = [
   {
     slug: 'advent-of-code',
     previewExt: 'mp4',
-    animatedThumbnail: true,
     title: 'Advent of Code',
     description:
       'My Advent of Code solutions - an annual programming challenge with daily puzzles throughout December.',

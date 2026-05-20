@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cx } from '../../utils/cx';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import './CustomCursor.css';
 
 const interactiveSelector = 'a, button, img, input, textarea, select';
@@ -12,17 +13,7 @@ const CustomCursor = () => {
 
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(hover: none), (pointer: coarse)');
-    const updatePointerMode = () => setIsDisabled(mediaQuery.matches);
-
-    updatePointerMode();
-    mediaQuery.addEventListener('change', updatePointerMode);
-
-    return () => mediaQuery.removeEventListener('change', updatePointerMode);
-  }, []);
+  const isDisabled = useMediaQuery('(hover: none), (pointer: coarse)');
 
   useEffect(() => {
     if (isDisabled) return undefined;
@@ -92,14 +83,10 @@ const CustomCursor = () => {
 
   return (
     <div className="custom-cursor" aria-hidden="true">
-      <div ref={dotEl} className={cx('custom-cursor__dot', isVisible && 'is-visible')} />
+      <div ref={dotEl} className={cx('custom-cursor-dot', isVisible && 'is-visible')} />
       <div
         ref={ringEl}
-        className={cx(
-          'custom-cursor__ring',
-          isVisible && 'is-visible',
-          isHovering && 'is-hovering'
-        )}
+        className={cx('custom-cursor-ring', isVisible && 'is-visible', isHovering && 'is-hovering')}
       />
     </div>
   );

@@ -1,22 +1,31 @@
 import { useRef, useEffect } from 'react';
 import { buildPerm, perlin2, type PerlinCtx } from './perlin';
+import {
+  PIXEL_BUDGET_TOUCH,
+  PIXEL_BUDGET_MOUSE,
+  MAX_DPR,
+  DATA_STRIDE as S,
+  NOISE_STEP,
+  FIXED_SCALE,
+  TRIG_TABLE_SIZE,
+  CANVAS_MARGIN,
+  FRAME_MS_60FPS,
+  MOUSE_LERP_FACTOR,
+  MAX_MOUSE_VELOCITY,
+  AVG_WORK_DECAY,
+  FRAME_WORK_HIGH_MS,
+  FRAME_WORK_LOW_MS,
+  MAX_DRAW_STEP,
+} from './constants';
 
-const TRIG_SIZE = 4096;
-const TRIG_MASK = TRIG_SIZE - 1;
-const SIN_TABLE = new Float32Array(TRIG_SIZE);
-const COS_TABLE = new Float32Array(TRIG_SIZE);
-for (let i = 0; i < TRIG_SIZE; i++) {
-  const angle = (i / TRIG_SIZE) * Math.PI * 2;
+const TRIG_MASK = TRIG_TABLE_SIZE - 1;
+const SIN_TABLE = new Float32Array(TRIG_TABLE_SIZE);
+const COS_TABLE = new Float32Array(TRIG_TABLE_SIZE);
+for (let i = 0; i < TRIG_TABLE_SIZE; i++) {
+  const angle = (i / TRIG_TABLE_SIZE) * Math.PI * 2;
   SIN_TABLE[i] = Math.sin(angle);
   COS_TABLE[i] = Math.cos(angle);
 }
-
-const PIXEL_BUDGET_TOUCH = 300_000;
-const PIXEL_BUDGET_MOUSE = 750_000;
-const MAX_DPR = 2;
-const S = 8;
-const NOISE_STEP = 4;
-const FIXED_SCALE = 1.4;
 
 type MouseState = {
   x: number;
@@ -108,7 +117,7 @@ export function useBackgroundAnimation({
     ctxRef.current = canvas.getContext('2d', { alpha: false, desynchronized: true });
     noiseCtxRef.current = buildPerm(Math.random());
 
-    const frameState = { lastTime: 0, avgWork: 8, drawStep: 2 };
+    const frameState = { lastTime: 0, avgWork: FRAME_WORK_HIGH_MS * 0.5, drawStep: 2 };
 
     const initPoints = () => {
       const { width, height } = boundsRef.current;
@@ -151,14 +160,12 @@ export function useBackgroundAnimation({
         rowInfos: new Float32Array((rows + 1) * 3),
         colNoiseX: new Float32Array(subRows),
         colNoiseY: new Float32Array(subRows),
-        trigFactor: TRIG_SIZE / (Math.PI * 2),
+        trigFactor: TRIG_TABLE_SIZE / (Math.PI * 2),
         mouseRadius: baseMouseRadius,
         dynamicForceScale: 0.0003 / effScale,
         effScale,
       };
     };
-
-    const CANVAS_MARGIN = 80;
 
     const handleResize = () => {
       const ctx = ctxRef.current;
@@ -205,7 +212,7 @@ export function useBackgroundAnimation({
       if (!isVisibleRef.current) return;
 
       const t0 = performance.now();
-      const dt = frameState.lastTime ? Math.min(2, (t0 - frameState.lastTime) / 16.66) : 1;
+      const dt = frameState.lastTime ? Math.min(2, (t0 - frameState.lastTime) / FRAME_MS_60FPS) : 1;
       frameState.lastTime = t0;
 
       const ctx = ctxRef.current;
@@ -213,14 +220,14 @@ export function useBackgroundAnimation({
       if (!ctx || !ptsRef.current || !noiseCtx) return;
 
       const m = mouseRef.current;
-      m.sx += (m.x - m.sx) * 0.1 * dt;
-      m.sy += (m.y - m.sy) * 0.1 * dt;
+      m.sx += (m.x - m.sx) * MOUSE_LERP_FACTOR * dt;
+      m.sy += (m.y - m.sy) * MOUSE_LERP_FACTOR * dt;
       const dx = m.x - m.lx,
         dy = m.y - m.ly;
       const dist = Math.sqrt(dx * dx + dy * dy);
       m.v = dist;
-      m.vs += (dist - m.vs) * 0.1 * dt;
-      m.vs = Math.min(100, m.vs);
+      m.vs += (dist - m.vs) * MOUSE_LERP_FACTOR * dt;
+      m.vs = Math.min(MAX_MOUSE_VELOCITY, m.vs);
       m.lx = m.x;
       m.ly = m.y;
       m.a = Math.atan2(dy, dx);
@@ -389,9 +396,11 @@ export function useBackgroundAnimation({
       ctx.stroke();
 
       const workMs = performance.now() - t0;
-      frameState.avgWork = frameState.avgWork * 0.9 + workMs * 0.1;
-      if (frameState.avgWork > 14 && frameState.drawStep < 4) frameState.drawStep++;
-      else if (frameState.avgWork < 7 && frameState.drawStep > 1) frameState.drawStep--;
+      frameState.avgWork = frameState.avgWork * AVG_WORK_DECAY + workMs * (1 - AVG_WORK_DECAY);
+      if (frameState.avgWork > FRAME_WORK_HIGH_MS && frameState.drawStep < MAX_DRAW_STEP)
+        frameState.drawStep++;
+      else if (frameState.avgWork < FRAME_WORK_LOW_MS && frameState.drawStep > 1)
+        frameState.drawStep--;
 
       animationFrame = requestAnimationFrame(render);
     };

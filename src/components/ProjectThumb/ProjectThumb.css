@@ -43,11 +43,10 @@
   cursor: pointer;
 }
 
-.project-thumb-preview--visible {
+.project-thumb-preview-visible {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
-
 
 .project-thumb-preview img,
 .project-thumb-preview video {
@@ -80,6 +79,19 @@
   background: var(--overlay-intense);
 }
 
+.project-thumb:focus-visible,
+.project-thumb-ctrl:focus-visible,
+.project-thumb-close:focus-visible {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+}
+
+.project-thumb-progress:focus-visible {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
 .project-thumb-controls {
   position: absolute;
   bottom: 0;
@@ -92,7 +104,7 @@
   background: linear-gradient(
     to top,
     var(--overlay-intense) 0%,
-    rgba(0, 0, 0, 0.35) 50%,
+    rgb(0 0 0 / 35%) 50%,
     transparent 100%
   );
   z-index: 2;
@@ -100,14 +112,20 @@
   transition: opacity 0.25s ease;
 }
 
-.project-thumb-preview:hover.project-thumb-preview--active .project-thumb-controls,
-.project-thumb-preview--open.project-thumb-preview--active .project-thumb-controls,
-.project-thumb-preview--open .project-thumb-controls:focus-within {
+.project-thumb-preview:hover:not(.project-thumb-preview-active) {
+  cursor: none;
+}
+
+.project-thumb-preview-open .project-thumb-controls:focus-within {
   opacity: 1;
 }
 
-.project-thumb-preview:hover:not(.project-thumb-preview--active) {
-  cursor: none;
+.project-thumb-preview-open.project-thumb-preview-active .project-thumb-controls {
+  opacity: 1;
+}
+
+.project-thumb-preview:hover.project-thumb-preview-active .project-thumb-controls {
+  opacity: 1;
 }
 
 .project-thumb-ctrl {
@@ -179,7 +197,17 @@
   }
 }
 
-@media (max-width: 992px) {
+.project-thumb-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: color-mix(in srgb, var(--text-primary) 40%, transparent);
+  font-size: 0.875rem;
+}
+
+@media (width <= 992px) {
   .project-thumb {
     grid-area: thumb;
     aspect-ratio: 16 / 9;

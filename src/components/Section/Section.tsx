@@ -18,7 +18,12 @@ const Section = ({ title, children, id, index }: Props) => {
         <h2 id={headingId} className="sr-only">
           {title}
         </h2>
-        <WaveText text={title} className="section-title-tag" aria-hidden="true" data-index={dataIndex} />
+        <WaveText
+          text={title}
+          className="section-title-tag"
+          aria-hidden="true"
+          data-index={dataIndex}
+        />
         <div className="section-line" aria-hidden="true"></div>
       </div>
       <div className="section-content">{children}</div>

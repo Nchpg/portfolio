@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { cx } from '../../utils/cx';
 import { GithubIcon, LinkedInIcon, EmailIcon } from '../icons';
+import BarGroup from '../BarGroup/BarGroup';
+import HoverLink from '../HoverLink/HoverLink';
 import './HeroBottomBar.css';
 
 const HeroBottomBar = () => {
@@ -30,56 +32,55 @@ const HeroBottomBar = () => {
   return (
     <div className="hero-bottom-bar">
       <div className="hero-info-group">
-        <div
-          className="bar-group"
+        <BarGroup
+          label="Location"
+          value={
+            <>
+              Paris, France
+              <span className={cx('location-time', isHovered && 'location-time-visible')}>
+                <span className="location-sep">|</span>
+                <span className="accent">{time}</span>
+              </span>
+            </>
+          }
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-        >
-          <span className="bar-label">Location</span>
-          <span className="bar-value">
-            Paris, France
-            <span className={cx('location-time', isHovered && 'location-time--visible')}>
-              <span className="location-sep">|</span>
-              <span className="accent">{time}</span>
-            </span>
-          </span>
-        </div>
+        />
       </div>
 
       <div className="hero-contact-group">
-        <div className="bar-group">
-          <span className="bar-label">Connect</span>
-          <div className="contact-links">
-            <a
-              className="hover-underline"
-              href="https://www.linkedin.com/in/nathan-champagne/"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn profile"
-            >
-              <LinkedInIcon size={13} />
-              LinkedIn
-            </a>
-            <a
-              className="hover-underline"
-              href="https://github.com/Nchpg"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub profile"
-            >
-              <GithubIcon size={13} />
-              GitHub
-            </a>
-            <a
-              className="hover-underline"
-              href="mailto:nathan.champagne@epita.fr"
-              aria-label="Send an email to Nathan Champagne"
-            >
-              <EmailIcon size={13} />
-              Email
-            </a>
-          </div>
-        </div>
+        <BarGroup
+          label="Connect"
+          value={
+            <div className="contact-links">
+              <HoverLink
+                href="https://www.linkedin.com/in/nathan-champagne/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="LinkedIn profile"
+              >
+                <LinkedInIcon size={13} />
+                LinkedIn
+              </HoverLink>
+              <HoverLink
+                href="https://github.com/Nchpg"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub profile"
+              >
+                <GithubIcon size={13} />
+                GitHub
+              </HoverLink>
+              <HoverLink
+                href="mailto:nathan.champagne@epita.fr"
+                aria-label="Send an email to Nathan Champagne"
+              >
+                <EmailIcon size={13} />
+                Email
+              </HoverLink>
+            </div>
+          }
+        />
       </div>
     </div>
   );

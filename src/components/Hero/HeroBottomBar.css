@@ -49,7 +49,7 @@
   pointer-events: none;
 }
 
-.location-time--visible {
+.location-time-visible {
   opacity: 1;
   transform: translateX(0);
   pointer-events: auto;
@@ -60,7 +60,7 @@
   margin: 0 15px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .hero-info-group {
     gap: 16px;
     flex-wrap: nowrap;
@@ -68,10 +68,9 @@
 
   .hero-bottom-bar {
     position: relative;
-    flex-direction: row;
+    flex-flow: row nowrap;
     align-items: flex-end;
     gap: 16px;
-    flex-wrap: nowrap;
   }
 
   .hero-contact-group {
@@ -94,7 +93,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .hero-bottom-bar {
     gap: 10px;
   }

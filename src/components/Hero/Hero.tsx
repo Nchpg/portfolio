@@ -5,6 +5,7 @@ import Navbar from '../Navbar/Navbar';
 import HeroBottomBar from './HeroBottomBar';
 import { smoothScrollTo } from '../../utils/smoothScroll';
 import { ChevronDownIcon } from '../icons';
+import TitleLine from '../TitleLine/TitleLine';
 import './Hero.css';
 import './HeroCTA.css';
 
@@ -19,8 +20,8 @@ const Hero = () => (
         <div className="hero-text-block">
           <div className="hero-title-wrapper">
             <h1 className="hero-title">
-              <span className="title-line">Nathan</span>
-              <span className="title-line outline">Champagne</span>
+              <TitleLine text="Nathan" />
+              <TitleLine text="Champagne" outline />
             </h1>
           </div>
 

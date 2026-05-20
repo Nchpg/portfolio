@@ -24,13 +24,12 @@
   color: var(--text-primary);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .navbar {
-    flex-direction: row;
+    flex-flow: row nowrap;
     gap: 16px;
     align-items: flex-start;
     padding-bottom: 16px;
-    flex-wrap: nowrap;
   }
 
   .navbar .bar-group {
@@ -54,7 +53,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .navbar {
     gap: 10px;
     padding-bottom: 12px;

@@ -16,7 +16,7 @@
   flex-direction: column;
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .contact-split {
     grid-template-columns: 1fr;
     gap: 24px;

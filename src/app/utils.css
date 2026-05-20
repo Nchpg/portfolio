@@ -1,0 +1,28 @@
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+}
+
+/* Layout Classes */
+.container {
+  width: 100%;
+  margin: 0;
+  padding-inline: clamp(24px, 4vw, 72px);
+}
+
+@media (width <= 768px) {
+  .container {
+    padding-inline: 22px;
+  }
+}
+
+.content {
+  position: relative;
+}

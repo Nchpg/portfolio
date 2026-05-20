@@ -101,7 +101,7 @@
 }
 
 /* Larger than HD */
-@media (min-width: 1920px) {
+@media (width >= 1920px) {
   .hero-title {
     font-size: clamp(240px, 13vw, 270px);
   }
@@ -111,7 +111,7 @@
   }
 }
 
-@media (max-height: 700px) {
+@media (height <= 700px) {
   .hero {
     min-height: 520px;
   }
@@ -121,7 +121,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .hero {
     height: auto;
     min-height: 100vh;
@@ -144,7 +144,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .hero-title {
     font-size: clamp(48px, 16vw, 96px);
   }
@@ -156,8 +156,9 @@
 }
 
 /* Landscape phones - short height, wide width: split into 2 columns */
+
 /* Declared last so it overrides max-height: 700px and max-width: 768px rules */
-@media (max-height: 500px) and (orientation: landscape) {
+@media (height <= 500px) and (orientation: landscape) {
   .hero {
     height: 100vh;
     height: 100dvh;
@@ -172,15 +173,11 @@
 
   .hero-main-stack {
     display: grid;
-    grid-template-areas:
+    grid-template:
       'title subtitle'
       'title cta';
-    grid-template-columns: auto auto;
-    grid-template-rows: auto auto;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-    justify-items: end;
+    place-items: center end;
+    place-content: center center;
     gap: clamp(8px, 2vh, 16px) clamp(24px, 5vw, 64px);
     text-align: right;
     height: 100%;
@@ -204,8 +201,7 @@
 
   .hero-role-primary {
     grid-area: subtitle;
-    justify-self: end;
-    align-self: end;
+    place-self: end end;
     font-size: clamp(11px, 2vw, 14px);
     letter-spacing: 0.18em;
     justify-content: flex-end;

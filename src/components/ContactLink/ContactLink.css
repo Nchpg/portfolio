@@ -70,23 +70,16 @@
   color: var(--accent-green);
 }
 
-.link-id:hover .copy-icon {
-  opacity: 1;
-}
-
-.copied-text {
-  color: var(--accent-green);
-  font-size: clamp(12px, 1vw, 16px);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
 .copy-icon {
   opacity: 0.5;
   flex-shrink: 0;
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
+}
+
+.link-id:hover .copy-icon {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -97,7 +90,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .contact-link {
     flex-direction: column;
     align-items: flex-start;
