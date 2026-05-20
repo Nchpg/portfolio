@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { PlayIcon, PauseIcon, CloseIcon } from '../icons';
+import { PlayIcon, PauseIcon, CloseIcon, FullscreenIcon, ExitFullscreenIcon } from '../icons';
 import { cx } from '../../utils/cx';
 import { useCoordinator } from './ProjectThumbContext';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -11,6 +11,11 @@ import './ProjectThumb.css';
 
 const HOVER_LEAVE_DELAY_MS = 200;
 const INACTIVITY_DELAY_MS = 2000;
+
+// Shared across all instances: suppresses synthetic mouseenter events that browsers
+// fire when a portal is removed and the cursor happens to be over another thumbnail.
+// Set to true on Tab navigation, cleared on the next real mousemove.
+let suppressHoverUntilMouseMove = false;
 
 type PreviewStyle = { width: string; height: string };
 
@@ -25,6 +30,31 @@ const computePreviewSize = (naturalW: number, naturalH: number): PreviewStyle | 
   return { width: `${w}px`, height: `${h}px` };
 };
 
+// ─── Fullscreen transition helpers ───────────────────────────────────────────
+// Module-level so no per-instance closure cost and no useCallback deps needed.
+
+function maskForEntry(el: HTMLElement) {
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  void el.offsetHeight;
+}
+
+function unmaskAfterEntry(el: HTMLElement) {
+  el.style.opacity = '';
+  requestAnimationFrame(() => { el.style.transition = ''; });
+}
+
+function killTransitionForExit(el: HTMLElement) {
+  el.style.transition = 'none';
+  void el.offsetHeight;
+}
+
+function restoreTransitionAfterExit(el: HTMLElement) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { el.style.transition = ''; });
+  });
+}
+
 // ─── VideoControls ────────────────────────────────────────────────────────────
 // Isolated in React.memo so progress updates (60fps) don't re-render the parent.
 
@@ -32,17 +62,94 @@ type VideoControlsProps = {
   src: string;
   poster: string;
   isOpen: boolean;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  onPin: () => void;
+  onFullscreenChange: (isFs: boolean) => void;
   onDimensionsLoaded: (style: PreviewStyle | null) => void;
 };
 
-const VideoControls = React.memo(({ src, poster, isOpen, onDimensionsLoaded }: VideoControlsProps) => {
+const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [progress, setProgress] = React.useState(0);
   const [hasError, setHasError] = React.useState(false);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+
+  const setFs = React.useCallback((isFs: boolean) => {
+    setIsFullscreen(isFs);
+    onFullscreenChange(isFs);
+  }, [onFullscreenChange]);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const scrubCleanupRef = React.useRef<(() => void) | null>(null);
 
   React.useEffect(() => () => { scrubCleanupRef.current?.(); }, []);
+
+  React.useEffect(() => {
+    const onFsChange = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+      setFs(isFs);
+      const c = containerRef.current;
+      if (!c) return;
+      if (isFs) {
+        unmaskAfterEntry(c);
+      } else {
+        killTransitionForExit(c);
+        restoreTransitionAfterExit(c);
+      }
+    };
+    const video = videoRef.current;
+    const onWebkitBegin = () => setFs(true);
+    const onWebkitEnd = () => {
+      setFs(false);
+      const c = containerRef.current;
+      if (c) { killTransitionForExit(c); restoreTransitionAfterExit(c); }
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    video?.addEventListener('webkitbeginfullscreen', onWebkitBegin);
+    video?.addEventListener('webkitendfullscreen', onWebkitEnd);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+      video?.removeEventListener('webkitbeginfullscreen', onWebkitBegin);
+      video?.removeEventListener('webkitendfullscreen', onWebkitEnd);
+    };
+  }, [containerRef, setFs]);
+
+  const toggleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Mouse click only: blur prevents focus-within keeping controls permanently visible.
+    // Keyboard activation (detail=0) keeps focus so controls stay visible for keyboard users.
+    if (e.detail > 0) (e.currentTarget as HTMLElement).blur();
+    const doc = document as Document & {
+      webkitFullscreenElement?: Element;
+      webkitExitFullscreen?: () => void;
+    };
+    const container = containerRef.current as (HTMLDivElement & {
+      webkitRequestFullscreen?: () => void;
+    }) | null;
+    const video = videoRef.current as (HTMLVideoElement & {
+      webkitEnterFullscreen?: () => void;
+    }) | null;
+
+    if (document.fullscreenElement || doc.webkitFullscreenElement) {
+      if (container) killTransitionForExit(container);
+      (document.exitFullscreen ?? doc.webkitExitFullscreen)?.call(document);
+      return;
+    }
+
+    if (container) maskForEntry(container);
+
+    onPin();
+
+    if (container?.requestFullscreen) {
+      container.requestFullscreen();
+    } else if (container?.webkitRequestFullscreen) {
+      container.webkitRequestFullscreen();
+    } else if (video?.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen();
+    }
+  };
 
   const handleVideoLoad = (e: React.SyntheticEvent<HTMLVideoElement>) =>
     onDimensionsLoaded(computePreviewSize(e.currentTarget.videoWidth, e.currentTarget.videoHeight));
@@ -153,6 +260,14 @@ const VideoControls = React.memo(({ src, poster, isOpen, onDimensionsLoaded }: V
           <div className="project-thumb-progress-fill" style={{ width: `${progress * 100}%` }} />
           <div className="project-thumb-progress-handle" style={{ left: `${progress * 100}%` }} />
         </div>
+        <button
+          className="project-thumb-ctrl"
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          tabIndex={isOpen ? 0 : -1}
+        >
+          {isFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
+        </button>
       </div>
     </>
   );
@@ -232,12 +347,17 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   const { isOpen, isHovered, isMounted, isShown, previewStyle, isMouseActive } = state;
 
   const [imgError, setImgError] = React.useState(false);
+  const [isVideoFullscreen, setIsVideoFullscreen] = React.useState(false);
   const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const closingRef = React.useRef(false);
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
   const thumbButtonRef = React.useRef<HTMLButtonElement>(null);
   const previewRef = React.useRef<HTMLDivElement>(null);
+  // Set to true when entering fullscreen so the focus effect skips focusing the
+  // close button on exit (keyboard exit keeps focus on fs button naturally;
+  // mouse exit blurs to body — both are correct without any explicit focus call).
+  const enteredFullscreenRef = React.useRef(false);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
 
   const closePreview = React.useCallback(() => {
@@ -246,6 +366,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   }, []);
 
   const handleThumbEnter = React.useCallback(() => {
+    if (suppressHoverUntilMouseMove) return;
     if (coord.isPinnedElsewhere(id)) return;
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     closingRef.current = false;
@@ -284,6 +405,35 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     handlePreviewMouseMove();
   }, [handlePreviewEnter, handlePreviewMouseMove]);
 
+  // Fullscreen mouse activity is tracked via CSS custom property directly on the
+  // element — completely decoupled from React state to avoid batching/deferral issues.
+  const handleFullscreenChange = React.useCallback((isFs: boolean) => {
+    setIsVideoFullscreen(isFs);
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
+    if (!isFs && !supportsHover) closePreview();
+  }, [supportsHover, closePreview]);
+
+  React.useEffect(() => {
+    if (!isVideoFullscreen) return;
+    const el = previewRef.current;
+    if (!el) return;
+    let fsTimer: ReturnType<typeof setTimeout> | null = null;
+    const show = () => { el.style.setProperty('--fs-active', '1'); el.style.cursor = 'default'; };
+    const hide = () => { el.style.removeProperty('--fs-active'); el.style.cursor = ''; };
+    const onFsMouseMove = () => {
+      show();
+      if (fsTimer) clearTimeout(fsTimer);
+      fsTimer = setTimeout(hide, INACTIVITY_DELAY_MS);
+    };
+    document.addEventListener('mousemove', onFsMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', onFsMouseMove);
+      if (fsTimer) clearTimeout(fsTimer);
+      hide();
+    };
+  }, [isVideoFullscreen]);
+
   const handlePreviewTransitionEnd = React.useCallback((e: React.TransitionEvent) => {
     if (e.target !== e.currentTarget) return;
     if (!isShown) dispatch({ type: 'UNMOUNT' });
@@ -299,6 +449,11 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
 
   const handleImgError = React.useCallback(() => setImgError(true), []);
 
+  const handleVideoPin = React.useCallback(() => {
+    coord.notifyActivated(id);
+    dispatch({ type: 'OPEN' });
+  }, [coord, id]);
+
   React.useEffect(
     () =>
       coord.subscribe((activatedId) => {
@@ -309,38 +464,12 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     [coord, id]
   );
 
-  React.useEffect(() => {
-    if (!isOpen || !isMounted) return;
-    closeButtonRef.current?.focus();
-  }, [isOpen, isMounted]);
-
-
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { closePreview(); return; }
-      if (e.key !== 'Tab') return;
-      const container = previewRef.current;
-      if (!container) return;
-      const focusable = Array.from(
-        container.querySelectorAll<HTMLElement>('button, [role="slider"][tabindex]')
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0]!;
-      const last = focusable[focusable.length - 1]!;
-      if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
-      } else {
-        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, closePreview]);
-
+  // Inert must be defined before the focus effect so it runs first within the same commit.
+  // This guarantees the rest of the page is locked out before focus is moved into the preview.
   React.useEffect(() => {
     if (!isOpen || !isMounted) return;
     const preview = previewRef.current;
+    if (!preview) return;
     const thumbButton = thumbButtonRef.current;
     const siblings = Array.from(document.body.children).filter(el => el !== preview);
     siblings.forEach(el => el.setAttribute('inert', ''));
@@ -349,6 +478,73 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       thumbButton?.focus();
     };
   }, [isOpen, isMounted]);
+
+  React.useEffect(() => {
+    if (isVideoFullscreen) { enteredFullscreenRef.current = true; return; }
+    if (!isOpen || !isMounted) {
+      // Reset flag if the preview closes while still in fullscreen (e.g. another
+      // project triggers DEACTIVATE), so the next open focuses the close button normally.
+      enteredFullscreenRef.current = false;
+      return;
+    }
+    if (enteredFullscreenRef.current) {
+      // Exiting fullscreen: leave focus alone.
+      // Keyboard exit → focus already on fs button (no blur happened) → controls stay visible ✓
+      // Mouse exit → blur() was called in toggleFullscreen → focus on body → controls hide ✓
+      enteredFullscreenRef.current = false;
+      return;
+    }
+    (closeButtonRef.current ?? previewRef.current)?.focus();
+  }, [isOpen, isMounted, isVideoFullscreen]);
+
+  React.useEffect(() => {
+    if (!isOpen && !isHovered) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Dismiss hover-only preview on Tab/Escape.
+      // Suppress mouseenter until the next real mousemove so the browser's synthetic
+      // mouseenter (fired when the portal unmounts under the cursor) doesn't re-open
+      // the next thumbnail's preview immediately.
+      if (!isOpen && (e.key === 'Tab' || e.key === 'Escape')) {
+        suppressHoverUntilMouseMove = true;
+        document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+        closePreview();
+        return;
+      }
+      if (!isOpen) return;
+      if (e.key === 'Escape') {
+        if (isVideoFullscreen) {
+          const c = previewRef.current;
+          if (c) killTransitionForExit(c);
+        } else {
+          closePreview();
+        }
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const container = previewRef.current;
+      if (!container) return;
+      const focusable = Array.from(
+        container.querySelectorAll<HTMLElement>('button:not([tabindex="-1"]), [role="slider"][tabindex="0"]')
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
+      // If focus is outside the interactive controls (e.g. on body or the container
+      // div itself after a mouse-triggered fullscreen), pull it in immediately.
+      if (!container.contains(document.activeElement) || document.activeElement === container) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isHovered, isVideoFullscreen, closePreview]);
 
   React.useEffect(
     () => () => {
@@ -376,6 +572,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   const preview = isMounted && createPortal(
     <div
       ref={previewRef}
+      tabIndex={-1}
       className={cx(
         'project-thumb-preview',
         isShown && 'project-thumb-preview-visible',
@@ -393,12 +590,12 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
         : { 'aria-hidden': true as const })}
     >
       {type === 'video'
-        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} onDimensionsLoaded={handleDimensionsLoaded} />
+        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
         : imgError
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />
       }
-      {isOpen && (
+      {isOpen && !isVideoFullscreen && (
         <button
           ref={closeButtonRef}
           className="project-thumb-close"
@@ -416,11 +613,13 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     <>
       <button
         ref={thumbButtonRef}
-        className={cx('project-thumb', isVisible && 'project-thumb-active')}
+        className={cx('project-thumb', isMounted && 'project-thumb-active')}
         onClick={() => { coord.notifyActivated(id); dispatch({ type: 'OPEN' }); }}
         onMouseEnter={handleThumbEnter}
         onMouseLeave={handleThumbLeave}
         aria-label={`Preview ${alt}`}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
       >
         <Image
           src={thumbSrc}
