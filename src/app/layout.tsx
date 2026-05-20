@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     'Portfolio',
   ],
   authors: [{ name: 'Nathan Champagne' }],
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
   alternates: {
     canonical: '/',
   },
