@@ -1,25 +1,25 @@
 .hover-underline {
   position: relative;
   transition: color 0.3s ease;
-}
 
-.hover-underline:hover {
-  color: var(--accent-green);
-}
+  &:hover {
+    color: var(--accent-green);
 
-.hover-underline::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 1px;
-  bottom: -2px;
-  left: 0;
-  background-color: var(--accent-green);
-  transition: width 0.3s ease;
-}
+    &::after {
+      width: 100%;
+    }
+  }
 
-.hover-underline:hover::after {
-  width: 100%;
+  &::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--accent-green);
+    transition: width 0.3s ease;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

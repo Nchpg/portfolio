@@ -5,25 +5,25 @@
     opacity 0.3s ease;
   cursor: default;
   will-change: transform;
-}
 
-.title-line:hover {
-  transform: scale(1.08) rotate(-3deg);
-  z-index: 2;
-}
+  &:hover {
+    transform: scale(1.08) rotate(-3deg);
+    z-index: 2;
+  }
 
-.title-line.outline {
-  color: transparent;
-  -webkit-text-stroke-width: 0.008em;
-  -webkit-text-stroke-color: var(--text-primary);
-  paint-order: stroke fill;
-  text-rendering: geometricprecision;
-  opacity: 0.8;
-}
+  &.outline {
+    color: transparent;
+    -webkit-text-stroke-width: 0.008em;
+    -webkit-text-stroke-color: var(--text-primary);
+    paint-order: stroke fill;
+    text-rendering: geometricprecision;
+    opacity: 0.8;
 
-.title-line.outline:hover {
-  transform: scale(1.08) rotate(3deg);
-  opacity: 1;
+    &:hover {
+      transform: scale(1.08) rotate(3deg);
+      opacity: 1;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

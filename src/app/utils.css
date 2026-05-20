@@ -17,7 +17,7 @@
   padding-inline: clamp(24px, 4vw, 72px);
 }
 
-@media (width <= 768px) {
+@media (--bp-md) {
   .container {
     padding-inline: 22px;
   }

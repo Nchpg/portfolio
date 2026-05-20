@@ -12,12 +12,12 @@
     padding-left 0.3s ease;
   padding: 16px 0;
   border-bottom: 1px solid var(--border-faint);
-}
 
-.contact-link:hover {
-  color: var(--accent-green);
-  border-color: var(--accent-green);
-  padding-left: 10px;
+  &:hover {
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+    padding-left: 10px;
+  }
 }
 
 .link-name {
@@ -45,29 +45,33 @@
   text-align: right;
   min-width: 0;
   white-space: nowrap;
-}
 
-.link-id::after {
-  content: 'Click to copy';
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 6px);
-  font-size: 10px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
+  &::after {
+    content: 'Click to copy';
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
 
-.link-id:hover::after {
-  opacity: 0.6;
-}
+  &:hover {
+    opacity: 1;
+    color: var(--accent-green);
 
-.link-id:hover {
-  opacity: 1;
-  color: var(--accent-green);
+    &::after {
+      opacity: 0.6;
+    }
+
+    .copy-icon {
+      opacity: 1;
+    }
+  }
 }
 
 .copy-icon {
@@ -78,10 +82,6 @@
     transform 0.3s ease;
 }
 
-.link-id:hover .copy-icon {
-  opacity: 1;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .contact-link,
   .link-id,
@@ -90,7 +90,7 @@
   }
 }
 
-@media (width <= 640px) {
+@media (--bp-sm) {
   .contact-link {
     flex-direction: column;
     align-items: flex-start;
@@ -102,9 +102,9 @@
     text-overflow: unset;
     align-self: flex-start;
     text-align: left;
-  }
 
-  .link-id::after {
-    display: none;
+    &::after {
+      display: none;
+    }
   }
 }

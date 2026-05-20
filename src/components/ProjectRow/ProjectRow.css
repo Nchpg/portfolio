@@ -16,14 +16,6 @@
     padding-inline 0.25s ease;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .project-row:hover,
-  .project-row:has(.project-thumb-active) {
-    background-color: var(--border-soft);
-    padding-inline: 24px;
-  }
-}
-
 .project-index {
   font-size: 14px;
   opacity: 0.4;
@@ -32,17 +24,17 @@
 .project-main {
   display: grid;
   gap: 12px;
-}
 
-.project-main h3 {
-  font-size: clamp(32px, 5vw, 76px);
-  line-height: 0.9;
-}
+  & h3 {
+    font-size: clamp(32px, 5vw, 76px);
+    line-height: 0.9;
+  }
 
-.project-main p {
-  max-width: 680px;
-  font-size: 16px;
-  opacity: 0.68;
+  & p {
+    max-width: 680px;
+    font-size: 16px;
+    opacity: 0.68;
+  }
 }
 
 .project-links {
@@ -59,10 +51,10 @@
   font-size: 15px;
   font-weight: 500;
   color: var(--text-primary);
-}
 
-.project-link svg {
-  flex-shrink: 0;
+  & svg {
+    flex-shrink: 0;
+  }
 }
 
 .project-meta {
@@ -72,30 +64,35 @@
   justify-content: flex-end;
   justify-self: end;
   max-width: 100%;
-}
 
-.project-meta span {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 8px 14px;
-  border: 1.5px solid currentcolor;
-  border-radius: 100px;
-  opacity: 0.55;
-  white-space: nowrap;
-  transition:
-    color 0.35s ease,
-    border-color 0.35s ease,
-    opacity 0.35s ease;
+  & span {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1.5px solid currentcolor;
+    border-radius: 100px;
+    opacity: 0.55;
+    white-space: nowrap;
+    transition:
+      color 0.35s ease,
+      border-color 0.35s ease,
+      opacity 0.35s ease;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .project-row:hover .project-meta span,
-  .project-row:has(.project-thumb-active) .project-meta span {
-    color: var(--accent-green);
-    border-color: var(--accent-green);
-    opacity: 1;
+  .project-row:hover,
+  .project-row:has(.project-thumb-active) {
+    background-color: var(--border-soft);
+    padding-inline: 24px;
+
+    .project-meta span {
+      color: var(--accent-green);
+      border-color: var(--accent-green);
+      opacity: 1;
+    }
   }
 }
 
@@ -106,7 +103,7 @@
   }
 }
 
-@media (width <= 992px) {
+@media (--bp-lg) {
   .project-row {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:

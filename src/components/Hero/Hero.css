@@ -9,18 +9,23 @@
   padding-bottom: clamp(20px, 3vh, 64px);
   padding-top: clamp(16px, 2.5vh, 48px);
   overflow: hidden;
-}
 
-.hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 180px;
-  background: linear-gradient(to bottom, transparent, var(--bg-color));
-  pointer-events: none;
-  z-index: 0;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: linear-gradient(to bottom, transparent, var(--bg-color));
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  & .navbar {
+    width: 100%;
+    padding-bottom: clamp(12px, 2.5vh, 32px);
+  }
 }
 
 .hero-content {
@@ -32,12 +37,6 @@
   z-index: 1;
 }
 
-.hero .navbar {
-  width: 100%;
-  padding-bottom: clamp(12px, 2.5vh, 32px);
-}
-
-/* Main Vertical Stack */
 .hero-main-stack {
   display: flex;
   flex-direction: column;
@@ -48,7 +47,6 @@
   width: 100%;
 }
 
-/* Title Wrapper */
 .hero-title-wrapper {
   position: relative;
 }
@@ -65,7 +63,6 @@
   align-items: center;
 }
 
-/* Details Stack */
 .hero-text-block {
   display: flex;
   flex-direction: column;
@@ -100,8 +97,7 @@
   color: var(--accent-green);
 }
 
-/* Larger than HD */
-@media (width >= 1920px) {
+@media (--bp-xl) {
   .hero-title {
     font-size: clamp(240px, 13vw, 270px);
   }
@@ -121,7 +117,7 @@
   }
 }
 
-@media (width <= 768px) {
+@media (--bp-md) {
   .hero {
     height: auto;
     min-height: 100vh;
@@ -144,7 +140,7 @@
   }
 }
 
-@media (width <= 480px) {
+@media (--bp-xs) {
   .hero-title {
     font-size: clamp(48px, 16vw, 96px);
   }
@@ -155,9 +151,6 @@
   }
 }
 
-/* Landscape phones - short height, wide width: split into 2 columns */
-
-/* Declared last so it overrides max-height: 700px and max-width: 768px rules */
 @media (height <= 500px) and (orientation: landscape) {
   .hero {
     height: 100vh;
@@ -165,10 +158,10 @@
     min-height: 360px;
     padding-top: 8px;
     padding-bottom: 12px;
-  }
 
-  .hero .navbar {
-    padding-bottom: 8px;
+    & .navbar {
+      padding-bottom: 8px;
+    }
   }
 
   .hero-main-stack {
@@ -208,4 +201,3 @@
     margin: 0;
   }
 }
-

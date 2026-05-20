@@ -1,5 +1,11 @@
 @import url('utils.css');
 
+@custom-media --bp-xs (width <= 480px);
+@custom-media --bp-sm (width <= 640px);
+@custom-media --bp-md (width <= 768px);
+@custom-media --bp-lg (width <= 992px);
+@custom-media --bp-xl (width >= 1920px);
+
 /* Global Variables & Fonts */
 :root {
   --bg-color: #212121;

@@ -13,7 +13,7 @@
   opacity: 0.55;
 }
 
-@media (width <= 992px) {
+@media (--bp-lg) {
   .footer-bottom {
     flex-wrap: nowrap;
   }

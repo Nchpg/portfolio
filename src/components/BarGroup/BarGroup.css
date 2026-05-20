@@ -17,7 +17,7 @@
   font-weight: 500;
 }
 
-@media (width <= 768px) {
+@media (--bp-md) {
   .bar-label {
     font-size: 10px;
     letter-spacing: 0.15em;
@@ -28,7 +28,7 @@
   }
 }
 
-@media (width <= 480px) {
+@media (--bp-xs) {
   .bar-label {
     font-size: 9px;
     letter-spacing: 0.12em;

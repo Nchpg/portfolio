@@ -16,10 +16,10 @@
   position: absolute;
   transform: translate3d(var(--x, 0), var(--y, 0), 0) translate(-50%, -50%);
   will-change: transform;
-}
 
-.custom-cursor-dot.is-visible {
-  opacity: 1;
+  &.is-visible {
+    opacity: 1;
+  }
 }
 
 .custom-cursor-ring {
@@ -35,15 +35,15 @@
   position: absolute;
   transform: translate3d(var(--x, 0), var(--y, 0), 0) translate(-50%, -50%);
   will-change: transform;
-}
 
-.custom-cursor-ring.is-visible {
-  opacity: 1;
-}
+  &.is-visible {
+    opacity: 1;
+  }
 
-.custom-cursor-ring.is-hovering {
-  width: 50px;
-  height: 50px;
+  &.is-hovering {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

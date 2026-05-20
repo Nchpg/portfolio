@@ -8,16 +8,21 @@
   border: none;
   padding: 0;
   display: block;
-}
 
-.project-thumb > img,
-.project-thumb > video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  border-radius: 6px;
-  overflow: hidden;
+  & > img,
+  & > video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+  }
 }
 
 .project-thumb-preview {
@@ -41,19 +46,37 @@
     opacity 0.25s ease,
     transform 0.25s ease;
   cursor: pointer;
+
+  &.project-thumb-preview-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  &:hover:not(.project-thumb-preview-active) {
+    cursor: none;
+  }
+
+  &:hover.project-thumb-preview-active .project-thumb-controls {
+    opacity: 1;
+  }
+
+  & img,
+  & video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
 }
 
-.project-thumb-preview-visible {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
+.project-thumb-preview-open {
+  & .project-thumb-controls:focus-within {
+    opacity: 1;
+  }
 
-.project-thumb-preview img,
-.project-thumb-preview video {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: contain;
+  &.project-thumb-preview-active .project-thumb-controls {
+    opacity: 1;
+  }
 }
 
 .project-thumb-close {
@@ -73,23 +96,15 @@
   backdrop-filter: blur(8px);
   transition: background 0.2s ease;
   z-index: 2;
-}
 
-.project-thumb-close:hover {
-  background: var(--overlay-intense);
-}
+  &:hover {
+    background: var(--overlay-intense);
+  }
 
-.project-thumb:focus-visible,
-.project-thumb-ctrl:focus-visible,
-.project-thumb-close:focus-visible {
-  outline: 2px solid var(--accent-green);
-  outline-offset: 2px;
-}
-
-.project-thumb-progress:focus-visible {
-  outline: 2px solid var(--accent-green);
-  outline-offset: 4px;
-  border-radius: 2px;
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+  }
 }
 
 .project-thumb-controls {
@@ -112,22 +127,6 @@
   transition: opacity 0.25s ease;
 }
 
-.project-thumb-preview:hover:not(.project-thumb-preview-active) {
-  cursor: none;
-}
-
-.project-thumb-preview-open .project-thumb-controls:focus-within {
-  opacity: 1;
-}
-
-.project-thumb-preview-open.project-thumb-preview-active .project-thumb-controls {
-  opacity: 1;
-}
-
-.project-thumb-preview:hover.project-thumb-preview-active .project-thumb-controls {
-  opacity: 1;
-}
-
 .project-thumb-ctrl {
   width: 36px;
   height: 36px;
@@ -141,10 +140,15 @@
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.2s ease;
-}
 
-.project-thumb-ctrl:hover {
-  background: color-mix(in srgb, var(--text-primary) 15%, transparent);
+  &:hover {
+    background: color-mix(in srgb, var(--text-primary) 15%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+  }
 }
 
 .project-thumb-progress {
@@ -154,16 +158,26 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-}
 
-.project-thumb-progress::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: color-mix(in srgb, var(--text-primary) 25%, transparent);
-  border-radius: 2px;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: color-mix(in srgb, var(--text-primary) 25%, transparent);
+    border-radius: 2px;
+  }
+
+  &:hover .project-thumb-progress-handle {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
 }
 
 .project-thumb-progress-fill {
@@ -187,16 +201,6 @@
   transition: opacity 0.2s ease;
 }
 
-.project-thumb-progress:hover .project-thumb-progress-handle {
-  opacity: 1;
-}
-
-@media (hover: none), (pointer: coarse) {
-  .project-thumb-progress-handle {
-    opacity: 1;
-  }
-}
-
 .project-thumb-error {
   display: flex;
   align-items: center;
@@ -207,7 +211,13 @@
   font-size: 0.875rem;
 }
 
-@media (width <= 992px) {
+@media (hover: none), (pointer: coarse) {
+  .project-thumb-progress-handle {
+    opacity: 1;
+  }
+}
+
+@media (--bp-lg) {
   .project-thumb {
     grid-area: thumb;
     aspect-ratio: 16 / 9;
