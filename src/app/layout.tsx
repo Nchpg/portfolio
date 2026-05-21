@@ -3,6 +3,9 @@ import './globals.css';
 import { inter, bebasNeue } from './fonts';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nathanchampagne.dev';
+const siteTitle = 'Nathan Champagne - AI & Software Engineer Portfolio';
+const siteDescription =
+  'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -18,11 +21,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Nathan Champagne - AI & Software Engineer Portfolio',
+    default: siteTitle,
     template: '%s | Nathan Champagne',
   },
-  description:
-    'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
+  description: siteDescription,
   keywords: [
     'AI Engineer',
     'Software Engineer',
@@ -38,6 +40,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: '/favicon.png',
     apple: '/favicon.png',
@@ -47,23 +53,21 @@ export const metadata: Metadata = {
     url: siteUrl,
     locale: 'en_US',
     siteName: 'Nathan Champagne',
-    title: 'Nathan Champagne - AI & Software Engineer Portfolio',
-    description:
-      'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
+    title: siteTitle,
+    description: siteDescription,
     images: [
       {
         url: `${siteUrl}/og-image.jpg`,
         width: 1200,
         height: 630,
-        alt: 'Nathan Champagne - AI & Software Engineer Portfolio',
+        alt: siteTitle,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nathan Champagne - AI & Software Engineer Portfolio',
-    description:
-      'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
+    title: siteTitle,
+    description: siteDescription,
     images: [`${siteUrl}/og-image.jpg`],
   },
   other: {

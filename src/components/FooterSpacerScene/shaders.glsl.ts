@@ -64,8 +64,9 @@ varying vec3 vColor;
 
 void main() {
     vec2 coord = gl_PointCoord - vec2(0.5);
-    float len = length(coord);          // computed once, used twice
-    if (len > 0.5) discard;
+    float lenSq = dot(coord, coord);
+    if (lenSq > 0.25) discard;
+    float len = sqrt(lenSq);
     float alpha = smoothstep(0.5, 0.35, len);
     gl_FragColor = vec4(vColor, alpha * 0.85);
 }

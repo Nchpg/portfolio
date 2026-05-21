@@ -12,9 +12,7 @@ export default function Home({ children }: { children: React.ReactNode }) {
   return (
     <ProjectThumbProvider>
       <div className="app">
-        <Suspense fallback={null}>
-          <CustomCursor />
-        </Suspense>
+        <CustomCursor />
         <main className="content">
           <ErrorBoundary>
             <Hero />

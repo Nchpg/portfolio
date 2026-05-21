@@ -363,7 +363,11 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   const previewLeaveTimeRef = React.useRef(0);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
 
-  const closePreview = React.useCallback(() => {
+  const closePreview = React.useCallback((suppressHover = false) => {
+    if (suppressHover) {
+      suppressHoverUntilMouseMove = true;
+      document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+    }
     dispatch({ type: 'CLOSE' });
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
   }, []);
@@ -659,7 +663,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
         <button
           ref={closeButtonRef}
           className="project-thumb-close"
-          onClick={(e) => { e.stopPropagation(); closePreview(); }}
+          onClick={(e) => { e.stopPropagation(); closePreview(true); }}
           aria-label="Close preview"
         >
           <CloseIcon />
@@ -669,6 +673,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
         <button
           className="project-thumb-img-fs"
           onClick={toggleImgFullscreen}
+          tabIndex={isOpen ? 0 : -1}
           aria-label={isPreviewFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
         >
           {isPreviewFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
