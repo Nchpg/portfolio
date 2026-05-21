@@ -4,7 +4,7 @@ import type { ElementType, MouseEvent, CSSProperties } from 'react';
 import { cx } from '../../utils/cx';
 import './WaveText.css';
 
-const NBSP = ' ';
+const NBSP = ' ';
 
 type Props = {
   text: string;
@@ -42,7 +42,7 @@ const WaveText = ({
     data-index={dataIndex}
   >
     {text.split('').map((char, i) => (
-      <span key={i} className="wave-char" style={{ '--i': i } as CSSProperties}>
+      <span key={i} className={char === ' ' ? 'wave-char wave-char-space' : 'wave-char'} style={{ '--i': i } as CSSProperties}>
         {char === ' ' ? NBSP : char}
       </span>
     ))}

@@ -11,6 +11,7 @@ import './ProjectThumb.css';
 
 const HOVER_LEAVE_DELAY_MS = 200;
 const INACTIVITY_DELAY_MS = 2000;
+const SCROLL_DISMISS_PX = 80;
 
 // Shared across all instances: suppresses synthetic mouseenter events that browsers
 // fire when a portal is removed and the cursor happens to be over another thumbnail.
@@ -504,17 +505,16 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     [coord, id]
   );
 
-  // Inert must be defined before the focus effect so it runs first within the same commit.
-  // This guarantees the rest of the page is locked out before focus is moved into the preview.
   React.useEffect(() => {
     if (!isOpen || !isMounted) return;
-    const preview = previewRef.current;
-    if (!preview) return;
     const thumbButton = thumbButtonRef.current;
-    const siblings = Array.from(document.body.children).filter(el => el !== preview);
-    siblings.forEach(el => el.setAttribute('inert', ''));
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     return () => {
-      siblings.forEach(el => el.removeAttribute('inert'));
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
       thumbButton?.focus();
     };
   }, [isOpen, isMounted]);
@@ -594,6 +594,16 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   React.useEffect(() => {
     if (!isMounted) setIsKeyboardClosing(false);
   }, [isMounted]);
+
+  React.useEffect(() => {
+    if (!isHovered || isOpen) return;
+    const startY = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - startY) > SCROLL_DISMISS_PX) closePreview();
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHovered, isOpen, closePreview]);
 
   React.useEffect(
     () => () => {
