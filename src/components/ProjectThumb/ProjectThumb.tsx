@@ -309,17 +309,17 @@ const initialState: State = {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'OPEN':               return { ...state, isOpen: true };
-    case 'CLOSE':              return { ...state, isOpen: false, isHovered: false };
-    case 'HOVER':              return { ...state, isHovered: true };
-    case 'UNHOVER':            return { ...state, isHovered: false };
-    case 'DEACTIVATE':         return { ...state, isOpen: false, isHovered: false };
-    case 'MOUNT':              return { ...state, isMounted: true };
-    case 'UNMOUNT':            return { ...state, isMounted: false };
-    case 'SHOW':               return { ...state, isShown: true };
-    case 'HIDE':               return { ...state, isShown: false };
-    case 'SET_PREVIEW_STYLE':  return { ...state, previewStyle: action.style };
-    case 'SET_MOUSE_ACTIVE':   return { ...state, isMouseActive: action.active };
+    case 'OPEN':              return { ...state, isOpen: true };
+    case 'CLOSE':             return { ...state, isOpen: false, isHovered: false };
+    case 'HOVER':             return { ...state, isHovered: true };
+    case 'UNHOVER':           return { ...state, isHovered: false };
+    case 'DEACTIVATE':        return { ...state, isOpen: false, isHovered: false };
+    case 'MOUNT':             return { ...state, isMounted: true };
+    case 'UNMOUNT':           return { ...state, isMounted: false };
+    case 'SHOW':              return { ...state, isShown: true };
+    case 'HIDE':              return { ...state, isShown: false };
+    case 'SET_PREVIEW_STYLE': return { ...state, previewStyle: action.style };
+    case 'SET_MOUSE_ACTIVE':  return state.isMouseActive === action.active ? state : { ...state, isMouseActive: action.active };
     default: {
       const _: never = action;
       return state;
@@ -347,7 +347,8 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   const { isOpen, isHovered, isMounted, isShown, previewStyle, isMouseActive } = state;
 
   const [imgError, setImgError] = React.useState(false);
-  const [isVideoFullscreen, setIsVideoFullscreen] = React.useState(false);
+  const [isPreviewFullscreen, setIsPreviewFullscreen] = React.useState(false);
+  const [isKeyboardClosing, setIsKeyboardClosing] = React.useState(false);
   const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const closingRef = React.useRef(false);
@@ -358,6 +359,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   // close button on exit (keyboard exit keeps focus on fs button naturally;
   // mouse exit blurs to body — both are correct without any explicit focus call).
   const enteredFullscreenRef = React.useRef(false);
+  const previewLeaveTimeRef = React.useRef(0);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
 
   const closePreview = React.useCallback(() => {
@@ -367,6 +369,9 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
 
   const handleThumbEnter = React.useCallback(() => {
     if (suppressHoverUntilMouseMove) return;
+    // Block quick re-hover only when cursor is NOT coming from our own preview.
+    // If closingRef is true the cursor came directly from the preview → allow immediately.
+    if (!closingRef.current && Date.now() - previewLeaveTimeRef.current < HOVER_LEAVE_DELAY_MS) return;
     if (coord.isPinnedElsewhere(id)) return;
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     closingRef.current = false;
@@ -379,15 +384,10 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     hoverLeaveTimer.current = setTimeout(() => dispatch({ type: 'UNHOVER' }), HOVER_LEAVE_DELAY_MS);
   }, []);
 
-  const handlePreviewEnter = React.useCallback(() => {
-    if (closingRef.current) return;
-    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-    dispatch({ type: 'HOVER' });
-  }, []);
-
   const handlePreviewLeave = React.useCallback(() => {
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     closingRef.current = true;
+    previewLeaveTimeRef.current = Date.now();
     dispatch({ type: 'UNHOVER' });
   }, []);
 
@@ -401,21 +401,61 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   }, []);
 
   const handlePreviewMouseEnter = React.useCallback(() => {
-    handlePreviewEnter();
+    if (closingRef.current) return;
+    if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    dispatch({ type: 'HOVER' });
     handlePreviewMouseMove();
-  }, [handlePreviewEnter, handlePreviewMouseMove]);
+  }, [handlePreviewMouseMove]);
 
   // Fullscreen mouse activity is tracked via CSS custom property directly on the
   // element — completely decoupled from React state to avoid batching/deferral issues.
   const handleFullscreenChange = React.useCallback((isFs: boolean) => {
-    setIsVideoFullscreen(isFs);
+    setIsPreviewFullscreen(isFs);
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
     if (!isFs && !supportsHover) closePreview();
   }, [supportsHover, closePreview]);
 
+  const toggleImgFullscreen = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (e.detail > 0) (e.currentTarget as HTMLElement).blur();
+    const container = previewRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    if (document.fullscreenElement) {
+      const el = previewRef.current;
+      if (el) killTransitionForExit(el);
+      document.exitFullscreen();
+    } else {
+      const el = previewRef.current;
+      if (el) maskForEntry(el);
+      coord.notifyActivated(id);
+      dispatch({ type: 'OPEN' });
+      if (container?.requestFullscreen) container.requestFullscreen();
+      else if (container?.webkitRequestFullscreen) container.webkitRequestFullscreen();
+    }
+  }, [coord, id]);
+
   React.useEffect(() => {
-    if (!isVideoFullscreen) return;
+    if (type !== 'img' || !isOpen) return;
+    const onFsChange = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+      setIsPreviewFullscreen(isFs);
+      const el = previewRef.current;
+      if (!el) return;
+      if (isFs) unmaskAfterEntry(el);
+      else { killTransitionForExit(el); restoreTransitionAfterExit(el); }
+      if (!isFs && !supportsHover) closePreview();
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+    };
+  }, [type, isOpen, supportsHover, closePreview]);
+
+  React.useEffect(() => {
+    if (!isPreviewFullscreen) return;
     const el = previewRef.current;
     if (!el) return;
     let fsTimer: ReturnType<typeof setTimeout> | null = null;
@@ -432,7 +472,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       if (fsTimer) clearTimeout(fsTimer);
       hide();
     };
-  }, [isVideoFullscreen]);
+  }, [isPreviewFullscreen]);
 
   const handlePreviewTransitionEnd = React.useCallback((e: React.TransitionEvent) => {
     if (e.target !== e.currentTarget) return;
@@ -480,7 +520,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   }, [isOpen, isMounted]);
 
   React.useEffect(() => {
-    if (isVideoFullscreen) { enteredFullscreenRef.current = true; return; }
+    if (isPreviewFullscreen) { enteredFullscreenRef.current = true; return; }
     if (!isOpen || !isMounted) {
       // Reset flag if the preview closes while still in fullscreen (e.g. another
       // project triggers DEACTIVATE), so the next open focuses the close button normally.
@@ -495,7 +535,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       return;
     }
     (closeButtonRef.current ?? previewRef.current)?.focus();
-  }, [isOpen, isMounted, isVideoFullscreen]);
+  }, [isOpen, isMounted, isPreviewFullscreen]);
 
   React.useEffect(() => {
     if (!isOpen && !isHovered) return;
@@ -505,6 +545,9 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       // mouseenter (fired when the portal unmounts under the cursor) doesn't re-open
       // the next thumbnail's preview immediately.
       if (!isOpen && (e.key === 'Tab' || e.key === 'Escape')) {
+        // Keep project-thumb-active alive during the close animation so the row
+        // stays highlighted until :hover takes over (updated on next pointer event).
+        setIsKeyboardClosing(true);
         suppressHoverUntilMouseMove = true;
         document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
         closePreview();
@@ -512,7 +555,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       }
       if (!isOpen) return;
       if (e.key === 'Escape') {
-        if (isVideoFullscreen) {
+        if (isPreviewFullscreen) {
           const c = previewRef.current;
           if (c) killTransitionForExit(c);
         } else {
@@ -544,7 +587,13 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isHovered, isVideoFullscreen, closePreview]);
+  }, [isOpen, isHovered, isPreviewFullscreen, closePreview]);
+
+  // Clear keyboard-closing flag once the portal has fully unmounted so that
+  // project-thumb-active is no longer held artificially.
+  React.useEffect(() => {
+    if (!isMounted) setIsKeyboardClosing(false);
+  }, [isMounted]);
 
   React.useEffect(
     () => () => {
@@ -577,7 +626,8 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
         'project-thumb-preview',
         isShown && 'project-thumb-preview-visible',
         isOpen && 'project-thumb-preview-open',
-        isMouseActive && 'project-thumb-preview-active'
+        isMouseActive && 'project-thumb-preview-active',
+        isVisible && 'project-thumb-preview-interactive'
       )}
       style={previewStyle || undefined}
       onMouseEnter={handlePreviewMouseEnter}
@@ -595,7 +645,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />
       }
-      {isOpen && !isVideoFullscreen && (
+      {isOpen && !isPreviewFullscreen && (
         <button
           ref={closeButtonRef}
           className="project-thumb-close"
@@ -603,6 +653,15 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
           aria-label="Close preview"
         >
           <CloseIcon />
+        </button>
+      )}
+      {type === 'img' && isVisible && (
+        <button
+          className="project-thumb-img-fs"
+          onClick={toggleImgFullscreen}
+          aria-label={isPreviewFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+        >
+          {isPreviewFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
         </button>
       )}
     </div>,
@@ -613,7 +672,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     <>
       <button
         ref={thumbButtonRef}
-        className={cx('project-thumb', isMounted && 'project-thumb-active')}
+        className={cx('project-thumb', (isVisible || isKeyboardClosing) && 'project-thumb-active')}
         onClick={() => { coord.notifyActivated(id); dispatch({ type: 'OPEN' }); }}
         onMouseEnter={handleThumbEnter}
         onMouseLeave={handleThumbLeave}

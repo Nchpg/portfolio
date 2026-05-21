@@ -87,6 +87,10 @@
   .project-row:has(.project-thumb-active) {
     background-color: var(--border-soft);
     padding-inline: 24px;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease,
+      padding-inline 0.25s ease;
 
     .project-meta span {
       color: var(--accent-green);
