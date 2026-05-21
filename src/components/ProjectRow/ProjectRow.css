@@ -71,13 +71,16 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 8px 14px;
-    border: 1.5px solid currentcolor;
+    background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-primary) 15%, transparent);
     border-radius: 100px;
-    opacity: 0.55;
+    opacity: 0.7;
     white-space: nowrap;
     transition:
       color 0.35s ease,
       border-color 0.35s ease,
+      background 0.35s ease,
+      box-shadow 0.35s ease,
       opacity 0.35s ease;
   }
 }
@@ -92,10 +95,17 @@
       color 0.25s ease,
       padding-inline 0.25s ease;
 
-    .project-meta span {
+    & .project-meta span {
       color: var(--accent-green);
-      border-color: var(--accent-green);
+      border-color: color-mix(in srgb, var(--accent-green) 55%, transparent);
+      background: color-mix(in srgb, var(--accent-green) 9%, transparent);
       opacity: 1;
+    }
+
+    & .project-meta span:hover {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--accent-green) 18%, transparent),
+        0 0 16px color-mix(in srgb, var(--accent-green) 20%, transparent);
     }
   }
 }
