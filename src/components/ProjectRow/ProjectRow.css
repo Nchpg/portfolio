@@ -118,7 +118,14 @@
 }
 
 @media (--bp-lg) {
+  .project-row:hover,
+  .project-row:has(.project-thumb-active) {
+    padding-inline: 24px;
+  }
+
   .project-row {
+    padding-inline: 24px;
+    margin-inline: -12px;
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       'thumb'
