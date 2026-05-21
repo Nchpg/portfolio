@@ -92,6 +92,7 @@
   &:hover.project-thumb-preview-active .project-thumb-controls,
   &:hover.project-thumb-preview-active .project-thumb-img-fs {
     opacity: 1;
+    pointer-events: auto;
   }
 
   & img,
@@ -107,11 +108,13 @@
   & .project-thumb-controls:focus-within,
   & .project-thumb-img-fs:focus-visible {
     opacity: 1;
+    pointer-events: auto;
   }
 
   &.project-thumb-preview-active .project-thumb-controls,
   &.project-thumb-preview-active .project-thumb-img-fs {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
@@ -160,6 +163,7 @@
   );
   z-index: 2;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.25s ease;
 }
 
@@ -276,6 +280,7 @@
   cursor: pointer;
   backdrop-filter: blur(8px);
   opacity: 0;
+  pointer-events: none;
   transition: background 0.2s ease, opacity 0.25s ease;
   z-index: 2;
 
@@ -315,6 +320,7 @@
 
   & .project-thumb-controls {
     opacity: var(--fs-active, 0);
+    pointer-events: auto;
     transition: opacity 0.3s ease;
   }
 
@@ -324,6 +330,7 @@
 
   & .project-thumb-img-fs {
     opacity: var(--fs-active, 0);
+    pointer-events: auto;
     transition: opacity 0.3s ease;
     cursor: pointer;
   }
