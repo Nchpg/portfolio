@@ -30,7 +30,7 @@ export default function Home({ children }: { children: React.ReactNode }) {
         </main>
 
         <ErrorBoundary>
-          <Suspense fallback={<div style={{ height: '300px', background: 'var(--bg-color)' }} />}>
+          <Suspense fallback={null}>
             <FooterSpacerScene />
           </Suspense>
         </ErrorBoundary>

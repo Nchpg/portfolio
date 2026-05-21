@@ -1,18 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import {
-  WebGLRenderer,
-  Scene,
-  PerspectiveCamera,
-  Points,
-  BufferGeometry,
-  BufferAttribute,
-  ShaderMaterial,
-  Vector2,
-  AdditiveBlending,
-} from 'three';
-import { vertexShader, fragmentShader } from './shaders.glsl';
 import './FooterSpacerScene.css';
 
 const FooterSpacerScene = () => {
@@ -27,9 +15,20 @@ const FooterSpacerScene = () => {
     let cleanupThree: (() => void) | null = null;
 
     const initObserver = new IntersectionObserver(
-      ([entry]) => {
+      async ([entry]) => {
         if (!entry?.isIntersecting) return;
         initObserver.disconnect();
+
+        const [
+          {
+            WebGLRenderer, Scene, PerspectiveCamera, Points,
+            BufferGeometry, BufferAttribute, ShaderMaterial, Vector2, AdditiveBlending,
+          },
+          { vertexShader, fragmentShader },
+        ] = await Promise.all([
+          import('three'),
+          import('./shaders.glsl'),
+        ]);
 
         const renderer = new WebGLRenderer({
           canvas,

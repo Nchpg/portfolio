@@ -10,11 +10,6 @@ export const inter = Inter({
 export const bebasNeue = localFont({
   src: [
     {
-      path: '../../public/fonts/bebas-neue/BebasNeue-Light.woff2',
-      weight: '200',
-      style: 'normal',
-    },
-    {
       path: '../../public/fonts/bebas-neue/BebasNeue-Bold.woff2',
       weight: '700',
       style: 'normal',
