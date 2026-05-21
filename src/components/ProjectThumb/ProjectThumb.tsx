@@ -328,6 +328,8 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+const NOOP = () => {};
+
 // ─── ProjectThumb ─────────────────────────────────────────────────────────────
 
 type ProjectThumbProps = {
@@ -361,7 +363,11 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   // mouse exit blurs to body — both are correct without any explicit focus call).
   const enteredFullscreenRef = React.useRef(false);
   const previewLeaveTimeRef = React.useRef(0);
+  const narrowContainerRef = React.useRef<HTMLDivElement>(null);
+  const [narrowControlsActive, setNarrowControlsActive] = React.useState(false);
+  const narrowJustActivatedRef = React.useRef(false);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
+  const isNarrow = useMediaQuery('(max-width: 992px)');
 
   const closePreview = React.useCallback((suppressHover = false) => {
     if (suppressHover) {
@@ -439,6 +445,39 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     }
   }, [coord, id]);
 
+  const toggleNarrowImgFullscreen = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (e.detail > 0) (e.currentTarget as HTMLElement).blur();
+    const container = narrowContainerRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      if (container?.requestFullscreen) container.requestFullscreen();
+      else if (container?.webkitRequestFullscreen) container.webkitRequestFullscreen();
+    }
+  }, []);
+
+  const handleNarrowPointerDownCapture = React.useCallback((e: React.PointerEvent) => {
+    if (supportsHover) return;
+    if (!narrowControlsActive) {
+      e.stopPropagation();
+      narrowJustActivatedRef.current = true;
+      setNarrowControlsActive(true);
+    }
+  }, [supportsHover, narrowControlsActive]);
+
+  const handleNarrowClickCapture = React.useCallback((e: React.MouseEvent) => {
+    if (narrowJustActivatedRef.current) {
+      narrowJustActivatedRef.current = false;
+      e.stopPropagation();
+    }
+  }, []);
+
+  const handleNarrowPointerCancelCapture = React.useCallback(() => {
+    // Scroll annulé par le navigateur : pas de click généré, libère le flag immédiatement
+    narrowJustActivatedRef.current = false;
+  }, []);
+
   React.useEffect(() => {
     if (type !== 'img' || !isOpen) return;
     const onFsChange = () => {
@@ -460,8 +499,27 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   }, [type, isOpen, supportsHover, closePreview]);
 
   React.useEffect(() => {
+    if (!isNarrow || type !== 'img') return;
+    const onFsChange = () => {
+      const doc = document as Document & { webkitFullscreenElement?: Element };
+      const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+      setIsPreviewFullscreen(isFs);
+      const el = narrowContainerRef.current;
+      if (!el) return;
+      if (isFs) unmaskAfterEntry(el);
+      else { killTransitionForExit(el); restoreTransitionAfterExit(el); }
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+    };
+  }, [isNarrow, type]);
+
+  React.useEffect(() => {
     if (!isPreviewFullscreen) return;
-    const el = previewRef.current;
+    const el = (isNarrow ? narrowContainerRef : previewRef).current;
     if (!el) return;
     let fsTimer: ReturnType<typeof setTimeout> | null = null;
     const show = () => { el.style.setProperty('--fs-active', '1'); el.style.cursor = 'default'; };
@@ -477,7 +535,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       if (fsTimer) clearTimeout(fsTimer);
       hide();
     };
-  }, [isPreviewFullscreen]);
+  }, [isPreviewFullscreen, isNarrow]);
 
   const handlePreviewTransitionEnd = React.useCallback((e: React.TransitionEvent) => {
     if (e.target !== e.currentTarget) return;
@@ -631,6 +689,65 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
     const r = requestAnimationFrame(() => dispatch({ type: 'SHOW' }));
     return () => cancelAnimationFrame(r);
   }, [isVisible]);
+
+  React.useEffect(() => {
+    if (isNarrow) closePreview();
+    else setNarrowControlsActive(false);
+  }, [isNarrow, closePreview]);
+
+  React.useEffect(() => {
+    if (!narrowControlsActive) return;
+    const timer = setTimeout(() => setNarrowControlsActive(false), 3000);
+    return () => clearTimeout(timer);
+  }, [narrowControlsActive]);
+
+  React.useEffect(() => {
+    if (!narrowControlsActive) return;
+    const onOutside = (e: PointerEvent) => {
+      if (!narrowContainerRef.current?.contains(e.target as Node)) {
+        setNarrowControlsActive(false);
+      }
+    };
+    document.addEventListener('pointerdown', onOutside);
+    return () => document.removeEventListener('pointerdown', onOutside);
+  }, [narrowControlsActive]);
+
+  if (isNarrow) {
+    return (
+      <div
+        ref={narrowContainerRef}
+        className={cx('project-thumb', 'project-thumb-narrow', narrowControlsActive && 'project-thumb-narrow-active')}
+        onPointerDownCapture={handleNarrowPointerDownCapture}
+        onPointerCancelCapture={handleNarrowPointerCancelCapture}
+        onClickCapture={handleNarrowClickCapture}
+      >
+        {type === 'video' ? (
+          <VideoControls
+            src={src}
+            poster={thumbSrc}
+            isOpen={true}
+            containerRef={narrowContainerRef}
+            onPin={NOOP}
+            onFullscreenChange={setIsPreviewFullscreen}
+            onDimensionsLoaded={NOOP}
+          />
+        ) : imgError ? (
+          <div className="project-thumb-error">Preview unavailable</div>
+        ) : (
+          <>
+            <img src={src} alt={`Preview of ${alt}`} onError={() => setImgError(true)} />
+            <button
+              className="project-thumb-img-fs"
+              onClick={toggleNarrowImgFullscreen}
+              aria-label={isPreviewFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            >
+              {isPreviewFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
 
   const preview = isMounted && createPortal(
     <div
