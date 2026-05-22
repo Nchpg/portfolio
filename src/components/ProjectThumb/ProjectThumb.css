@@ -43,10 +43,10 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .project-thumb-narrow:hover .project-thumb-controls,
-  .project-thumb-narrow:hover .project-thumb-img-fs {
-    opacity: 1;
-    pointer-events: auto;
+  .project-thumb-narrow .project-thumb-controls,
+  .project-thumb-narrow .project-thumb-img-fs {
+    opacity: var(--narrow-active, 0);
+    pointer-events: var(--narrow-pe, none);
   }
 }
 
@@ -89,8 +89,8 @@
     cursor: none;
   }
 
-  &:hover.project-thumb-preview-active .project-thumb-controls,
-  &:hover.project-thumb-preview-active .project-thumb-img-fs {
+  &.project-thumb-preview-active .project-thumb-controls,
+  &.project-thumb-preview-active .project-thumb-img-fs {
     opacity: 1;
     pointer-events: auto;
   }
@@ -260,7 +260,6 @@
 @media (--bp-lg) {
   .project-thumb {
     grid-area: thumb;
-    aspect-ratio: 16 / 9;
   }
 }
 

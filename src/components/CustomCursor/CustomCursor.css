@@ -46,6 +46,12 @@
   }
 }
 
+.custom-cursor.is-cursor-none .custom-cursor-dot,
+.custom-cursor.is-cursor-none .custom-cursor-ring {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .custom-cursor-dot,
   .custom-cursor-ring {

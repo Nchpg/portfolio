@@ -10,6 +10,7 @@ const interactiveSelector = 'a, button, img, input, textarea, select';
 const CustomCursor = () => {
   const dotEl = useRef<HTMLDivElement>(null);
   const ringEl = useRef<HTMLDivElement>(null);
+  const wrapperEl = useRef<HTMLDivElement>(null);
 
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -61,6 +62,13 @@ const CustomCursor = () => {
       if (stillMoving) rafId = requestAnimationFrame(animate);
     };
 
+    // Hide circles when the element under the cursor has cursor:none (e.g. inactive preview).
+    const syncVisibility = () => {
+      const el = document.elementFromPoint(target.x, target.y);
+      const hidden = el ? window.getComputedStyle(el).cursor === 'none' : false;
+      wrapperEl.current?.classList.toggle('is-cursor-none', hidden);
+    };
+
     let hasMoved = false;
     const handleMouseMove = (event: MouseEvent) => {
       target.x = event.clientX;
@@ -69,6 +77,7 @@ const CustomCursor = () => {
         hasMoved = true;
         setIsVisible(true);
       }
+      syncVisibility();
       scheduleFrame();
     };
 
@@ -79,6 +88,11 @@ const CustomCursor = () => {
       if ((event.target as Element).closest(interactiveSelector)) setIsHovering(false);
     };
 
+    // Re-check when DOM class attributes change so cursor stops moving doesn't
+    // prevent detection (inactivity timer fires while cursor is stationary).
+    const observer = new MutationObserver(syncVisibility);
+    observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
     window.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseover', handlePointerOver);
     document.addEventListener('mouseout', handlePointerOut);
@@ -88,13 +102,14 @@ const CustomCursor = () => {
       document.removeEventListener('mouseover', handlePointerOver);
       document.removeEventListener('mouseout', handlePointerOut);
       if (rafId) cancelAnimationFrame(rafId);
+      observer.disconnect();
     };
   }, [isDisabled]);
 
   if (isDisabled) return null;
 
   return (
-    <div className="custom-cursor" aria-hidden="true">
+    <div ref={wrapperEl} className="custom-cursor" aria-hidden="true">
       <div ref={dotEl} className={cx('custom-cursor-dot', isVisible && 'is-visible')} />
       <div
         ref={ringEl}
