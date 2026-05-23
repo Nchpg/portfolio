@@ -1,6 +1,7 @@
 export const HOVER_LEAVE_DELAY_MS = 200;
 export const INACTIVITY_DELAY_MS = 2000;
 export const SCROLL_DISMISS_PX = 80;
+export const TIMER_THROTTLE_MS = 250;
 
 export const NOOP = () => {};
 

@@ -23,9 +23,35 @@ export type VideoControlsProps = {
 
 const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
-  const [progress, setProgress] = React.useState(0);
   const [hasError, setHasError] = React.useState(false);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
+
+  const progressContainerRef = React.useRef<HTMLDivElement>(null);
+  const progressFillRef = React.useRef<HTMLDivElement>(null);
+  const progressHandleRef = React.useRef<HTMLDivElement>(null);
+  const lastPctRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    const el = progressContainerRef.current;
+    if (!el) return;
+    el.setAttribute('aria-valuenow', '0');
+    el.setAttribute('aria-valuetext', '0%');
+  }, []);
+
+  const updateProgressUI = React.useCallback((ratio: number) => {
+    const pct = `${ratio * 100}%`;
+    const pctRounded = Math.round(ratio * 100);
+    if (progressFillRef.current) progressFillRef.current.style.width = pct;
+    if (progressHandleRef.current) progressHandleRef.current.style.left = pct;
+    if (lastPctRef.current !== pctRounded) {
+      lastPctRef.current = pctRounded;
+      const container = progressContainerRef.current;
+      if (container) {
+        container.setAttribute('aria-valuenow', pctRounded.toString());
+        container.setAttribute('aria-valuetext', `${pctRounded}%`);
+      }
+    }
+  }, []);
 
   const setFs = React.useCallback((isFs: boolean) => {
     setIsFullscreen(isFs);
@@ -109,7 +135,7 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
 
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
-    if (v.duration) setProgress(v.currentTime / v.duration);
+    if (v.duration) updateProgressUI(v.currentTime / v.duration);
   };
 
   const togglePlay = (e: React.MouseEvent) => {
@@ -126,31 +152,42 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
     const rect = bar.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     v.currentTime = ratio * v.duration;
-    setProgress(ratio);
+    updateProgressUI(ratio);
   };
 
   const handleScrubStart = (e: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>) => {
     e.stopPropagation();
     const bar = e.currentTarget;
     const isTouch = e.type === 'touchstart';
-    const getX = (ev: MouseEvent | TouchEvent) =>
-      isTouch ? ((ev as TouchEvent).touches[0]?.clientX ?? 0) : (ev as MouseEvent).clientX;
-    seekFromEvent(
-      isTouch ? ((e as React.TouchEvent).touches[0]?.clientX ?? 0) : (e as React.MouseEvent).clientX,
-      bar
-    );
+    const getX = (ev: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) =>
+      isTouch
+        ? ((ev as TouchEvent | React.TouchEvent).touches[0]?.clientX ?? 0)
+        : (ev as MouseEvent | React.MouseEvent).clientX;
+
+    let pendingX = getX(e);
+    seekFromEvent(pendingX, bar);
+
     const moveEvent = isTouch ? 'touchmove' : 'mousemove';
     const stopEvent = isTouch ? 'touchend' : 'mouseup';
-    const move = (ev: MouseEvent | TouchEvent) => seekFromEvent(getX(ev), bar);
+    let rafId = 0;
+
+    const move = (ev: MouseEvent | TouchEvent) => {
+      pendingX = getX(ev);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        seekFromEvent(pendingX, bar);
+        rafId = 0;
+      });
+    };
+
     const stop = () => {
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener(moveEvent, move);
       window.removeEventListener(stopEvent, stop);
       scrubCleanupRef.current = null;
     };
-    scrubCleanupRef.current = () => {
-      window.removeEventListener(moveEvent, move);
-      window.removeEventListener(stopEvent, stop);
-    };
+
+    scrubCleanupRef.current = stop;
     window.addEventListener(moveEvent, move);
     window.addEventListener(stopEvent, stop);
   };
@@ -197,7 +234,9 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </button>
+        {/* eslint-disable-next-line jsx-a11y/role-has-required-aria-props */}
         <div
+          ref={progressContainerRef}
           className="project-thumb-progress"
           onMouseDown={handleScrubStart}
           onTouchStart={handleScrubStart}
@@ -205,13 +244,11 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
           role="slider"
           tabIndex={isOpen ? 0 : -1}
           aria-label="Seek"
-          aria-valuenow={Math.round(progress * 100)}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuetext={`${Math.round(progress * 100)}%`}
         >
-          <div className="project-thumb-progress-fill" style={{ width: `${progress * 100}%` }} />
-          <div className="project-thumb-progress-handle" style={{ left: `${progress * 100}%` }} />
+          <div ref={progressFillRef} className="project-thumb-progress-fill" style={{ width: '0%' }} />
+          <div ref={progressHandleRef} className="project-thumb-progress-handle" style={{ left: '0%' }} />
         </div>
         <button
           className="project-thumb-ctrl"

@@ -10,6 +10,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import {
   HOVER_LEAVE_DELAY_MS,
   INACTIVITY_DELAY_MS,
+  TIMER_THROTTLE_MS,
   SCROLL_DISMISS_PX,
   PreviewStyle,
   computePreviewSize,
@@ -110,6 +111,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   // mouse exit blurs to body — both are correct without any explicit focus call).
   const enteredFullscreenRef = React.useRef(false);
   const previewLeaveTimeRef = React.useRef(0);
+  const lastPreviewTimerSetRef = React.useRef(0);
   const previewLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
   const thumbLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
@@ -138,7 +140,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     dispatch({ type: 'CLOSE' });
   }, [cancelPreviewLeaveListener]);
 
-  const handleThumbEnter = React.useCallback(() => {
+  const handleThumbEnter = () => {
     if (suppressHoverUntilMouseMove) return;
     // Block quick re-hover only when cursor is NOT coming from our own preview.
     // If closingRef is true the cursor came directly from the preview → allow immediately.
@@ -150,9 +152,9 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     closingRef.current = false;
     coord.notifyActivated(id);
     dispatch({ type: 'HOVER' });
-  }, [coord, id, cancelPreviewLeaveListener, cancelThumbLeaveListener]);
+  };
 
-  const handleThumbLeave = React.useCallback(() => {
+  const handleThumbLeave = () => {
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     // Watch for the cursor entering a different row: unhover immediately so the
     // old row highlight doesn't linger while the new row's CSS :hover is already active.
@@ -174,9 +176,9 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       cancelThumbLeaveListener();
       dispatch({ type: 'UNHOVER' });
     }, HOVER_LEAVE_DELAY_MS);
-  }, [cancelThumbLeaveListener]);
+  };
 
-  const handlePreviewLeave = React.useCallback(() => {
+  const handlePreviewLeave = () => {
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     if (isOpen) return; // pinned — only close button / Escape can dismiss
     closingRef.current = true;
@@ -203,36 +205,38 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       cancelPreviewLeaveListener();
       dispatch({ type: 'CLOSE' });
     }, HOVER_LEAVE_DELAY_MS);
-  }, [cancelPreviewLeaveListener, isOpen]);
+  };
 
-  const handlePreviewMouseMove = React.useCallback(() => {
+  const handlePreviewMouseMove = () => {
     dispatch({ type: 'SET_MOUSE_ACTIVE', active: true });
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-    inactivityTimer.current = setTimeout(
-      () => dispatch({ type: 'SET_MOUSE_ACTIVE', active: false }),
-      INACTIVITY_DELAY_MS
-    );
-  }, []);
+    const now = Date.now();
+    if (now - lastPreviewTimerSetRef.current > TIMER_THROTTLE_MS) {
+      lastPreviewTimerSetRef.current = now;
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = setTimeout(
+        () => dispatch({ type: 'SET_MOUSE_ACTIVE', active: false }),
+        INACTIVITY_DELAY_MS
+      );
+    }
+  };
 
-  const handlePreviewMouseEnter = React.useCallback(() => {
+  const handlePreviewMouseEnter = () => {
     if (closingRef.current) return;
     cancelPreviewLeaveListener();
     cancelThumbLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     dispatch({ type: 'HOVER' });
     handlePreviewMouseMove();
-  }, [handlePreviewMouseMove, cancelPreviewLeaveListener, cancelThumbLeaveListener]);
+  };
 
-  // Fullscreen mouse activity is tracked via CSS custom property directly on the
-  // element — completely decoupled from React state to avoid batching/deferral issues.
   const handleFullscreenChange = React.useCallback((isFs: boolean) => {
     setIsPreviewFullscreen(isFs);
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
-    if (!isFs && !supportsHover) closePreview();
-  }, [supportsHover, closePreview]);
+    if (!isFs && !supportsHover && !isOpen) closePreview();
+  }, [supportsHover, isOpen, closePreview]);
 
-  const toggleImgFullscreen = React.useCallback((e: React.MouseEvent) => {
+  const toggleImgFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (e.detail > 0) (e.currentTarget as HTMLElement).blur();
     const container = previewRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
@@ -248,7 +252,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       if (container?.requestFullscreen) container.requestFullscreen();
       else if (container?.webkitRequestFullscreen) container.webkitRequestFullscreen();
     }
-  }, [coord, id]);
+  };
 
   React.useEffect(() => {
     if (type !== 'img' || !isOpen) return;
@@ -276,12 +280,17 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     const el = previewRef.current;
     if (!el) return;
     let fsTimer: ReturnType<typeof setTimeout> | null = null;
+    let fsLastTimerSet = 0;
     const show = () => { el.style.setProperty('--fs-active', '1'); el.style.cursor = 'default'; };
     const hide = () => { el.style.removeProperty('--fs-active'); el.style.cursor = ''; };
     const onFsMouseMove = () => {
       show();
-      if (fsTimer) clearTimeout(fsTimer);
-      fsTimer = setTimeout(hide, INACTIVITY_DELAY_MS);
+      const now = Date.now();
+      if (now - fsLastTimerSet > TIMER_THROTTLE_MS) {
+        fsLastTimerSet = now;
+        if (fsTimer) clearTimeout(fsTimer);
+        fsTimer = setTimeout(hide, INACTIVITY_DELAY_MS);
+      }
     };
     document.addEventListener('mousemove', onFsMouseMove);
     return () => {
@@ -291,20 +300,19 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     };
   }, [isPreviewFullscreen]);
 
-  const handlePreviewTransitionEnd = React.useCallback((e: React.TransitionEvent) => {
+  const handlePreviewTransitionEnd = (e: React.TransitionEvent) => {
     if (e.target !== e.currentTarget) return;
     if (!isShown) dispatch({ type: 'UNMOUNT' });
-  }, [isShown]);
+  };
 
   const handleDimensionsLoaded = React.useCallback((style: PreviewStyle | null) => {
     dispatch({ type: 'SET_PREVIEW_STYLE', style });
   }, []);
 
-  const handleImgLoad = React.useCallback((e: React.SyntheticEvent<HTMLImageElement>) =>
-    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight) }
-  ), []);
+  const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) =>
+    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight) });
 
-  const handleImgError = React.useCallback(() => setImgError(true), []);
+  const handleImgError = () => setImgError(true);
 
   const handleVideoPin = React.useCallback(() => {
     coord.notifyActivated(id);
