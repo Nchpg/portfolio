@@ -70,7 +70,10 @@ export default function PageLoader() {
         setCount(100);
         setTimeout(() => {
           setIsExiting(true);
-          setTimeout(() => setIsDone(true), EXIT_STRIPE_DURATION);
+          setTimeout(() => {
+            document.body.classList.add('page-loaded');
+            setIsDone(true);
+          }, EXIT_STRIPE_DURATION);
         }, 250);
       }
     };

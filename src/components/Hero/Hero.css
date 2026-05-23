@@ -1,3 +1,86 @@
+/* ── Reveal animations (triggered by .page-loaded on body) ── */
+
+/*
+ * body:not(.page-loaded) guarantees higher specificity than any
+ * component-level opacity rule (e.g. .hero-role-primary { opacity: 0.85 })
+ * so elements stay invisible while the loader is active.
+ */
+body:not(.page-loaded) .hero .navbar {
+  opacity: 0;
+  transform: translateY(-14px);
+}
+
+body:not(.page-loaded) .hero-title-wrapper,
+body:not(.page-loaded) .hero-role-primary,
+body:not(.page-loaded) .hero-cta-button,
+body:not(.page-loaded) .hero-bottom-bar {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+/*
+ * fill-mode: both → the 'from' keyframe applies during animation-delay,
+ * preventing any flash between when page-loaded fires and when each
+ * animation actually starts.
+ */
+.page-loaded .hero .navbar {
+  animation: hero-fade-down 0.6s cubic-bezier(0.25, 0, 0, 1) both;
+}
+
+.page-loaded .hero-title-wrapper {
+  animation: hero-slide-up 0.75s cubic-bezier(0.25, 0, 0, 1) both;
+  animation-delay: 0.08s;
+}
+
+/* Ends at 0.85 to match the designed opacity of this element */
+.page-loaded .hero-role-primary {
+  animation: hero-slide-up-dim 0.7s cubic-bezier(0.25, 0, 0, 1) both;
+  animation-delay: 0.28s;
+}
+
+.page-loaded .hero-cta-button {
+  animation: hero-slide-up 0.65s cubic-bezier(0.25, 0, 0, 1) both;
+  animation-delay: 0.44s;
+}
+
+.page-loaded .hero-bottom-bar {
+  animation: hero-slide-up 0.6s cubic-bezier(0.25, 0, 0, 1) both;
+  animation-delay: 0.58s;
+}
+
+@keyframes hero-slide-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes hero-slide-up-dim {
+  from { opacity: 0;    transform: translateY(28px); }
+  to   { opacity: 0.85; transform: none; }
+}
+
+@keyframes hero-fade-down {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-loaded .hero .navbar,
+  .page-loaded .hero-title-wrapper,
+  .page-loaded .hero-role-primary,
+  .page-loaded .hero-cta-button,
+  .page-loaded .hero-bottom-bar {
+    animation: hero-fade-only 0.3s ease both;
+    animation-delay: 0s;
+  }
+
+  @keyframes hero-fade-only {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* ─────────────────────────────────────────── */
+
 .hero {
   height: 100vh;
   height: 100dvh;

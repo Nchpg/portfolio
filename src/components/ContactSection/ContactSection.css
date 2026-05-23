@@ -1,3 +1,44 @@
+/* ── Reveal animations ── */
+
+.contact-split .contact-name {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.contact-split .contact-list {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.contact-split--visible .contact-name {
+  animation: contact-reveal-up 0.75s cubic-bezier(0.25, 0, 0, 1) both;
+}
+
+.contact-split--visible .contact-list {
+  animation: contact-reveal-up 0.7s cubic-bezier(0.25, 0, 0, 1) both;
+  animation-delay: 0.2s;
+}
+
+@keyframes contact-reveal-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-split--visible .contact-name,
+  .contact-split--visible .contact-list {
+    animation: contact-reveal-fade 0.3s ease both;
+    animation-delay: 0s;
+  }
+
+  @keyframes contact-reveal-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* ── */
+
 .contact-split {
   display: grid;
   grid-template-columns: 1fr 1.2fr;

@@ -1,3 +1,6 @@
+'use client';
+
+import { useInView } from '../../hooks/useInView';
 import ProjectThumb from '../ProjectThumb/ProjectThumb';
 import HoverLink from '../HoverLink/HoverLink';
 import {
@@ -39,13 +42,19 @@ type Props = {
 };
 
 const ProjectRow = ({ project, index, priority = false }: Props) => {
+  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.08 });
+
   const jsonLd = generateProjectJsonLd(
     project,
     process.env.NEXT_PUBLIC_SITE_URL || 'https://nathanchampagne.dev'
   );
 
   return (
-    <article className="project-row">
+    <article
+      ref={ref}
+      className={`project-row${inView ? ' project-row--visible' : ''}`}
+      style={{ '--row-i': index } as React.CSSProperties}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
