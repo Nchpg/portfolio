@@ -31,7 +31,7 @@
   padding: 0;
   color: inherit;
   font-size: clamp(12px, 1.2vw, 20px);
-  opacity: 0.5;
+  opacity: 0.6;
   font-family: var(--font-body);
   cursor: pointer;
   position: relative;

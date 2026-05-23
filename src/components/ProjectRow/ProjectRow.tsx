@@ -17,10 +17,17 @@ const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
 
 const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
   const Icon = LINK_ICONS[icon];
+  const isPdf = href.toLowerCase().endsWith('.pdf');
   return (
-    <HoverLink className="project-link" href={href} target="_blank" rel="noreferrer">
+    <HoverLink
+      className="project-link"
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={isPdf ? `${label} (PDF, opens in new tab)` : undefined}
+    >
       {Icon ? <Icon /> : null}
-      <span>{label}</span>
+      <span>{label}{isPdf ? ' (PDF)' : null}</span>
     </HoverLink>
   );
 };
