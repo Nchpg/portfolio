@@ -40,6 +40,7 @@ type State = {
 type Action =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
+  | { type: 'UNPIN' }
   | { type: 'HOVER' }
   | { type: 'UNHOVER' }
   | { type: 'DEACTIVATE' }
@@ -63,6 +64,7 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'OPEN':              return { ...state, isOpen: true, isMouseActive: true };
     case 'CLOSE':             return { ...state, isOpen: false, isHovered: false };
+    case 'UNPIN':             return { ...state, isOpen: false };
     case 'HOVER':             return { ...state, isHovered: true };
     case 'UNHOVER':           return { ...state, isHovered: false };
     case 'DEACTIVATE':        return { ...state, isOpen: false, isHovered: false };
@@ -110,6 +112,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   // close button on exit (keyboard exit keeps focus on fs button naturally;
   // mouse exit blurs to body — both are correct without any explicit focus call).
   const enteredFullscreenRef = React.useRef(false);
+  const fullscreenFromHoverRef = React.useRef(false);
   const previewLeaveTimeRef = React.useRef(0);
   const lastPreviewTimerSetRef = React.useRef(0);
   const previewLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
@@ -233,7 +236,14 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     setIsPreviewFullscreen(isFs);
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
-    if (!isFs && !supportsHover && !isOpen) closePreview();
+    if (!isFs) {
+      if (fullscreenFromHoverRef.current) {
+        fullscreenFromHoverRef.current = false;
+        dispatch({ type: 'UNPIN' });
+      } else if (!supportsHover && !isOpen) {
+        closePreview();
+      }
+    }
   }, [supportsHover, isOpen, closePreview]);
 
   const toggleImgFullscreen = (e: React.MouseEvent) => {
@@ -245,6 +255,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       if (el) killTransitionForExit(el);
       document.exitFullscreen();
     } else {
+      fullscreenFromHoverRef.current = !isOpen;
       const el = previewRef.current;
       if (el) maskForEntry(el);
       coord.notifyActivated(id);
@@ -264,7 +275,14 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       if (!el) return;
       if (isFs) unmaskAfterEntry(el);
       else { killTransitionForExit(el); restoreTransitionAfterExit(el); }
-      if (!isFs && !supportsHover) closePreview();
+      if (!isFs) {
+        if (fullscreenFromHoverRef.current) {
+          fullscreenFromHoverRef.current = false;
+          dispatch({ type: 'UNPIN' });
+        } else if (!supportsHover) {
+          closePreview();
+        }
+      }
     };
     document.addEventListener('fullscreenchange', onFsChange);
     document.addEventListener('webkitfullscreenchange', onFsChange);
@@ -315,9 +333,10 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const handleImgError = () => setImgError(true);
 
   const handleVideoPin = React.useCallback(() => {
+    fullscreenFromHoverRef.current = !isOpen;
     coord.notifyActivated(id);
     dispatch({ type: 'OPEN' });
-  }, [coord, id]);
+  }, [coord, id, isOpen]);
 
   // Start inactivity timer as soon as the preview becomes active (hover or pin).
   // Covers: cursor staying on thumbnail without entering preview, and touch (no mouse events).
@@ -383,18 +402,13 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       // mouseenter (fired when the portal unmounts under the cursor) doesn't re-open
       // the next thumbnail's preview immediately.
       if (!isOpen && e.key === 'Escape') {
-        // Escape in hover mode: remove portal + row highlight instantly so they
-        // don't linger while another row's :hover is already active.
         suppressHoverUntilMouseMove = true;
         document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
-        const row = thumbButtonRef.current?.closest('.project-row') as HTMLElement | null;
-        if (row) row.style.transition = 'none';
         flushSync(() => {
           closePreview();
           dispatch({ type: 'HIDE' });
           dispatch({ type: 'UNMOUNT' });
         });
-        requestAnimationFrame(() => { if (row) row.style.transition = ''; });
         return;
       }
       if (!isOpen && e.key === 'Tab') {
