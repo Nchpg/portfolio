@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { inter, bebasNeue } from './fonts';
+import PageLoader from '../components/PageLoader/PageLoader';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nathanchampagne.dev';
 const siteTitle = 'Nathan Champagne - AI & Software Engineer Portfolio';
@@ -140,7 +141,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-website-id="2e50db68-faa2-4c05-ad9c-1b73580ee2a4"
         />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <PageLoader />
+        {children}
+      </body>
     </html>
   );
 }

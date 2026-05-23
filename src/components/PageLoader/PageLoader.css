@@ -1,0 +1,140 @@
+.page-loader {
+  --digit-h: clamp(72px, 13vw, 148px);
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loading);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 4rem);
+  pointer-events: all;
+  overflow: hidden;
+}
+
+/* ── Stripe panels (cover the screen, slide up on exit) ── */
+.page-loader__stripes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  z-index: 0;
+}
+
+.page-loader__stripe {
+  flex: 1;
+  background: var(--bg-color);
+  transform-origin: top;
+  position: relative;
+}
+
+/* ligne fine qui monte avec le compteur */
+.page-loader__stripe::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 2px;
+  height: var(--loader-progress, 0%);
+  background: var(--border-divider);
+}
+
+.page-loader__stripe:last-child::after {
+  display: none;
+}
+
+/* ── Counter ── */
+.page-loader__counter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  user-select: none;
+}
+
+.loader-digit-slot {
+  height: var(--digit-h);
+  width: calc(var(--digit-h) * 0.6);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.loader-digit-slot--hidden {
+  width: 0;
+  pointer-events: none;
+}
+
+.loader-digit-track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transition: transform 0.08s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.loader-digit {
+  height: var(--digit-h);
+  font-size: calc(var(--digit-h) * 1.02);
+  line-height: var(--digit-h);
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  display: block;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.loader-percent {
+  font-family: var(--font-heading);
+  font-size: calc(var(--digit-h) * 0.42);
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: 0;
+  opacity: 0.45;
+  padding-left: 0.1em;
+  padding-bottom: 0.12em;
+  align-self: flex-end;
+  flex-shrink: 0;
+}
+
+/* ── Exit phase ── */
+.page-loader--exiting .page-loader__counter {
+  animation: loader-counter-exit 0.3s ease-in forwards;
+}
+
+.page-loader--exiting .page-loader__stripe {
+  animation: loader-stripe-exit 0.52s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  animation-delay: calc(var(--stripe-i, 0) * 0.045s);
+}
+
+@keyframes loader-counter-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-1.5rem);
+  }
+}
+
+@keyframes loader-stripe-exit {
+  to {
+    transform: translateY(-101%);
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .loader-digit-track {
+    transition: none;
+  }
+
+  .page-loader--exiting .page-loader__stripe {
+    animation: loader-stripe-fade 0.3s ease-out forwards;
+    animation-delay: 0s;
+  }
+
+  .page-loader--exiting .page-loader__counter {
+    animation-duration: 0.2s;
+  }
+
+  @keyframes loader-stripe-fade {
+    to {
+      opacity: 0;
+    }
+  }
+}
