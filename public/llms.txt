@@ -1,0 +1,61 @@
+# Nathan Champagne
+
+> AI & Software Engineer based in Paris, France. Student at EPITA.
+
+Personal portfolio showcasing projects in machine learning, reinforcement learning, computer vision, and software development.
+
+## About
+
+- Name: Nathan Champagne
+- Role: AI & Software Engineer
+- Location: Paris, France
+- Education: EPITA
+- Email: nathan.champagne@epita.fr
+- LinkedIn: https://www.linkedin.com/in/nathan-champagne/
+- GitHub: https://github.com/Nchpg
+
+## Skills
+
+Machine Learning, Reinforcement Learning, Computer Vision, Deep Learning, Generative AI, Full-Stack Development, Python, React, C++, C#, Unity
+
+## Projects
+
+### HRévolution
+2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.
+Tags: React, Python, GenAI
+GitHub: https://github.com/Nchpg/HRFlow/tree/master/HEpiR-HREvolution
+
+### RLkart
+Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.
+Tags: Python, Reinforcement Learning, PPO
+Demo: https://rlviewer.nathanchampagne.ddns.net/
+GitHub: https://github.com/Nchpg/RLkart
+
+### MNIST CNN from Scratch
+Implementation of a Convolutional Neural Network from scratch in C++ to classify the MNIST handwritten digit dataset.
+Tags: C++, Deep Learning
+GitHub: https://github.com/Nchpg/mnist-cnn-cpp
+
+### OCR Sudoku Solver
+Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.
+Tags: C, GTK, OCR
+
+### MS402
+Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.
+Tags: C#, Unity
+Website: https://a2nt.gitlab.io/ms-402-website/
+
+### Vim Airline Theme
+A minimal airline theme for VIM inspired by lightline.
+Tags: Vimscript
+GitHub: https://github.com/Nchpg/Vim-Airline-Powerline-Theme
+
+### Advent of Code
+Annual programming challenge solutions — daily puzzles throughout December.
+Tags: Python
+GitHub: https://github.com/Nchpg/Advent-of-Code
+
+### Previous Portfolio
+First portfolio built in vanilla HTML/CSS/JS with a touch of Three.js.
+Tags: HTML, JS, Three.js
+GitHub: https://github.com/Nchpg/portfolio-epita
