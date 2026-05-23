@@ -18,7 +18,7 @@
 
 .project-index {
   font-size: 14px;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .project-main {
@@ -74,7 +74,7 @@
     background: color-mix(in srgb, var(--text-primary) 5%, transparent);
     border: 1px solid color-mix(in srgb, var(--text-primary) 15%, transparent);
     border-radius: 100px;
-    opacity: 0.7;
+    opacity: 0.75;
     white-space: nowrap;
     transition:
       color 0.35s ease,
