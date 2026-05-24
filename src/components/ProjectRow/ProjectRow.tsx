@@ -19,7 +19,7 @@ const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
   doc: DocumentIcon,
 };
 
-const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
+const ProjectLink = ({ href, icon, label, projectTitle }: ProjectLinkItem & { projectTitle: string }) => {
   const Icon = LINK_ICONS[icon];
   const isPdf = href.toLowerCase().endsWith('.pdf');
   const suffix = isPdf ? ' (PDF, opens in new tab)' : ' (opens in new tab)';
@@ -29,7 +29,7 @@ const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
       href={href}
       target="_blank"
       rel="noreferrer"
-      aria-label={`${label}${suffix}`}
+      aria-label={`${label} — ${projectTitle}${suffix}`}
     >
       {Icon ? <Icon /> : null}
       <span>{label}{isPdf ? ' (PDF)' : null}</span>
@@ -74,7 +74,7 @@ const ProjectRow = ({ project, index, priority = false }: Props) => {
         <p>{project.description}</p>
         <div className="project-links">
           {project.links.map((link) => (
-            <ProjectLink key={link.href} {...link} />
+            <ProjectLink key={link.href} {...link} projectTitle={project.title} />
           ))}
         </div>
       </div>
