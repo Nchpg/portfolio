@@ -74,12 +74,6 @@
   border-radius: 100px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .skeleton-block {
-    animation: none;
-  }
-}
-
 @media (--bp-lg) {
   .skeleton-row {
     grid-template-columns: minmax(0, 1fr);

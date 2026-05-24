@@ -1,15 +1,28 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '../utils/env';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nathanchampagne.dev';
+  const baseUrl = SITE_URL;
 
   return [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'monthly',
       priority: 1,
       images: [`${baseUrl}/og-image.jpg`],
+    },
+    {
+      url: `${baseUrl}/projects/ocr-sudoku/report.pdf`,
+      lastModified: new Date('2024-06-01'),
+      changeFrequency: 'never',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/projects/ms402/report.pdf`,
+      lastModified: new Date('2024-06-01'),
+      changeFrequency: 'never',
+      priority: 0.3,
     },
   ];
 }

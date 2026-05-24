@@ -31,6 +31,11 @@
     pointer-events: none;
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 4px;
+  }
+
   &:hover {
     transform: translateY(-3px);
     background-color: var(--accent-green-hover);
@@ -93,17 +98,6 @@
 
     & + svg {
       transform: translateY(-100%);
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-cta-button {
-    transition: none;
-
-    &:hover::after,
-    &:hover .cta-icon svg {
-      animation: none;
     }
   }
 }

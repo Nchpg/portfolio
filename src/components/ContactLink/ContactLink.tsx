@@ -24,10 +24,11 @@ const ContactLink = ({ name, id, href, copyValue }: Props) => {
 
   const handleCopy = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    navigator.clipboard.writeText(copyValue).catch(() => {});
     if (timerRef.current) clearTimeout(timerRef.current);
-    setCopied(true);
-    timerRef.current = setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(copyValue).then(() => {
+      setCopied(true);
+      timerRef.current = setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
   };
 
   const isExternal = !href.startsWith('mailto:');
@@ -42,7 +43,7 @@ const ContactLink = ({ name, id, href, copyValue }: Props) => {
       >
         {name}
       </a>
-      <button className="link-id" onClick={handleCopy} aria-label={`Copy ${id}`}>
+      <button className="link-id" onClick={handleCopy} aria-label={copied ? `${id} copied` : `Copy ${id}`} aria-live="polite">
         {copied ? (
           <span className="copied-text">Copied!</span>
         ) : (

@@ -15,7 +15,15 @@ const Navbar = () => {
 
   return (
     <nav className="navbar" aria-label="Main Navigation">
-      <BarGroup label="Identity" value={<WaveText text="Nathan Champagne" />} />
+      <BarGroup
+        label="Identity"
+        value={
+          <>
+            <span className="sr-only">Nathan Champagne</span>
+            <WaveText text="Nathan Champagne" aria-hidden="true" />
+          </>
+        }
+      />
 
       <BarGroup
         label="Navigation"

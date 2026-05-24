@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 import './PageLoader.css';
 
@@ -34,17 +34,20 @@ function DigitSlot({
     }
   }, [trackPos, visible]);
 
+  const digits = useMemo(
+    () => Array.from({ length: trackLen }, (_, i) => (
+      <span key={i} className="loader-digit">{i % 10}</span>
+    )),
+    [trackLen]
+  );
+
   return (
     <div className={`loader-digit-slot${visible ? '' : ' loader-digit-slot--hidden'}`}>
       <div
         className="loader-digit-track"
         style={{ transform: `translateY(calc(${-displayPos} * var(--digit-h)))` }}
       >
-        {Array.from({ length: trackLen }, (_, i) => (
-          <span key={i} className="loader-digit">
-            {i % 10}
-          </span>
-        ))}
+        {digits}
       </div>
     </div>
   );
@@ -58,6 +61,8 @@ export default function PageLoader() {
   useEffect(() => {
     const start = performance.now();
     let raf: number;
+    let t1: ReturnType<typeof setTimeout>;
+    let t2: ReturnType<typeof setTimeout>;
 
     const tick = (now: number) => {
       const t = Math.min((now - start) / COUNTER_DURATION, 1);
@@ -68,9 +73,9 @@ export default function PageLoader() {
         raf = requestAnimationFrame(tick);
       } else {
         setCount(100);
-        setTimeout(() => {
+        t1 = setTimeout(() => {
           setIsExiting(true);
-          setTimeout(() => {
+          t2 = setTimeout(() => {
             document.body.classList.add('page-loaded');
             setIsDone(true);
           }, EXIT_STRIPE_DURATION);
@@ -79,7 +84,11 @@ export default function PageLoader() {
     };
 
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   if (isDone) return null;

@@ -15,7 +15,7 @@ const ContactSection = () => {
       className={`contact-split${inView ? ' contact-split--visible' : ''}`}
     >
       <div>
-        <h3 className="contact-name">
+        <h3 className="contact-name" aria-hidden="true">
           <TitleLine text="Nathan" />
           <br />
           <TitleLine text="Champagne" outline />

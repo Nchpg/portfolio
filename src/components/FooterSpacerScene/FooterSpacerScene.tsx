@@ -104,7 +104,7 @@ const FooterSpacerScene = () => {
         const handlePointerLeave = () => uMouse.value.set(-10, -10);
 
         window.addEventListener('pointermove', handlePointerMove);
-        window.addEventListener('pointerleave', handlePointerLeave);
+        document.addEventListener('pointerleave', handlePointerLeave);
 
         const renderSingleFrame = () => renderer.render(scene, camera);
 
@@ -121,11 +121,15 @@ const FooterSpacerScene = () => {
 
         let frameId = 0;
         const startedAt = performance.now();
+        const TARGET_FRAME_MS = 1000 / 60;
+        let lastFrameTime = 0;
 
-        const animate = () => {
-          uTime.value = (performance.now() - startedAt) / 1000;
-          renderSingleFrame();
+        const animate = (now: number) => {
           frameId = requestAnimationFrame(animate);
+          if (now - lastFrameTime < TARGET_FRAME_MS) return;
+          lastFrameTime = now;
+          uTime.value = (now - startedAt) / 1000;
+          renderSingleFrame();
         };
 
         const visibilityObserver = new IntersectionObserver(
@@ -145,7 +149,7 @@ const FooterSpacerScene = () => {
           resizeObserver.disconnect();
           visibilityObserver.disconnect();
           window.removeEventListener('pointermove', handlePointerMove);
-          window.removeEventListener('pointerleave', handlePointerLeave);
+          document.removeEventListener('pointerleave', handlePointerLeave);
           geometry.dispose();
           material.dispose();
           renderer.dispose();

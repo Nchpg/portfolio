@@ -22,10 +22,9 @@ const handleMouseEnter = (e: MouseEvent<HTMLElement>) => {
   if (!lastChar) return;
   wrapper.classList.add('is-animating');
   const onAnimationEnd = () => {
-    wrapper.classList.remove('is-animating');
-    lastChar.removeEventListener('animationend', onAnimationEnd);
+    if (wrapper.isConnected) wrapper.classList.remove('is-animating');
   };
-  lastChar.addEventListener('animationend', onAnimationEnd);
+  lastChar.addEventListener('animationend', onAnimationEnd, { once: true });
 };
 
 const WaveText = ({

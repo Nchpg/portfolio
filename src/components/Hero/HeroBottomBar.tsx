@@ -57,7 +57,7 @@ const HeroBottomBar = () => {
                 href="https://www.linkedin.com/in/nathan-champagne/"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="LinkedIn profile"
+                aria-label="LinkedIn profile (opens in new tab)"
               >
                 <LinkedInIcon size={13} />
                 LinkedIn
@@ -66,7 +66,7 @@ const HeroBottomBar = () => {
                 href="https://github.com/Nchpg"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="GitHub profile"
+                aria-label="GitHub profile (opens in new tab)"
               >
                 <GithubIcon size={13} />
                 GitHub

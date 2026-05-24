@@ -60,6 +60,11 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const scrubCleanupRef = React.useRef<(() => void) | null>(null);
 
+  React.useEffect(() => {
+    const v = videoRef.current;
+    if (v) setIsPlaying(!v.paused);
+  }, []);
+
   React.useEffect(() => () => { scrubCleanupRef.current?.(); }, []);
 
   React.useEffect(() => {
@@ -113,7 +118,7 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
 
     if (document.fullscreenElement || doc.webkitFullscreenElement) {
       if (container) killTransitionForExit(container);
-      (document.exitFullscreen ?? doc.webkitExitFullscreen)?.call(document);
+      (document.exitFullscreen ?? doc.webkitExitFullscreen)?.call(document).catch?.(() => {});
       return;
     }
 

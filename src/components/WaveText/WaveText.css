@@ -31,13 +31,3 @@
     transform: translateY(0);
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .wave-char {
-    transition: none;
-  }
-
-  .identity-wrapper.is-animating .wave-char {
-    animation: none;
-  }
-}

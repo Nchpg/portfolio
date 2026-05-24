@@ -441,7 +441,6 @@ export function useBackgroundAnimation({
 
     const ro = new ResizeObserver(handleResize);
     ro.observe(container);
-    window.addEventListener('resize', handleResize);
 
     let dprMql: MediaQueryList | null = null;
     const onDprChange = () => {
@@ -459,7 +458,6 @@ export function useBackgroundAnimation({
     animationFrame = requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       if (dprMql) dprMql.removeEventListener('change', onDprChange);

@@ -9,6 +9,7 @@ import {
   DocumentIcon,
 } from '../icons';
 import type { Project, ProjectLinkItem, LinkIcon } from '../../data/projects';
+import { SITE_URL } from '../../utils/env';
 import { generateProjectJsonLd } from '../../utils/jsonLd';
 import './ProjectRow.css';
 
@@ -21,13 +22,14 @@ const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
 const ProjectLink = ({ href, icon, label }: ProjectLinkItem) => {
   const Icon = LINK_ICONS[icon];
   const isPdf = href.toLowerCase().endsWith('.pdf');
+  const suffix = isPdf ? ' (PDF, opens in new tab)' : ' (opens in new tab)';
   return (
     <HoverLink
       className="project-link"
       href={href}
       target="_blank"
       rel="noreferrer"
-      aria-label={isPdf ? `${label} (PDF, opens in new tab)` : undefined}
+      aria-label={`${label}${suffix}`}
     >
       {Icon ? <Icon /> : null}
       <span>{label}{isPdf ? ' (PDF)' : null}</span>
@@ -46,7 +48,7 @@ const ProjectRow = ({ project, index, priority = false }: Props) => {
 
   const jsonLd = generateProjectJsonLd(
     project,
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://nathanchampagne.dev'
+    SITE_URL
   );
 
   return (

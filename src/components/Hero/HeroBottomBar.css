@@ -60,12 +60,6 @@
   margin: 0 15px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .location-time {
-    transition: none;
-  }
-}
-
 @media (--bp-md) {
   .hero-bottom-bar {
     position: relative;

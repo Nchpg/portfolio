@@ -88,21 +88,18 @@ const CustomCursor = () => {
       if ((event.target as Element).closest(interactiveSelector)) setIsHovering(false);
     };
 
-    // Re-check when DOM class attributes change so cursor stops moving doesn't
-    // prevent detection (inactivity timer fires while cursor is stationary).
-    const observer = new MutationObserver(syncVisibility);
-    observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    const visibilityInterval = setInterval(syncVisibility, 200);
 
     window.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseover', handlePointerOver);
     document.addEventListener('mouseout', handlePointerOut);
 
     return () => {
+      clearInterval(visibilityInterval);
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseover', handlePointerOver);
       document.removeEventListener('mouseout', handlePointerOut);
       if (rafId) cancelAnimationFrame(rafId);
-      observer.disconnect();
     };
   }, [isDisabled]);
 

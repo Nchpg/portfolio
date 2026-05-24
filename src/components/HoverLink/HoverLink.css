@@ -2,6 +2,12 @@
   position: relative;
   transition: color 0.3s ease;
 
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
   &:hover {
     color: var(--accent-green);
 
@@ -19,12 +25,5 @@
     left: 0;
     background-color: var(--accent-green);
     transition: width 0.3s ease;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hover-underline,
-  .hover-underline::after {
-    transition: none;
   }
 }

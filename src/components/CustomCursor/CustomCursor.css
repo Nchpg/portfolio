@@ -51,10 +51,3 @@
   opacity: 0;
   transition: opacity 0.15s;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .custom-cursor-dot,
-  .custom-cursor-ring {
-    transition: none;
-  }
-}

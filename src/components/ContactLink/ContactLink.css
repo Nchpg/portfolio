@@ -23,6 +23,12 @@
 .link-name {
   font-weight: 200;
   flex-shrink: 0;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
 }
 
 .link-id {
@@ -60,6 +66,12 @@
     white-space: nowrap;
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
   &:hover {
     opacity: 1;
     color: var(--accent-green);
@@ -80,14 +92,6 @@
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .contact-link,
-  .link-id,
-  .copy-icon {
-    transition: none;
-  }
 }
 
 @media (--bp-sm) {

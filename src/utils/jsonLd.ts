@@ -8,6 +8,7 @@ export function generateProjectJsonLd(project: Project, siteUrl: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareSourceCode',
+    '@id': `${siteUrl}/#project-${project.slug}`,
     name: project.title,
     description: project.description,
     keywords: project.tags.join(', '),
@@ -15,6 +16,7 @@ export function generateProjectJsonLd(project: Project, siteUrl: string) {
     url: project.links[0]?.href ?? siteUrl,
     author: {
       '@type': 'Person',
+      '@id': `${siteUrl}/#person`,
       name: 'Nathan Champagne',
     },
   };

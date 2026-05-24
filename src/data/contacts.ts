@@ -1,3 +1,5 @@
+import { CONTACT_EMAIL } from '../utils/env';
+
 export type Contact = {
   name: string;
   id: string;
@@ -20,8 +22,8 @@ export const contacts: Contact[] = [
   },
   {
     name: 'Email',
-    id: 'nathan.champagne@epita.fr',
-    href: 'mailto:nathan.champagne@epita.fr',
-    copyValue: 'nathan.champagne@epita.fr',
+    id: CONTACT_EMAIL,
+    href: `mailto:${CONTACT_EMAIL}`,
+    copyValue: CONTACT_EMAIL,
   },
 ];

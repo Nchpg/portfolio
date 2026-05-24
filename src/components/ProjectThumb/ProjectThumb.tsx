@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { BP } from '../../utils/breakpoints';
 import ProjectThumbNarrow from './ProjectThumbNarrow';
 import ProjectThumbWide from './ProjectThumbWide';
 import './ProjectThumb.css';
@@ -18,7 +19,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
   const thumbSrc = `/projects/${slug}/thumbnail.webp`;
   const src = `/projects/${slug}/preview.${previewExt}`;
   const type = previewExt === 'mp4' ? 'video' : 'img';
-  const isNarrow = useMediaQuery('(max-width: 992px)');
+  const isNarrow = useMediaQuery(`(max-width: ${BP.lg}px)`);
 
   // Keep wide mounted briefly when switching to narrow so its close animation plays.
   // 300ms > 250ms CSS transition on .project-thumb-preview.

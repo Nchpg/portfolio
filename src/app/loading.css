@@ -31,11 +31,3 @@
     width: 0;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .loading-bar {
-    animation: none;
-    width: 30%;
-    opacity: 0.4;
-  }
-}

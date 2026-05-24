@@ -113,6 +113,8 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   // mouse exit blurs to body — both are correct without any explicit focus call).
   const enteredFullscreenRef = React.useRef(false);
   const fullscreenFromHoverRef = React.useRef(false);
+  const isOpenRef = React.useRef(isOpen);
+  React.useEffect(() => { isOpenRef.current = isOpen; }, [isOpen]);
   const previewLeaveTimeRef = React.useRef(0);
   const lastPreviewTimerSetRef = React.useRef(0);
   const previewLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
@@ -240,11 +242,11 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       if (fullscreenFromHoverRef.current) {
         fullscreenFromHoverRef.current = false;
         dispatch({ type: 'UNPIN' });
-      } else if (!supportsHover && !isOpen) {
+      } else if (!supportsHover && !isOpenRef.current) {
         closePreview();
       }
     }
-  }, [supportsHover, isOpen, closePreview]);
+  }, [supportsHover, closePreview]);
 
   const toggleImgFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -372,7 +374,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     return () => {
       document.body.style.overflow = prevBody;
       document.documentElement.style.overflow = prevHtml;
-      thumbButton?.focus();
+      if (thumbButton?.isConnected) thumbButton.focus();
     };
   }, [isOpen, isMounted]);
 

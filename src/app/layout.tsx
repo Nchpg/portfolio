@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
+import { SITE_URL, CONTACT_EMAIL } from '../utils/env';
 import './globals.css';
 import { inter, bebasNeue } from './fonts';
 import PageLoader from '../components/PageLoader/PageLoader';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nathanchampagne.dev';
+const siteUrl = SITE_URL;
 const siteTitle = 'Nathan Champagne - AI & Software Engineer Portfolio';
 const siteDescription =
   'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.';
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
     google: process.env.GOOGLE_SITE_VERIFICATION,
   },
   alternates: {
-    canonical: '/',
+    canonical: siteUrl,
   },
   robots: {
     index: true,
@@ -90,7 +91,7 @@ const jsonLd = {
       description:
         'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development.',
       url: siteUrl,
-      email: 'nathan.champagne@epita.fr',
+      email: CONTACT_EMAIL,
       image: `${siteUrl}/og-image.jpg`,
       address: {
         '@type': 'PostalAddress',
@@ -124,6 +125,16 @@ const jsonLd = {
       description: 'Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France.',
       author: { '@id': `${siteUrl}/#person` },
     },
+    {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/#webpage`,
+      url: siteUrl,
+      name: siteTitle,
+      isPartOf: { '@id': `${siteUrl}/#website` },
+      about: { '@id': `${siteUrl}/#person` },
+      description: siteDescription,
+      inLanguage: 'en-US',
+    },
   ],
 };
 
@@ -142,7 +153,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body suppressHydrationWarning>
-        <PageLoader />
+<PageLoader />
         {children}
       </body>
     </html>
