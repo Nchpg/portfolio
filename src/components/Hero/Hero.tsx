@@ -25,12 +25,11 @@ const Hero = () => (
             </h1>
           </div>
 
-          <div className="hero-role-primary" aria-label="AI & Software Engineer">
+          <div className="hero-role-primary">
+            <span className="sr-only">AI &amp; Software Engineer</span>
             <span className="accent" aria-hidden="true">AI</span>
-            <span className="role-amp" aria-hidden="true">
-              ·
-            </span>
-            <span className="accent" aria-hidden="true">Software Engineer</span>
+            <span className="role-amp" aria-hidden="true">·</span>
+            <span className="accent" aria-hidden="true">SOFTWARE ENGINEER</span>
           </div>
         </div>
 
