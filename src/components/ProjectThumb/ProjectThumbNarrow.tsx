@@ -17,11 +17,12 @@ import VideoControls from './VideoControls';
 export type ProjectThumbNarrowProps = {
   src: string;
   thumbSrc: string;
+  posterSrc?: string;
   type: 'video' | 'img';
   alt: string;
 };
 
-const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProps) => {
+const ProjectThumbNarrow = ({ src, thumbSrc, posterSrc, type, alt }: ProjectThumbNarrowProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [controlsActive, setControlsActive] = React.useState(false);
   const justActivatedRef = React.useRef(false);
@@ -164,9 +165,10 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
     >
       {type === 'video' ? (
         <VideoControls
-          src={src}
-          poster={thumbSrc}
+          src={controlsActive ? src : thumbSrc}
+          poster={posterSrc}
           isOpen={true}
+          preload={controlsActive ? 'auto' : 'auto'}
           containerRef={containerRef}
           onPin={NOOP}
           onFullscreenChange={setIsFullscreen}
@@ -176,7 +178,7 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
         <div className="project-thumb-error">Preview unavailable</div>
       ) : (
         <>
-          <img src={src} alt={`Preview of ${alt}`} onError={() => setImgError(true)} />
+          <img src={controlsActive ? src : thumbSrc} alt={`Preview of ${alt}`} onError={() => setImgError(true)} />
           <button
             className="project-thumb-img-fs"
             onClick={toggleImgFullscreen}
@@ -190,4 +192,4 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
   );
 };
 
-export default ProjectThumbNarrow;
+export default React.memo(ProjectThumbNarrow);

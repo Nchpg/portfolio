@@ -13,15 +13,16 @@ import {
 
 export type VideoControlsProps = {
   src: string;
-  poster: string;
+  poster?: string;
   isOpen: boolean;
+  preload?: 'none' | 'metadata' | 'auto';
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPin: () => void;
   onFullscreenChange: (isFs: boolean) => void;
   onDimensionsLoaded: (style: PreviewStyle | null) => void;
 };
 
-const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
+const VideoControls = React.memo(({ src, poster, isOpen, preload = 'metadata', containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -223,7 +224,7 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
         ref={videoRef}
         src={src}
         poster={poster}
-        autoPlay loop muted playsInline preload="metadata"
+        autoPlay loop muted playsInline preload={preload}
         onLoadedMetadata={handleVideoLoad}
         onTimeUpdate={handleTimeUpdate}
         onPlay={() => setIsPlaying(true)}

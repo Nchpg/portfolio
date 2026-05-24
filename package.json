@@ -17,6 +17,7 @@
     "lint": "eslint src/ && stylelint 'src/**/*.css'",
     "format": "eslint src/ --fix && stylelint 'src/**/*.css' --fix",
     "typecheck": "tsc --noEmit",
+    "generate-thumbnails": "./scripts/generate-thumbnails.sh",
     "test": "vitest run",
     "test:watch": "vitest"
   },

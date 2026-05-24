@@ -86,6 +86,7 @@ function reducer(state: State, action: Action): State {
 export type ProjectThumbWideProps = {
   src: string;
   thumbSrc: string;
+  posterSrc?: string;
   type: 'video' | 'img';
   alt: string;
   animatedThumb: boolean;
@@ -93,7 +94,7 @@ export type ProjectThumbWideProps = {
   forceClose?: boolean;
 };
 
-const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, forceClose }: ProjectThumbWideProps) => {
+const ProjectThumbWide = ({ src, thumbSrc, posterSrc, type, alt, animatedThumb, priority, forceClose }: ProjectThumbWideProps) => {
   const id = React.useId();
   const coord = useCoordinator();
   const [state, dispatch] = React.useReducer(reducer, initialState);
@@ -533,7 +534,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         : { 'aria-hidden': true as const })}
     >
       {type === 'video'
-        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
+        ? <VideoControls src={src} poster={posterSrc} isOpen={isOpen} preload="none" containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
         : imgError
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />
@@ -574,19 +575,30 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       >
-        <Image
-          src={thumbSrc}
-          alt={`Thumbnail for ${alt}`}
-          width={600}
-          height={400}
-          sizes="(max-width: 768px) calc(100vw - 44px), (max-width: 992px) 92vw, 300px"
-          priority={priority}
-          unoptimized={animatedThumb}
-        />
+        {thumbSrc.endsWith('.mp4') ? (
+          <video
+            src={thumbSrc}
+            autoPlay
+            loop
+            muted
+            playsInline
+            width={600}
+            height={400}
+          />
+        ) : (
+          <Image
+            src={thumbSrc}
+            alt={`Thumbnail for ${alt}`}
+            width={600}
+            height={400}
+            sizes="(max-width: 768px) calc(100vw - 44px), (max-width: 992px) 92vw, 300px"
+            priority={priority}
+          />
+        )}
       </button>
       {preview}
     </>
   );
 };
 
-export default ProjectThumbWide;
+export default React.memo(ProjectThumbWide);

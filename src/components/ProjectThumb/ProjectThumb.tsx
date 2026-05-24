@@ -16,8 +16,9 @@ type ProjectThumbProps = {
 };
 
 const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority = false }: ProjectThumbProps) => {
-  const thumbSrc = `/projects/${slug}/thumbnail.webp`;
-  const src = `/projects/${slug}/preview.${previewExt}`;
+  const thumbSrc = React.useMemo(() => `/projects/${slug}/thumbnail.${animatedThumb ? 'mp4' : 'webp'}`, [slug, animatedThumb]);
+  const posterSrc = React.useMemo(() => animatedThumb ? undefined : `/projects/${slug}/thumbnail.webp`, [slug, animatedThumb]);
+  const src = React.useMemo(() => `/projects/${slug}/preview.${previewExt}`, [slug, previewExt]);
   const type = previewExt === 'mp4' ? 'video' : 'img';
   const isNarrow = useMediaQuery(`(max-width: ${BP.lg}px)`);
 
@@ -38,6 +39,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       <ProjectThumbWide
         src={src}
         thumbSrc={thumbSrc}
+        posterSrc={posterSrc}
         type={type}
         alt={alt}
         animatedThumb={animatedThumb}
@@ -46,7 +48,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
       />
     );
   }
-  return <ProjectThumbNarrow src={src} thumbSrc={thumbSrc} type={type} alt={alt} />;
+  return <ProjectThumbNarrow src={src} thumbSrc={thumbSrc} posterSrc={posterSrc} type={type} alt={alt} />;
 };
 
 export default ProjectThumb;
