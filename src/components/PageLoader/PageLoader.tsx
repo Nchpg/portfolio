@@ -9,8 +9,6 @@ const PHASE1_DURATION = 1500; // 0 → 90%, minimum display time
 const PHASE2_DURATION = 400;  // 90 → 100%, once page is loaded
 const PHASE1_TARGET = 90;
 const EXIT_STRIPE_DURATION = 520 + (STRIPE_COUNT - 1) * 45 + 50;
-// Last hero animation: .hero-bottom-bar delay 0.58s + duration 0.6s
-const HERO_REVEAL_DURATION = 1180;
 
 function DigitSlot({
   trackPos,
@@ -75,8 +73,6 @@ export default function PageLoader() {
         setIsExiting(true);
         t2 = setTimeout(() => {
           document.body.classList.add('page-loaded');
-          // Not stored in cleanup: must fire after this component unmounts.
-          setTimeout(() => document.body.classList.add('hero-revealed'), HERO_REVEAL_DURATION);
           setIsDone(true);
         }, EXIT_STRIPE_DURATION);
       }, 250);

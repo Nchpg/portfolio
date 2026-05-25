@@ -109,6 +109,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mousePosRef = React.useRef<{ x: number; y: number } | null>(null);
   const closingRef = React.useRef(false);
+  const postCloseRef = React.useRef(false);
   const naturalDimsRef = React.useRef<{ w: number; h: number } | null>(null);
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
   const thumbButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -122,16 +123,8 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   React.useEffect(() => { isOpenRef.current = isOpen; }, [isOpen]);
   const previewLeaveTimeRef = React.useRef(0);
   const lastPreviewTimerSetRef = React.useRef(0);
-  const previewLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
   const thumbLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
-
-  const cancelPreviewLeaveListener = React.useCallback(() => {
-    if (previewLeaveListenerRef.current) {
-      document.removeEventListener('mouseover', previewLeaveListenerRef.current, true);
-      previewLeaveListenerRef.current = null;
-    }
-  }, []);
 
   const cancelThumbLeaveListener = React.useCallback(() => {
     if (thumbLeaveListenerRef.current) {
@@ -141,14 +134,16 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   }, []);
 
   const closePreview = React.useCallback((suppressHover = false) => {
-    cancelPreviewLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     if (suppressHover) {
       suppressHoverUntilMouseMove = true;
       document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
     }
+    // Block handlePreviewMouseEnter immediately (before React re-renders) so the
+    // preview can't re-open via the portal area — only the thumbnail can reopen it.
+    postCloseRef.current = true;
     dispatch({ type: 'CLOSE' });
-  }, [cancelPreviewLeaveListener]);
+  }, []);
 
   const handleThumbEnter = () => {
     if (suppressHoverUntilMouseMove) return;
@@ -156,10 +151,10 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     // If closingRef is true the cursor came directly from the preview → allow immediately.
     if (!closingRef.current && Date.now() - previewLeaveTimeRef.current < HOVER_LEAVE_DELAY_MS) return;
     if (coord.isPinnedElsewhere(id)) return;
-    cancelPreviewLeaveListener();
     cancelThumbLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     closingRef.current = false;
+    postCloseRef.current = false;
     coord.notifyActivated(id);
     dispatch({ type: 'HOVER' });
   };
@@ -188,32 +183,25 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     }, HOVER_LEAVE_DELAY_MS);
   };
 
-  const handlePreviewLeave = () => {
+  const handlePreviewLeave = (e: React.MouseEvent) => {
+    // When pointer-events toggles on a child (e.g. controls becoming interactive),
+    // the browser re-dispatches hit-testing and fires a spurious mouseleave on the
+    // preview div even though the cursor hasn't moved. Guard against this by
+    // checking the cursor position against the exact element bounds.
+    const el = previewRef.current;
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (e.clientX >= rect.left && e.clientX <= rect.right &&
+          e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        return;
+      }
+    }
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     if (isOpen) return; // pinned — only close button / Escape can dismiss
     closingRef.current = true;
     previewLeaveTimeRef.current = Date.now();
-    cancelPreviewLeaveListener();
-    // Delay CLOSE until cursor enters a different .project-row so A's deactivation
-    // transition starts simultaneously with B's CSS :hover transition.
-    const thisRow = thumbButtonRef.current?.closest('.project-row') ?? null;
-    const onNextRowEnter = (e: MouseEvent) => {
-      const row = (e.target as Element | null)?.closest('.project-row');
-      if (row && row !== thisRow) {
-        document.removeEventListener('mouseover', onNextRowEnter, true);
-        previewLeaveListenerRef.current = null;
-        if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-        dispatch({ type: 'CLOSE' });
-      }
-    };
-    previewLeaveListenerRef.current = onNextRowEnter;
-    document.addEventListener('mouseover', onNextRowEnter, true);
-    // Fallback: cursor went to empty space or same-row area (not another .project-row).
-    // Shorter than the original 300ms but still long enough for cursor to travel
-    // from the preview back to the thumbnail without triggering a close+reopen flash.
     hoverLeaveTimer.current = setTimeout(() => {
-      cancelPreviewLeaveListener();
-      dispatch({ type: 'CLOSE' });
+      closePreview(true);
     }, HOVER_LEAVE_DELAY_MS);
   };
 
@@ -231,8 +219,8 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   };
 
   const handlePreviewMouseEnter = () => {
-    if (closingRef.current) return;
-    cancelPreviewLeaveListener();
+    if (postCloseRef.current) return;
+    closingRef.current = false;
     cancelThumbLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     dispatch({ type: 'HOVER' });
@@ -369,6 +357,9 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         if (activatedId === id) return;
         cancelThumbLeaveListener();
         if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+        suppressHoverUntilMouseMove = true;
+        document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+        postCloseRef.current = true;
         dispatch({ type: 'DEACTIVATE' });
       }),
     [coord, id, cancelThumbLeaveListener]
@@ -528,11 +519,10 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     () => () => {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
       if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-      cancelPreviewLeaveListener();
       cancelThumbLeaveListener();
       coord.clearPinnedIf(id);
     },
-    [coord, id, cancelPreviewLeaveListener, cancelThumbLeaveListener]
+    [coord, id, cancelThumbLeaveListener]
   );
 
   React.useEffect(() => {
@@ -576,7 +566,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         isMouseActive && 'project-thumb-preview-active',
         isVisible && 'project-thumb-preview-interactive'
       )}
-      style={previewStyle || undefined}
+      style={(isVisible || isMounted) ? (previewStyle || undefined) : undefined}
       onMouseEnter={handlePreviewMouseEnter}
       onMouseLeave={handlePreviewLeave}
       onMouseMove={handlePreviewMouseMove}
@@ -587,7 +577,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         : { 'aria-hidden': true as const })}
     >
       {type === 'video'
-        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} shouldPlay={isInView || isHovered || isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
+        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} isHovered={isHovered} shouldPlay={isInView || isHovered || isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
         : imgError
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />

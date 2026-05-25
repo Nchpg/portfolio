@@ -167,6 +167,7 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
           src={src}
           poster=""
           isOpen={true}
+          isHovered={false}
           shouldPlay={true}
           containerRef={containerRef}
           onPin={NOOP}

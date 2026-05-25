@@ -50,6 +50,7 @@ html {
   color: var(--text-primary);
   font-family: var(--font-body);
   overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 
 h1,

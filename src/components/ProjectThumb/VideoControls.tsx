@@ -13,6 +13,7 @@ export type VideoControlsProps = {
   src: string;
   poster: string;
   isOpen: boolean;
+  isHovered: boolean;
   shouldPlay: boolean;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPin: () => void;
@@ -20,7 +21,7 @@ export type VideoControlsProps = {
   onDimensionsLoaded: (w: number, h: number) => void;
 };
 
-const VideoControls = React.memo(({ src, poster, isOpen, shouldPlay, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
+const VideoControls = React.memo(({ src, poster, isOpen, isHovered, shouldPlay, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -65,6 +66,12 @@ const VideoControls = React.memo(({ src, poster, isOpen, shouldPlay, containerRe
   }, []);
 
   React.useEffect(() => () => { scrubCleanupRef.current?.(); }, []);
+
+  React.useEffect(() => {
+    if (!isHovered) return;
+    const v = videoRef.current;
+    if (v) v.currentTime = 0;
+  }, [isHovered]);
 
   const autoPausedRef = React.useRef(false);
   React.useEffect(() => {

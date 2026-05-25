@@ -54,7 +54,8 @@
   outline: none;
 }
 
-.project-thumb-preview:not(.project-thumb-preview-interactive) {
+.project-thumb-preview:not(.project-thumb-preview-interactive),
+.project-thumb-preview:not(.project-thumb-preview-interactive) * {
   pointer-events: none;
 }
 
