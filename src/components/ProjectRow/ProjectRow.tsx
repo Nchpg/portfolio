@@ -68,6 +68,7 @@ const ProjectRow = ({ project, index, priority = false }: Props) => {
         animatedThumb={project.animatedThumb}
         alt={project.title}
         priority={priority}
+        mountDelay={index * 150}
       />
       <div className="project-main">
         <h3>{project.title}</h3>

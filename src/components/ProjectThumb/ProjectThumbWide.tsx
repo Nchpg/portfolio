@@ -91,9 +91,10 @@ export type ProjectThumbWideProps = {
   animatedThumb: boolean;
   priority: boolean;
   forceClose?: boolean;
+  mountDelay?: number;
 };
 
-const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, forceClose }: ProjectThumbWideProps) => {
+const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, forceClose, mountDelay = 0 }: ProjectThumbWideProps) => {
   const id = React.useId();
   const coord = useCoordinator();
   const [state, dispatch] = React.useReducer(reducer, initialState);
@@ -102,6 +103,8 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const [imgError, setImgError] = React.useState(false);
   const [isPreviewFullscreen, setIsPreviewFullscreen] = React.useState(false);
   const [isKeyboardClosing, setIsKeyboardClosing] = React.useState(false);
+  const [isPortalReady, setIsPortalReady] = React.useState(false);
+  const [isInView, setIsInView] = React.useState(true);
   const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mousePosRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -496,6 +499,25 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     return () => window.removeEventListener('scroll', onScroll);
   }, [isHovered, isOpen, closePreview]);
 
+  // Stagger portal mount to avoid all projects initializing simultaneously on page load.
+  React.useEffect(() => {
+    if (!supportsHover) return;
+    const t = setTimeout(() => setIsPortalReady(true), mountDelay);
+    return () => clearTimeout(t);
+  }, [supportsHover, mountDelay]);
+
+  // Pause video when thumbnail scrolls out of viewport to save CPU/GPU.
+  React.useEffect(() => {
+    const el = thumbButtonRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   React.useEffect(
     () => () => {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
@@ -526,7 +548,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     return () => cancelAnimationFrame(r);
   }, [isVisible]);
 
-  const preview = isMounted && createPortal(
+  const preview = (isMounted || isPortalReady) && createPortal(
     <div
       ref={previewRef}
       tabIndex={-1}
@@ -548,7 +570,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         : { 'aria-hidden': true as const })}
     >
       {type === 'video'
-        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
+        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} shouldPlay={isInView || isHovered || isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
         : imgError
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />

@@ -13,9 +13,10 @@ type ProjectThumbProps = {
   animatedThumb?: boolean;
   alt: string;
   priority?: boolean;
+  mountDelay?: number;
 };
 
-const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority = false }: ProjectThumbProps) => {
+const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority = false, mountDelay = 0 }: ProjectThumbProps) => {
   const thumbSrc = `/projects/${slug}/thumbnail.webp`;
   const type = previewExt === 'mp4' ? 'video' : 'img';
 
@@ -50,6 +51,7 @@ const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority =
         animatedThumb={animatedThumb}
         priority={priority}
         forceClose={isNarrow}
+        mountDelay={mountDelay}
       />
     );
   }

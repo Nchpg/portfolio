@@ -15,13 +15,14 @@ export type VideoControlsProps = {
   src: string;
   poster: string;
   isOpen: boolean;
+  shouldPlay: boolean;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPin: () => void;
   onFullscreenChange: (isFs: boolean) => void;
   onDimensionsLoaded: (style: PreviewStyle | null) => void;
 };
 
-const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
+const VideoControls = React.memo(({ src, poster, isOpen, shouldPlay, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -66,6 +67,17 @@ const VideoControls = React.memo(({ src, poster, isOpen, containerRef, onPin, on
   }, []);
 
   React.useEffect(() => () => { scrubCleanupRef.current?.(); }, []);
+
+  const autoPausedRef = React.useRef(false);
+  React.useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (isOpen || shouldPlay) {
+      if (autoPausedRef.current) { v.play().catch(() => {}); autoPausedRef.current = false; }
+    } else {
+      if (!v.paused) { v.pause(); autoPausedRef.current = true; }
+    }
+  }, [shouldPlay, isOpen]);
 
   React.useEffect(() => {
     const onFsChange = () => {
