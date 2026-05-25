@@ -20,7 +20,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "thumbnails": "bash scripts/make-thumbnails.sh",
-    "previews": "bash scripts/compress-mp4.sh"
+    "previews": "bash scripts/make-previews.sh"
   },
   "devDependencies": {
     "@csstools/postcss-global-data": "^4.0.0",
