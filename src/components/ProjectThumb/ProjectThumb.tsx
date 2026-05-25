@@ -17,9 +17,16 @@ type ProjectThumbProps = {
 
 const ProjectThumb = ({ slug, previewExt, animatedThumb = false, alt, priority = false }: ProjectThumbProps) => {
   const thumbSrc = `/projects/${slug}/thumbnail.webp`;
-  const src = `/projects/${slug}/preview.${previewExt}`;
   const type = previewExt === 'mp4' ? 'video' : 'img';
-  const isNarrow = useMediaQuery(`(max-width: ${BP.lg}px)`);
+
+  const isMobile  = useMediaQuery(`(max-width: ${BP.xs}px)`);
+  const isTabletS = useMediaQuery(`(max-width: ${BP.md}px)`);
+  const isNarrow  = useMediaQuery(`(max-width: ${BP.lg}px)`);
+
+  const videoWidth = isMobile ? 640 : isTabletS ? 960 : 1280;
+  const src = previewExt === 'mp4'
+    ? `/projects/${slug}/preview-${videoWidth}.mp4`
+    : `/projects/${slug}/preview.${previewExt}`;
 
   // Keep wide mounted briefly when switching to narrow so its close animation plays.
   // 300ms > 250ms CSS transition on .project-thumb-preview.

@@ -165,7 +165,7 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
       {type === 'video' ? (
         <VideoControls
           src={src}
-          poster={thumbSrc}
+          poster=""
           isOpen={true}
           containerRef={containerRef}
           onPin={NOOP}

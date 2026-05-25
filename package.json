@@ -18,7 +18,9 @@
     "format": "eslint src/ --fix && stylelint 'src/**/*.css' --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "thumbnails": "bash scripts/make-thumbnails.sh",
+    "previews": "bash scripts/compress-mp4.sh"
   },
   "devDependencies": {
     "@csstools/postcss-global-data": "^4.0.0",

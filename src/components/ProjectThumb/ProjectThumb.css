@@ -263,6 +263,12 @@
   }
 }
 
+@media (--bp-lg) {
+  .project-thumb:not(.project-thumb-narrow) {
+    display: none;
+  }
+}
+
 .project-thumb-img-fs {
   position: absolute;
   bottom: 12px;
