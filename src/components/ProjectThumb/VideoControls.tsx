@@ -3,8 +3,6 @@
 import React from 'react';
 import { PlayIcon, PauseIcon, FullscreenIcon, ExitFullscreenIcon } from '../icons';
 import {
-  PreviewStyle,
-  computePreviewSize,
   maskForEntry,
   unmaskAfterEntry,
   killTransitionForExit,
@@ -19,7 +17,7 @@ export type VideoControlsProps = {
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPin: () => void;
   onFullscreenChange: (isFs: boolean) => void;
-  onDimensionsLoaded: (style: PreviewStyle | null) => void;
+  onDimensionsLoaded: (w: number, h: number) => void;
 };
 
 const VideoControls = React.memo(({ src, poster, isOpen, shouldPlay, containerRef, onPin, onFullscreenChange, onDimensionsLoaded }: VideoControlsProps) => {
@@ -148,7 +146,7 @@ const VideoControls = React.memo(({ src, poster, isOpen, shouldPlay, containerRe
   };
 
   const handleVideoLoad = (e: React.SyntheticEvent<HTMLVideoElement>) =>
-    onDimensionsLoaded(computePreviewSize(e.currentTarget.videoWidth, e.currentTarget.videoHeight));
+    onDimensionsLoaded(e.currentTarget.videoWidth, e.currentTarget.videoHeight);
 
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;

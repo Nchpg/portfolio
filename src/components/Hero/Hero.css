@@ -1,6 +1,16 @@
 /* ── Reveal animations (triggered by .page-loaded on body) ── */
 
 /*
+ * Block scroll until hero reveal animations are done (.hero-revealed is added
+ * ~1180ms after .page-loaded, matching the last animation end).
+ * Applied on html + body so no scrollable ancestor escapes the lock.
+ */
+body:not(.hero-revealed),
+html:not(:has(.hero-revealed)) {
+  overflow: hidden;
+}
+
+/*
  * body:not(.page-loaded) guarantees higher specificity than any
  * component-level opacity rule (e.g. .hero-role-primary { opacity: 0.85 })
  * so elements stay invisible while the loader is active.

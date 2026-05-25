@@ -109,6 +109,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mousePosRef = React.useRef<{ x: number; y: number } | null>(null);
   const closingRef = React.useRef(false);
+  const naturalDimsRef = React.useRef<{ w: number; h: number } | null>(null);
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
   const thumbButtonRef = React.useRef<HTMLButtonElement>(null);
   const previewRef = React.useRef<HTMLDivElement>(null);
@@ -329,12 +330,17 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     if (!isShown) dispatch({ type: 'UNMOUNT' });
   };
 
-  const handleDimensionsLoaded = React.useCallback((style: PreviewStyle | null) => {
-    dispatch({ type: 'SET_PREVIEW_STYLE', style });
+  const handleDimensionsLoaded = React.useCallback((w: number, h: number) => {
+    naturalDimsRef.current = { w, h };
+    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(w, h) });
   }, []);
 
-  const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) =>
-    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight) });
+  const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const w = e.currentTarget.naturalWidth;
+    const h = e.currentTarget.naturalHeight;
+    naturalDimsRef.current = { w, h };
+    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(w, h) });
+  };
 
   const handleImgError = () => setImgError(true);
 
@@ -546,6 +552,17 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     dispatch({ type: 'MOUNT' });
     const r = requestAnimationFrame(() => dispatch({ type: 'SHOW' }));
     return () => cancelAnimationFrame(r);
+  }, [isVisible]);
+
+  React.useEffect(() => {
+    if (!isVisible) return;
+    const recompute = () => {
+      const dims = naturalDimsRef.current;
+      if (!dims) return;
+      dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(dims.w, dims.h) });
+    };
+    window.addEventListener('resize', recompute);
+    return () => window.removeEventListener('resize', recompute);
   }, [isVisible]);
 
   const preview = (isMounted || isPortalReady) && createPortal(
