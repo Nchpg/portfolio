@@ -104,6 +104,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const [isKeyboardClosing, setIsKeyboardClosing] = React.useState(false);
   const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mousePosRef = React.useRef<{ x: number; y: number } | null>(null);
   const closingRef = React.useRef(false);
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
   const thumbButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -473,9 +474,23 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
 
   React.useEffect(() => {
     if (!isHovered || isOpen) return;
+    const onMouseMove = (e: MouseEvent) => { mousePosRef.current = { x: e.clientX, y: e.clientY }; };
+    document.addEventListener('mousemove', onMouseMove);
+    return () => document.removeEventListener('mousemove', onMouseMove);
+  }, [isHovered, isOpen]);
+
+  React.useEffect(() => {
+    if (!isHovered || isOpen) return;
     const startY = window.scrollY;
     const onScroll = () => {
-      if (Math.abs(window.scrollY - startY) > SCROLL_DISMISS_PX) closePreview();
+      if (Math.abs(window.scrollY - startY) <= SCROLL_DISMISS_PX) return;
+      const pos = mousePosRef.current;
+      const thumb = thumbButtonRef.current;
+      if (pos && thumb) {
+        const rect = thumb.getBoundingClientRect();
+        if (pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.top && pos.y <= rect.bottom) return;
+      }
+      closePreview();
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);

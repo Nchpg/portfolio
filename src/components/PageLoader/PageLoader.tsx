@@ -5,7 +5,9 @@ import { flushSync } from 'react-dom';
 import './PageLoader.css';
 
 const STRIPE_COUNT = 8;
-const COUNTER_DURATION = 1900;
+const PHASE1_DURATION = 1500; // 0 → 90%, minimum display time
+const PHASE2_DURATION = 400;  // 90 → 100%, once page is loaded
+const PHASE1_TARGET = 90;
 const EXIT_STRIPE_DURATION = 520 + (STRIPE_COUNT - 1) * 45 + 50;
 
 function DigitSlot({
@@ -59,27 +61,59 @@ export default function PageLoader() {
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
-    const start = performance.now();
     let raf: number;
     let t1: ReturnType<typeof setTimeout>;
     let t2: ReturnType<typeof setTimeout>;
+    let phase1Done = false;
+    let pageLoaded = document.readyState === 'complete';
 
+    const finish = () => {
+      setCount(100);
+      t1 = setTimeout(() => {
+        setIsExiting(true);
+        t2 = setTimeout(() => {
+          document.body.classList.add('page-loaded');
+          setIsDone(true);
+        }, EXIT_STRIPE_DURATION);
+      }, 250);
+    };
+
+    const tryStartPhase2 = () => {
+      if (!phase1Done || !pageLoaded) return;
+      const phase2Start = performance.now();
+      const tickPhase2 = (now: number) => {
+        const t = Math.min((now - phase2Start) / PHASE2_DURATION, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setCount(Math.floor(PHASE1_TARGET + eased * (100 - PHASE1_TARGET)));
+        if (t < 1) {
+          raf = requestAnimationFrame(tickPhase2);
+        } else {
+          finish();
+        }
+      };
+      raf = requestAnimationFrame(tickPhase2);
+    };
+
+    const onLoad = () => {
+      pageLoaded = true;
+      tryStartPhase2();
+    };
+
+    if (!pageLoaded) {
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    const start = performance.now();
     const tick = (now: number) => {
-      const t = Math.min((now - start) / COUNTER_DURATION, 1);
+      const t = Math.min((now - start) / PHASE1_DURATION, 1);
       const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      setCount(Math.floor(eased * 100));
-
+      setCount(Math.floor(eased * PHASE1_TARGET));
       if (t < 1) {
         raf = requestAnimationFrame(tick);
       } else {
-        setCount(100);
-        t1 = setTimeout(() => {
-          setIsExiting(true);
-          t2 = setTimeout(() => {
-            document.body.classList.add('page-loaded');
-            setIsDone(true);
-          }, EXIT_STRIPE_DURATION);
-        }, 250);
+        setCount(PHASE1_TARGET);
+        phase1Done = true;
+        tryStartPhase2();
       }
     };
 
@@ -88,6 +122,7 @@ export default function PageLoader() {
       cancelAnimationFrame(raf);
       clearTimeout(t1);
       clearTimeout(t2);
+      window.removeEventListener('load', onLoad);
     };
   }, []);
 

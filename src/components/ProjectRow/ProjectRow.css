@@ -33,8 +33,7 @@
   padding: 28px 0;
   transition:
     background-color 0.25s ease,
-    color 0.25s ease,
-    padding-inline 0.25s ease;
+    color 0.25s ease;
 }
 
 .project-index {
@@ -107,31 +106,62 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .project-row {
+    margin-inline: -24px;
+    padding-inline-start: 48px;
+  }
+
+  .project-row > * {
+    transform: translateX(-24px);
+    transition: transform 0.25s ease;
+  }
+
   .project-row:hover,
   .project-row:has(.project-thumb-active) {
     background-color: var(--border-soft);
-    padding-inline: 24px;
-    transition:
-      background-color 0.25s ease,
-      color 0.25s ease,
-      padding-inline 0.25s ease;
+  }
 
-    & .project-meta span {
-      color: var(--accent-green);
-      border-color: color-mix(in srgb, var(--accent-green) 55%, transparent);
-      background: color-mix(in srgb, var(--accent-green) 9%, transparent);
-      opacity: 1;
-    }
+  .project-row:hover > *,
+  .project-row:has(.project-thumb-active) > * {
+    transform: translateX(0);
+  }
 
-    & .project-meta span:hover {
-      box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--accent-green) 18%, transparent),
-        0 0 16px color-mix(in srgb, var(--accent-green) 20%, transparent);
-    }
+  .project-row .project-meta {
+    transform: translateX(0);
+  }
+
+  .project-row:hover .project-meta,
+  .project-row:has(.project-thumb-active) .project-meta {
+    transform: translateX(-24px);
+  }
+
+  .project-row:hover .project-meta span,
+  .project-row:has(.project-thumb-active) .project-meta span {
+    color: var(--accent-green);
+    border-color: color-mix(in srgb, var(--accent-green) 55%, transparent);
+    background: color-mix(in srgb, var(--accent-green) 9%, transparent);
+    opacity: 1;
+  }
+
+  .project-row:hover .project-meta span:hover,
+  .project-row:has(.project-thumb-active) .project-meta span:hover {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent-green) 18%, transparent),
+      0 0 16px color-mix(in srgb, var(--accent-green) 20%, transparent);
   }
 }
 
 @media (--bp-lg) {
+  .project-row > * {
+    transform: none;
+    transition: none;
+  }
+
+  .project-row:hover .project-meta,
+  .project-row:has(.project-thumb-active) .project-meta {
+    transform: none;
+  }
+
   .project-row:hover,
   .project-row:has(.project-thumb-active) {
     padding-inline: 24px;
