@@ -1,6 +1,5 @@
 export const ANIMATION_DEFAULTS = {
   lineColor: '#fdfdfd14',
-  backgroundColor: '#212121',
   waveSpeedX: 0.0125,
   waveSpeedY: 0.011,
   waveAmpX: 40,

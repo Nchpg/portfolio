@@ -64,7 +64,6 @@ type PtsData = {
 
 export type AnimationProps = {
   lineColor: string;
-  backgroundColor: string;
   waveSpeedX: number;
   waveSpeedY: number;
   waveAmpX: number;
@@ -78,7 +77,6 @@ export type AnimationProps = {
 
 export function useBackgroundAnimation({
   lineColor,
-  backgroundColor,
   waveSpeedX,
   waveSpeedY,
   waveAmpX,
@@ -91,6 +89,8 @@ export function useBackgroundAnimation({
 }: AnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lineColorRef = useRef(lineColor);
+  lineColorRef.current = lineColor;
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const boundsRef = useRef({ width: 0, height: 0, left: 0, top: 0 });
   const noiseCtxRef = useRef<PerlinCtx | null>(null);
@@ -114,7 +114,7 @@ export function useBackgroundAnimation({
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    ctxRef.current = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    ctxRef.current = canvas.getContext('2d', { alpha: true });
     noiseCtxRef.current = buildPerm(Math.random());
 
     const frameState = { lastTime: 0, avgWork: FRAME_WORK_HIGH_MS * 0.5, drawStep: 2 };
@@ -202,8 +202,7 @@ export function useBackgroundAnimation({
       canvas.style.width = `${w}px`;
       canvas.style.height = `${hx}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, w, hx);
+      ctx.clearRect(0, 0, w, hx);
       initPoints();
     };
 
@@ -310,9 +309,8 @@ export function useBackgroundAnimation({
         }
       }
 
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, width, height);
-      ctx.strokeStyle = lineColor;
+      ctx.clearRect(0, 0, width, height);
+      ctx.strokeStyle = lineColorRef.current;
       ctx.lineWidth = 1;
 
       const fTension = tension * dt;
@@ -494,8 +492,7 @@ export function useBackgroundAnimation({
     waveSpeedY,
     xGap,
     yGap,
-    lineColor,
-    backgroundColor,
+    // lineColor is read via ref — no restart needed on color change
   ]);
 
   return { canvasRef, containerRef };

@@ -3,6 +3,9 @@ import { SITE_URL, CONTACT_EMAIL } from '../utils/env';
 import './globals.css';
 import { inter, bebasNeue } from './fonts';
 import PageLoader from '../components/PageLoader/PageLoader';
+import { ThemeProvider } from '../context/ThemeContext';
+
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();`;
 
 const siteUrl = SITE_URL;
 const siteTitle = 'Nathan Champagne - AI & Software Engineer Portfolio';
@@ -140,8 +143,9 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${bebasNeue.variable}`}>
+    <html lang="en" className={`${inter.variable} ${bebasNeue.variable}`} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -153,8 +157,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body suppressHydrationWarning>
-<PageLoader />
-        {children}
+        <ThemeProvider>
+          <PageLoader />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

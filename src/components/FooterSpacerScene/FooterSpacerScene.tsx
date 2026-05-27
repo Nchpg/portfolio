@@ -1,11 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import './FooterSpacerScene.css';
 
 const FooterSpacerScene = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const materialRef = useRef<{ blending: number; needsUpdate: boolean } | null>(null);
+  const uLightModeRef = useRef({ value: 0 });
+  const blendingRef = useRef<{ normal: number; additive: number } | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -22,7 +27,7 @@ const FooterSpacerScene = () => {
         const [
           {
             WebGLRenderer, Scene, PerspectiveCamera, Points,
-            BufferGeometry, BufferAttribute, ShaderMaterial, Vector2, AdditiveBlending,
+            BufferGeometry, BufferAttribute, ShaderMaterial, Vector2, AdditiveBlending, NormalBlending,
           },
           { vertexShader, fragmentShader },
         ] = await Promise.all([
@@ -74,17 +79,21 @@ const FooterSpacerScene = () => {
         geometry.setAttribute('position', new BufferAttribute(positions, 3));
         geometry.setAttribute('scale', new BufferAttribute(scales, 1));
 
+        blendingRef.current = { normal: NormalBlending, additive: AdditiveBlending };
+
         const uTime = { value: 0 };
         const uMouse = { value: new Vector2(-10, -10) };
+        const uLightMode = uLightModeRef.current;
 
         const material = new ShaderMaterial({
-          uniforms: { uTime, uMouse },
+          uniforms: { uTime, uMouse, uLightMode },
           vertexShader,
           fragmentShader,
           transparent: true,
           depthWrite: false,
-          blending: AdditiveBlending,
+          blending: uLightMode.value > 0.5 ? NormalBlending : AdditiveBlending,
         });
+        materialRef.current = material;
 
         scene.add(new Points(geometry, material));
 
@@ -167,6 +176,17 @@ const FooterSpacerScene = () => {
       cleanupThree?.();
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const isLight = theme === 'light';
+    uLightModeRef.current.value = isLight ? 1.0 : 0.0;
+    const mat = materialRef.current;
+    const b = blendingRef.current;
+    if (mat && b) {
+      mat.blending = isLight ? b.normal : b.additive;
+      mat.needsUpdate = true;
+    }
+  }, [theme]);
 
   return (
     <div className="footer-spacer-scene" ref={wrapperRef} aria-hidden="true">

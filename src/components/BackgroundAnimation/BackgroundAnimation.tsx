@@ -15,7 +15,6 @@ const BackgroundAnimation = React.memo((props: Props) => {
     <div
       ref={containerRef}
       className="bg-waves"
-      style={{ backgroundColor: merged.backgroundColor }}
     >
       <canvas ref={canvasRef} className="bg-waves-canvas" />
     </div>

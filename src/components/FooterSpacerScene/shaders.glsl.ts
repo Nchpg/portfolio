@@ -1,5 +1,6 @@
 export const vertexShader = /* glsl */ `
 uniform float uTime;
+uniform float uLightMode;
 uniform vec2 uMouse;
 attribute float scale;
 varying vec3 vColor;
@@ -31,9 +32,8 @@ void main() {
     vec3 p = position;
     p.y = snoise(p.xz * 0.03 + uTime * 0.08) * 2.0;
 
-    // h and vColor don't depend on mouse — compute before branch
     float h = (p.y + 2.0) * 0.25;
-    vColor = mix(vec3(0.45), vec3(1.0), smoothstep(0.0, 1.0, h));
+    vColor = mix(vec3(1.0), vec3(0.18), uLightMode);
 
     vec4 mvp = modelViewMatrix * vec4(p, 1.0);
     vec4 clip = projectionMatrix * mvp;
@@ -60,6 +60,7 @@ void main() {
 `;
 
 export const fragmentShader = /* glsl */ `
+uniform float uLightMode;
 varying vec3 vColor;
 
 void main() {
@@ -68,6 +69,6 @@ void main() {
     if (lenSq > 0.25) discard;
     float len = sqrt(lenSq);
     float alpha = smoothstep(0.5, 0.35, len);
-    gl_FragColor = vec4(vColor, alpha * 0.85);
+    gl_FragColor = vec4(vColor, alpha * mix(0.85, 0.95, uLightMode));
 }
 `;

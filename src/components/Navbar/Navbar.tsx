@@ -5,6 +5,7 @@ import { smoothScrollTo } from '../../utils/smoothScroll';
 import BarGroup from '../BarGroup/BarGroup';
 import HoverLink from '../HoverLink/HoverLink';
 import WaveText from '../WaveText/WaveText';
+import ThemeToggle from './ThemeToggle';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -35,6 +36,7 @@ const Navbar = () => {
             <HoverLink href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>
               Contact
             </HoverLink>
+            <ThemeToggle />
           </div>
         }
       />

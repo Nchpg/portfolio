@@ -6,12 +6,20 @@ import HeroBottomBar from './HeroBottomBar';
 import { smoothScrollTo } from '../../utils/smoothScroll';
 import { ChevronDownIcon } from '../icons';
 import TitleLine from '../TitleLine/TitleLine';
+import { useTheme } from '../../context/ThemeContext';
 import './Hero.css';
 import './HeroCTA.css';
 
-const Hero = () => (
+const ANIM_DARK = { lineColor: 'rgba(253,253,253,0.08)' };
+const ANIM_LIGHT = { lineColor: 'rgba(26,26,26,0.20)' };
+
+const Hero = () => {
+  const { theme } = useTheme();
+  const animColors = theme === 'light' ? ANIM_LIGHT : ANIM_DARK;
+
+  return (
   <section className="hero container">
-    <BackgroundAnimation />
+    <BackgroundAnimation {...animColors} />
 
     <div className="hero-content">
       <Navbar />
@@ -45,6 +53,7 @@ const Hero = () => (
       <HeroBottomBar />
     </div>
   </section>
-);
+  );
+};
 
 export default Hero;
