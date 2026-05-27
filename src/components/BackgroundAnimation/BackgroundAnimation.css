@@ -14,11 +14,10 @@
   width: 100%;
   height: 100%;
   display: block;
+  pointer-events: none;
 }
 
-@media (pointer: coarse) {
-  .bg-waves-canvas {
-    pointer-events: none;
-  }
+.bg-waves {
+  pointer-events: none;
 }
 

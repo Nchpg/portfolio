@@ -428,7 +428,8 @@ export function useBackgroundAnimation({
       animationFrame = requestAnimationFrame(render);
     };
 
-    const addMouseListener = () => window.addEventListener('mousemove', handleMouseMove);
+    const isTouchOnly = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+    const addMouseListener = () => { if (!isTouchOnly) window.addEventListener('mousemove', handleMouseMove); };
     const removeMouseListener = () => window.removeEventListener('mousemove', handleMouseMove);
 
     const io = new IntersectionObserver(

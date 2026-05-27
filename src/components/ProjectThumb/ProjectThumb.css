@@ -134,6 +134,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  user-select: none;
   transition: background 0.2s ease;
   z-index: 2;
 
@@ -156,6 +157,7 @@
   align-items: center;
   gap: 12px;
   padding: 22px 16px 14px;
+  user-select: none;
   background: linear-gradient(
     to top,
     var(--overlay-intense) 0%,

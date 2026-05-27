@@ -71,9 +71,11 @@
   letter-spacing: 0.08em;
   transition: background 0.2s ease, color 0.2s ease;
 
-  &:hover {
-    background: var(--border-faint);
-    color: var(--accent-green);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--border-faint);
+      color: var(--accent-green);
+    }
   }
 
   &:active {
