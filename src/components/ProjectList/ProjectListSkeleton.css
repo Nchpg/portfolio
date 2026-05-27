@@ -1,10 +1,10 @@
 @keyframes skeleton-shimmer {
   0% {
-    background-position: -200% center;
+    transform: translateX(-100%);
   }
 
   100% {
-    background-position: 200% center;
+    transform: translateX(100%);
   }
 }
 
@@ -19,15 +19,23 @@
 }
 
 .skeleton-block {
-  background: linear-gradient(
-    90deg,
-    var(--border-faint) 0%,
-    var(--border-soft) 50%,
-    var(--border-faint) 100%
-  );
-  background-size: 200% 100%;
+  background: var(--border-faint);
   border-radius: 4px;
-  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  overflow: hidden;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--border-soft) 50%,
+      transparent 100%
+    );
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  }
 }
 
 .skeleton-index {

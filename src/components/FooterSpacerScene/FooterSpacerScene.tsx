@@ -125,11 +125,13 @@ const FooterSpacerScene = () => {
         let lastFrameTime = 0;
 
         const animate = (now: number) => {
+          frameId = 0;
+          if (now - lastFrameTime >= TARGET_FRAME_MS) {
+            lastFrameTime = now;
+            uTime.value = (now - startedAt) / 1000;
+            renderSingleFrame();
+          }
           frameId = requestAnimationFrame(animate);
-          if (now - lastFrameTime < TARGET_FRAME_MS) return;
-          lastFrameTime = now;
-          uTime.value = (now - startedAt) / 1000;
-          renderSingleFrame();
         };
 
         const visibilityObserver = new IntersectionObserver(

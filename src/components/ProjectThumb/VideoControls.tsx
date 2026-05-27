@@ -27,8 +27,6 @@ const VideoControls = React.memo(({ src, poster, isOpen, isHovered, shouldPlay, 
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   const progressContainerRef = React.useRef<HTMLDivElement>(null);
-  const progressFillRef = React.useRef<HTMLDivElement>(null);
-  const progressHandleRef = React.useRef<HTMLDivElement>(null);
   const lastPctRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
@@ -39,14 +37,12 @@ const VideoControls = React.memo(({ src, poster, isOpen, isHovered, shouldPlay, 
   }, []);
 
   const updateProgressUI = React.useCallback((ratio: number) => {
-    const pct = `${ratio * 100}%`;
     const pctRounded = Math.round(ratio * 100);
-    if (progressFillRef.current) progressFillRef.current.style.width = pct;
-    if (progressHandleRef.current) progressHandleRef.current.style.left = pct;
-    if (lastPctRef.current !== pctRounded) {
-      lastPctRef.current = pctRounded;
-      const container = progressContainerRef.current;
-      if (container) {
+    const container = progressContainerRef.current;
+    if (container) {
+      container.style.setProperty('--progress', `${ratio * 100}%`);
+      if (lastPctRef.current !== pctRounded) {
+        lastPctRef.current = pctRounded;
         container.setAttribute('aria-valuenow', pctRounded.toString());
         container.setAttribute('aria-valuetext', `${pctRounded}%`);
       }
@@ -269,8 +265,8 @@ const VideoControls = React.memo(({ src, poster, isOpen, isHovered, shouldPlay, 
           aria-valuemin={0}
           aria-valuemax={100}
         >
-          <div ref={progressFillRef} className="project-thumb-progress-fill" style={{ width: '0%' }} />
-          <div ref={progressHandleRef} className="project-thumb-progress-handle" style={{ left: '0%' }} />
+          <div className="project-thumb-progress-fill" />
+          <div className="project-thumb-progress-handle" />
         </div>
         <button
           className="project-thumb-ctrl"

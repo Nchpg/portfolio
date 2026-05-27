@@ -62,10 +62,11 @@ const CustomCursor = () => {
       if (stillMoving) rafId = requestAnimationFrame(animate);
     };
 
+    let lastEl: Element | null = null;
+
     // Hide circles when the element under the cursor has cursor:none (e.g. inactive preview).
     const syncVisibility = () => {
-      const el = document.elementFromPoint(target.x, target.y);
-      const hidden = el ? window.getComputedStyle(el).cursor === 'none' : false;
+      const hidden = lastEl ? window.getComputedStyle(lastEl).cursor === 'none' : false;
       wrapperEl.current?.classList.toggle('is-cursor-none', hidden);
     };
 
@@ -73,6 +74,7 @@ const CustomCursor = () => {
     const handleMouseMove = (event: MouseEvent) => {
       target.x = event.clientX;
       target.y = event.clientY;
+      lastEl = event.target as Element | null;
       if (!hasMoved) {
         hasMoved = true;
         setIsVisible(true);

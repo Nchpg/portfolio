@@ -207,7 +207,10 @@ export function useBackgroundAnimation({
       initPoints();
     };
 
+    let mouseUpdatePending = false;
     const handleMouseMove = (e: MouseEvent) => {
+      if (mouseUpdatePending) return;
+      mouseUpdatePending = true;
       const m = mouseRef.current;
       const { left, top } = boundsRef.current;
       m.x = e.clientX - left;
@@ -219,6 +222,7 @@ export function useBackgroundAnimation({
         m.ly = m.y;
         m.set = true;
       }
+      requestAnimationFrame(() => { mouseUpdatePending = false; });
     };
 
     let animationFrame = 0;

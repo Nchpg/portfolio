@@ -62,7 +62,7 @@
 .project-thumb-preview {
   position: fixed;
   top: 50%;
-  left: 50%;
+  left: calc(50% - var(--scrollbar-width, 0px) / 2);
   width: auto;
   height: auto;
   max-width: 90vw;
@@ -72,6 +72,7 @@
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 50px 120px var(--overlay-dark);
+  will-change: transform;
   z-index: var(--z-modal);
   pointer-events: auto;
   opacity: 0;
@@ -127,13 +128,12 @@
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: var(--overlay-medium);
+  background: var(--overlay-dark);
   color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(8px);
   transition: background 0.2s ease;
   z-index: 2;
 
@@ -225,6 +225,7 @@
   position: absolute;
   left: 0;
   height: 4px;
+  width: var(--progress, 0%);
   background: var(--accent-green);
   border-radius: 2px;
   pointer-events: none;
@@ -236,6 +237,7 @@
   height: 12px;
   background: var(--accent-green);
   border-radius: 50%;
+  left: var(--progress, 0%);
   transform: translateX(-50%);
   pointer-events: none;
   opacity: 0;
@@ -278,13 +280,12 @@
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: var(--overlay-medium);
+  background: var(--overlay-dark);
   color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(8px);
   opacity: 0;
   pointer-events: none;
   transition: background 0.2s ease, opacity 0.25s ease;

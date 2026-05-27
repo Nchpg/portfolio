@@ -376,13 +376,21 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   React.useEffect(() => {
     if (!isOpen || !isMounted) return;
     const thumbButton = thumbButtonRef.current;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const prevBody = document.body.style.overflow;
     const prevHtml = document.documentElement.style.overflow;
+    const prevPadding = document.body.style.paddingRight;
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+    }
     return () => {
       document.body.style.overflow = prevBody;
       document.documentElement.style.overflow = prevHtml;
+      document.body.style.paddingRight = prevPadding;
+      document.documentElement.style.removeProperty('--scrollbar-width');
       if (thumbButton?.isConnected) thumbButton.focus();
     };
   }, [isOpen, isMounted]);
@@ -546,6 +554,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       if (!dims) return;
       dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(dims.w, dims.h) });
     };
+    recompute();
     window.addEventListener('resize', recompute);
     return () => window.removeEventListener('resize', recompute);
   }, [isVisible]);
