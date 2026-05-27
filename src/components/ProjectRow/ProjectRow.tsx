@@ -44,7 +44,7 @@ type Props = {
 };
 
 const ProjectRow = ({ project, index, priority = false }: Props) => {
-  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.08 });
+  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.08, rootMargin: '0px 0px 120px 0px' });
 
   const jsonLd = generateProjectJsonLd(
     project,

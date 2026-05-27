@@ -30,7 +30,19 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
   const lastTimerSetRef = React.useRef(0);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [imgError, setImgError] = React.useState(false);
+  const [isInView, setIsInView] = React.useState(true);
   const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
+
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry?.isIntersecting ?? false),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Img fullscreen listener
   React.useEffect(() => {
@@ -168,7 +180,7 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
           poster=""
           isOpen={true}
           isHovered={false}
-          shouldPlay={true}
+          shouldPlay={isInView}
           containerRef={containerRef}
           onPin={NOOP}
           onFullscreenChange={setIsFullscreen}

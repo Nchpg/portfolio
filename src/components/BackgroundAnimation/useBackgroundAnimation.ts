@@ -173,6 +173,19 @@ export function useBackgroundAnimation({
       const w = window.innerWidth;
       const h = window.innerHeight;
       const hx = h + 2 * CANVAS_MARGIN;
+
+      const prev = boundsRef.current;
+      if (
+        ptsRef.current &&
+        Math.abs(w - prev.width) < 30 &&
+        Math.abs(hx - prev.height) < 30
+      ) {
+        boundsRef.current = { width: w, height: hx, left: 0, top: -CANVAS_MARGIN };
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${hx}px`;
+        return;
+      }
+
       const natural = window.devicePixelRatio || 1;
       const cssArea = w * h;
       const pixelBudget = window.matchMedia('(pointer: coarse)').matches
@@ -189,6 +202,8 @@ export function useBackgroundAnimation({
       canvas.style.width = `${w}px`;
       canvas.style.height = `${hx}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, w, hx);
       initPoints();
     };
 

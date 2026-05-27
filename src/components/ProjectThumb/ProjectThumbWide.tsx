@@ -23,8 +23,14 @@ import VideoControls from './VideoControls';
 
 // Shared across all instances: suppresses synthetic mouseenter events that browsers
 // fire when a portal is removed and the cursor happens to be over another thumbnail.
-// Set to true on Tab navigation, cleared on the next real mousemove.
+// Set to true on Tab navigation, cleared on the next real mousemove or scroll.
 let suppressHoverUntilMouseMove = false;
+function suppressUntilInteraction() {
+  suppressHoverUntilMouseMove = true;
+  const clear = () => { suppressHoverUntilMouseMove = false; };
+  document.addEventListener('mousemove', clear, { once: true });
+  window.addEventListener('scroll', clear, { once: true, passive: true });
+}
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 
@@ -62,12 +68,12 @@ const initialState: State = {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'OPEN':              return { ...state, isOpen: true, isMouseActive: true };
-    case 'CLOSE':             return { ...state, isOpen: false, isHovered: false };
+    case 'OPEN':              return { ...state, isOpen: true };
+    case 'CLOSE':             return { ...state, isOpen: false, isHovered: false, isMouseActive: false };
     case 'UNPIN':             return { ...state, isOpen: false };
     case 'HOVER':             return { ...state, isHovered: true };
     case 'UNHOVER':           return { ...state, isHovered: false };
-    case 'DEACTIVATE':        return { ...state, isOpen: false, isHovered: false };
+    case 'DEACTIVATE':        return { ...state, isOpen: false, isHovered: false, isMouseActive: false };
     case 'MOUNT':             return { ...state, isMounted: true };
     case 'UNMOUNT':           return { ...state, isMounted: false };
     case 'SHOW':              return { ...state, isShown: true };
@@ -104,9 +110,9 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const [isPreviewFullscreen, setIsPreviewFullscreen] = React.useState(false);
   const [isKeyboardClosing, setIsKeyboardClosing] = React.useState(false);
   const [isPortalReady, setIsPortalReady] = React.useState(false);
-  const [isInView, setIsInView] = React.useState(true);
   const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mouseActiveLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mousePosRef = React.useRef<{ x: number; y: number } | null>(null);
   const closingRef = React.useRef(false);
   const postCloseRef = React.useRef(false);
@@ -136,8 +142,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const closePreview = React.useCallback((suppressHover = false) => {
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     if (suppressHover) {
-      suppressHoverUntilMouseMove = true;
-      document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+      suppressUntilInteraction();
     }
     // Block handlePreviewMouseEnter immediately (before React re-renders) so the
     // preview can't re-open via the portal area — only the thumbnail can reopen it.
@@ -198,6 +203,10 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     }
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     if (isOpen) return; // pinned — only close button / Escape can dismiss
+    if (mouseActiveLeaveTimer.current) clearTimeout(mouseActiveLeaveTimer.current);
+    mouseActiveLeaveTimer.current = setTimeout(() => {
+      dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
+    }, HOVER_LEAVE_DELAY_MS);
     closingRef.current = true;
     previewLeaveTimeRef.current = Date.now();
     hoverLeaveTimer.current = setTimeout(() => {
@@ -223,8 +232,8 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     closingRef.current = false;
     cancelThumbLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+    if (mouseActiveLeaveTimer.current) { clearTimeout(mouseActiveLeaveTimer.current); mouseActiveLeaveTimer.current = null; }
     dispatch({ type: 'HOVER' });
-    handlePreviewMouseMove();
   };
 
   const handleFullscreenChange = React.useCallback((isFs: boolean) => {
@@ -357,8 +366,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         if (activatedId === id) return;
         cancelThumbLeaveListener();
         if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-        suppressHoverUntilMouseMove = true;
-        document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+        suppressUntilInteraction();
         postCloseRef.current = true;
         dispatch({ type: 'DEACTIVATE' });
       }),
@@ -405,8 +413,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       // mouseenter (fired when the portal unmounts under the cursor) doesn't re-open
       // the next thumbnail's preview immediately.
       if (!isOpen && e.key === 'Escape') {
-        suppressHoverUntilMouseMove = true;
-        document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+        suppressUntilInteraction();
         flushSync(() => {
           closePreview();
           dispatch({ type: 'HIDE' });
@@ -418,8 +425,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         // Tab in hover mode: keep row highlighted during close animation so it
         // stays active until :hover takes over on the next pointer event.
         setIsKeyboardClosing(true);
-        suppressHoverUntilMouseMove = true;
-        document.addEventListener('mousemove', () => { suppressHoverUntilMouseMove = false; }, { once: true });
+        suppressUntilInteraction();
         closePreview();
         return;
       }
@@ -503,22 +509,11 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     return () => clearTimeout(t);
   }, [supportsHover, mountDelay]);
 
-  // Pause video when thumbnail scrolls out of viewport to save CPU/GPU.
-  React.useEffect(() => {
-    const el = thumbButtonRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsInView(entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   React.useEffect(
     () => () => {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
       if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
+      if (mouseActiveLeaveTimer.current) clearTimeout(mouseActiveLeaveTimer.current);
       cancelThumbLeaveListener();
       coord.clearPinnedIf(id);
     },
@@ -577,7 +572,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         : { 'aria-hidden': true as const })}
     >
       {type === 'video'
-        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} isHovered={isHovered} shouldPlay={isInView || isHovered || isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
+        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} isHovered={isHovered} shouldPlay={isMounted || isHovered || isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
         : imgError
           ? <div className="project-thumb-error">Preview unavailable</div>
           : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />
