@@ -628,7 +628,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
           width={600}
           height={400}
           sizes="(max-width: 768px) calc(100vw - 44px), (max-width: 992px) 92vw, 300px"
-          priority={false}
+          priority={priority}
           unoptimized={animatedThumb}
         />
       </button>

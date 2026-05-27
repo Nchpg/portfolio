@@ -52,6 +52,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${inter.variable} ${bebasNeue.variable}`}
     >
       <head>
+        <link rel="dns-prefetch" href="https://www.linkedin.com" />
+        <link rel="dns-prefetch" href="https://github.com" />
+        <link rel="dns-prefetch" href="https://cloud.umami.is" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"

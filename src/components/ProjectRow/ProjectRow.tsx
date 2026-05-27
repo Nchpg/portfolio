@@ -74,6 +74,7 @@ const ProjectRow = ({ project, description, index, priority = false }: Props) =>
       <div className="project-main">
         <h3>{project.title}</h3>
         <p>{description}</p>
+        <span className="project-year">{project.year}</span>
         <div className="project-links">
           {project.links.map((link) => (
             <ProjectLink key={link.href} {...link} projectTitle={project.title} />

@@ -10,7 +10,6 @@ export function generateProjectJsonLd(project: Project, siteUrl: string) {
     '@type': 'SoftwareSourceCode',
     '@id': `${siteUrl}/#project-${project.slug}`,
     name: project.title,
-    description: project.description,
     keywords: project.tags.join(', '),
     ...(languages.length > 0 && { programmingLanguage: languages }),
     url: project.links[0]?.href ?? siteUrl,

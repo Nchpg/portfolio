@@ -18,6 +18,12 @@
   min-width: 0.3em;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .identity-wrapper.is-animating .wave-char {
+    animation: none;
+  }
+}
+
 @keyframes wave-animation {
   0% {
     transform: translateY(0);

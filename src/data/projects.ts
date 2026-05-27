@@ -11,7 +11,7 @@ export type Project = {
   previewExt: string;
   animatedThumb?: boolean;
   title: string;
-  description: string;
+  year: number;
   tags: string[];
   links: ProjectLinkItem[];
 };
@@ -22,8 +22,7 @@ export const projects: Project[] = [
     previewExt: 'mp4',
     animatedThumb: true,
     title: 'HRévolution',
-    description:
-      '2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.',
+    year: 2024,
     tags: ['React', 'Python', 'GenAI'],
     links: [
       {
@@ -38,8 +37,7 @@ export const projects: Project[] = [
     previewExt: 'mp4',
     animatedThumb: true,
     title: 'RLkart',
-    description:
-      'Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.',
+    year: 2024,
     tags: ['Python', 'RL', 'PPO'],
     links: [
       { href: 'https://rlviewer.nathanchampagne.ddns.net/', icon: 'link', label: 'Live demo' },
@@ -51,8 +49,7 @@ export const projects: Project[] = [
     previewExt: 'mp4',
     animatedThumb: true,
     title: 'MNIST CNN from Scratch',
-    description:
-      'Implementation of a Convolutional Neural Network from scratch in C++ to classify the MNIST handwritten digit dataset.',
+    year: 2023,
     tags: ['C++', 'Deep Learning'],
     links: [{ href: 'https://github.com/Nchpg/mnist-cnn-cpp', icon: 'github', label: 'GitHub' }],
   },
@@ -61,8 +58,7 @@ export const projects: Project[] = [
     previewExt: 'mp4',
     animatedThumb: true,
     title: 'OCR Sudoku Solver',
-    description:
-      'Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.',
+    year: 2023,
     tags: ['C', 'GTK', 'OCR'],
     links: [{ href: '/projects/ocr-sudoku/report.pdf', icon: 'doc', label: 'Read report' }],
   },
@@ -71,8 +67,7 @@ export const projects: Project[] = [
     previewExt: 'mp4',
     animatedThumb: true,
     title: 'MS402',
-    description:
-      'Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.',
+    year: 2023,
     tags: ['C#', 'Unity'],
     links: [
       { href: 'https://a2nt.gitlab.io/ms-402-website/', icon: 'link', label: 'Visit website' },
@@ -83,7 +78,7 @@ export const projects: Project[] = [
     slug: 'vim-airline',
     previewExt: 'webp',
     title: 'Vim Airline Theme',
-    description: 'A minimal airline theme for VIM inspired by lightline.',
+    year: 2022,
     tags: ['Vimscript'],
     links: [
       {
@@ -98,8 +93,7 @@ export const projects: Project[] = [
     previewExt: 'mp4',
     animatedThumb: true,
     title: 'Advent of Code',
-    description:
-      'My Advent of Code solutions - an annual programming challenge with daily puzzles throughout December.',
+    year: 2024,
     tags: ['Python'],
     links: [{ href: 'https://github.com/Nchpg/Advent-of-Code', icon: 'github', label: 'GitHub' }],
   },
@@ -107,7 +101,7 @@ export const projects: Project[] = [
     slug: 'previous-portfolio',
     previewExt: 'webp',
     title: 'Previous Portfolio',
-    description: 'My first portfolio built in vanilla HTML/CSS/JS with a touch of Three.js.',
+    year: 2022,
     tags: ['HTML', 'JS', 'Three.js'],
     links: [{ href: 'https://github.com/Nchpg/portfolio-epita', icon: 'github', label: 'GitHub' }],
   },
