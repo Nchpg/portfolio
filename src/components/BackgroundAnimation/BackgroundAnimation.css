@@ -16,3 +16,9 @@
   display: block;
 }
 
+@media (pointer: coarse) {
+  .bg-waves-canvas {
+    pointer-events: none;
+  }
+}
+

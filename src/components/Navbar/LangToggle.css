@@ -1,0 +1,87 @@
+/* ── Lang transition stripes ── */
+.lang-stripes {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-loading) + 1);
+  display: flex;
+  pointer-events: all;
+  overflow: hidden;
+}
+
+.lang-stripe {
+  flex: 1;
+  background: var(--bg-color);
+  position: relative;
+  transform: translateY(101%);
+}
+
+.lang-stripe::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--border-divider);
+}
+
+.lang-stripe:last-child::after {
+  display: none;
+}
+
+/* Enter: rise from bottom, left to right */
+.lang-stripes--entering .lang-stripe {
+  animation: lang-stripe-enter 0.3s cubic-bezier(0.76, 0, 0.24, 1) both;
+  animation-delay: calc(var(--stripe-i) * 0.025s);
+}
+
+@keyframes lang-stripe-enter {
+  from { transform: translateY(101%); }
+  to   { transform: translateY(0); }
+}
+
+/* Exit: retreat upward, left to right */
+.lang-stripes--exiting .lang-stripe {
+  transform: translateY(0);
+  animation: lang-stripe-exit 0.35s cubic-bezier(0.4, 0, 1, 1) both;
+  animation-delay: calc(var(--stripe-i) * 0.025s);
+}
+
+@keyframes lang-stripe-exit {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-101%); }
+}
+
+/* ── Button ── */
+.lang-toggle {
+  height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: var(--border-faint);
+    color: var(--accent-green);
+  }
+
+  &:active {
+    background: var(--border-soft);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-green);
+    outline-offset: -2px;
+  }
+}

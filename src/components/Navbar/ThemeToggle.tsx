@@ -1,5 +1,6 @@
 'use client';
 
+import type { MouseEvent } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { SunIcon, MoonIcon } from '../icons';
 import './ThemeToggle.css';
@@ -10,15 +11,17 @@ type VTDocument = Document & { startViewTransition?: (cb: () => void) => VTResul
 const ThemeToggle = () => {
   const { toggle } = useTheme();
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    document.documentElement.style.setProperty('--toggle-x', `${Math.round(rect.left + rect.width / 2)}px`);
-    document.documentElement.style.setProperty('--toggle-y', `${Math.round(rect.top + rect.height / 2)}px`);
+    const x = Math.round(rect.left + rect.width / 2);
+    const y = Math.round(rect.top + rect.height / 2);
 
     const nextIsLight = document.documentElement.getAttribute('data-theme') !== 'light';
 
     const vt = (document as VTDocument).startViewTransition;
     if (vt) {
+      document.documentElement.style.setProperty('--vt-origin-x', `${x}px`);
+      document.documentElement.style.setProperty('--vt-origin-y', `${y}px`);
       const oldBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
       document.documentElement.style.setProperty('--vt-bg', oldBg);
       document.documentElement.classList.add('vt-active');
@@ -27,11 +30,13 @@ const ThemeToggle = () => {
         else document.documentElement.removeAttribute('data-theme');
         localStorage.setItem('theme', nextIsLight ? 'light' : 'dark');
       });
-      transition.ready.then(() => toggle());
+      transition.ready.then(() => toggle()).catch(() => {});
       transition.finished.then(() => {
         document.documentElement.classList.remove('vt-active');
         document.documentElement.style.removeProperty('--vt-bg');
-      });
+        document.documentElement.style.removeProperty('--vt-origin-x');
+        document.documentElement.style.removeProperty('--vt-origin-y');
+      }).catch(() => {});
     } else {
       toggle();
     }
@@ -43,8 +48,8 @@ const ThemeToggle = () => {
       onClick={handleClick}
       aria-label="Toggle theme"
     >
-      <SunIcon size={16} className="theme-toggle-sun" aria-hidden="true" />
-      <MoonIcon size={16} className="theme-toggle-moon" aria-hidden="true" />
+      <SunIcon size={20} className="theme-toggle-sun" aria-hidden="true" />
+      <MoonIcon size={20} className="theme-toggle-moon" aria-hidden="true" />
     </button>
   );
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { cx } from '../../utils/cx';
 import { GithubIcon, LinkedInIcon, EmailIcon } from '../icons';
 import BarGroup from '../BarGroup/BarGroup';
@@ -10,6 +11,7 @@ import './HeroBottomBar.css';
 const HeroBottomBar = () => {
   const [time, setTime] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations('heroBar');
 
   useEffect(() => {
     if (!isHovered) return;
@@ -22,18 +24,18 @@ const HeroBottomBar = () => {
         second: '2-digit',
         hour12: false,
       };
-      setTime(new Intl.DateTimeFormat('en-GB', options).format(now));
+      setTime(new Intl.DateTimeFormat(t('timeLocale'), options).format(now));
     };
     updateClock();
     const timer = setInterval(updateClock, 1000);
     return () => clearInterval(timer);
-  }, [isHovered]);
+  }, [isHovered, t]);
 
   return (
     <div className="hero-bottom-bar">
       <div className="hero-info-group">
         <BarGroup
-          label="Location"
+          label={t('locationLabel')}
           value={
             <>
               Paris, France
@@ -50,14 +52,14 @@ const HeroBottomBar = () => {
 
       <div className="hero-contact-group">
         <BarGroup
-          label="Connect"
+          label={t('connectLabel')}
           value={
             <div className="contact-links">
               <HoverLink
                 href="https://www.linkedin.com/in/nathan-champagne/"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="LinkedIn profile (opens in new tab)"
+                aria-label={t('linkedinAria')}
               >
                 <LinkedInIcon size={13} />
                 LinkedIn
@@ -66,14 +68,14 @@ const HeroBottomBar = () => {
                 href="https://github.com/Nchpg"
                 target="_blank"
                 rel="noreferrer"
-                aria-label="GitHub profile (opens in new tab)"
+                aria-label={t('githubAria')}
               >
                 <GithubIcon size={13} />
                 GitHub
               </HoverLink>
               <HoverLink
                 href="mailto:nathan.champagne@epita.fr"
-                aria-label="Send an email to Nathan Champagne"
+                aria-label={t('emailAria')}
               >
                 <EmailIcon size={13} />
                 Email

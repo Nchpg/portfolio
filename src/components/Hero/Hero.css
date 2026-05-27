@@ -278,3 +278,12 @@ body:not(.page-loaded) .hero-bottom-bar {
     margin: 0;
   }
 }
+
+/* Skip entry animations on locale switch — hero already visible */
+.hero.hero--instant .navbar,
+.hero--instant .hero-title-wrapper,
+.hero--instant .hero-role-primary,
+.hero--instant .hero-cta-button,
+.hero--instant .hero-bottom-bar {
+  animation: none;
+}

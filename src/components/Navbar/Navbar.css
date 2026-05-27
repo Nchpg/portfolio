@@ -6,11 +6,6 @@
   border-bottom: 1px solid var(--border-soft);
   position: relative;
   z-index: var(--z-dropdown);
-
-  & .bar-group:last-child {
-    align-items: flex-end;
-    text-align: right;
-  }
 }
 
 .nav-links {
@@ -26,27 +21,31 @@
   }
 }
 
+.nav-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-divider);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.nav-controls-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border-divider);
+  flex-shrink: 0;
+}
+
 @media (--bp-md) {
   .navbar {
     flex-flow: row nowrap;
     gap: 16px;
     align-items: flex-start;
     padding-bottom: 16px;
-
-    & .bar-group {
-      min-width: 0;
-      flex-shrink: 1;
-    }
-
-    & .bar-value {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
   }
 
   .nav-links {
     gap: 14px;
-    flex-wrap: nowrap;
 
     & a {
       font-size: 13px;

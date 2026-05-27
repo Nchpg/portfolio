@@ -19,10 +19,6 @@ html[data-theme="light"] {
   --text-primary: #1a1a1b;
   --accent-green: #6b8e6a;
   --accent-green-hover: #5a7a59;
-  --border-faint: #eeede8;
-  --surface-subtle: #f0efe9;
-  --border-soft: #e8e7e2;
-  --border-divider: #e5e5e1;
 }
 
 :root {
@@ -41,7 +37,6 @@ html[data-theme="light"] {
   --z-cursor: 10000;
 
   /* Overlay Colors */
-  --overlay-medium: rgb(0 0 0 / 55%);
   --overlay-dark: rgb(0 0 0 / 70%);
   --overlay-intense: rgb(0 0 0 / 85%);
 
@@ -55,7 +50,7 @@ html.vt-active * {
   transition-duration: 0s !important;
 }
 
-/* Theme transition — circle reveal from toggle button */
+/* Theme toggle circle-reveal */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition {
     background-color: var(--vt-bg, var(--bg-color));
@@ -68,17 +63,13 @@ html.vt-active * {
 
   ::view-transition-new(root) {
     z-index: 2;
-    clip-path: circle(0% at var(--toggle-x, 50%) var(--toggle-y, 50%));
-    animation: theme-circle-reveal 0.5s ease-in-out both;
+    clip-path: circle(0% at var(--vt-origin-x, 50%) var(--vt-origin-y, 50%));
+    animation: circle-reveal 0.9s ease-in-out both;
   }
 
-  @keyframes theme-circle-reveal {
-    from {
-      clip-path: circle(0% at var(--toggle-x, 50%) var(--toggle-y, 50%));
-    }
-    to {
-      clip-path: circle(150vmax at var(--toggle-x, 50%) var(--toggle-y, 50%));
-    }
+  @keyframes circle-reveal {
+    from { clip-path: circle(0% at var(--vt-origin-x, 50%) var(--vt-origin-y, 50%)); }
+    to   { clip-path: circle(150vmax at var(--vt-origin-x, 50%) var(--vt-origin-y, 50%)); }
   }
 }
 

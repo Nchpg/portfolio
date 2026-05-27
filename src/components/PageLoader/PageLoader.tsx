@@ -61,6 +61,11 @@ export default function PageLoader() {
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
+    if (document.body.classList.contains('page-loaded')) {
+      setIsDone(true);
+      return;
+    }
+
     let raf: number;
     let t1: ReturnType<typeof setTimeout>;
     let t2: ReturnType<typeof setTimeout>;

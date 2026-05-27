@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "title": "Nathan Champagne - Portfolio Ingénieur IA & Logiciel",
+    "description": "Portfolio de Nathan Champagne - Ingénieur IA & Logiciel basé à Paris, France. Projets en machine learning, vision par ordinateur et développement logiciel."
+  },
+  "nav": {
+    "ariaLabel": "Navigation principale",
+    "projects": "Projets",
+    "contact": "Contact"
+  },
+  "hero": {
+    "srRole": "Ingénieur IA & Logiciel",
+    "roleLeft": "IA",
+    "roleRight": "INGÉNIEUR LOGICIEL",
+    "cta": "Explorer les projets"
+  },
+  "heroBar": {
+    "locationLabel": "Localisation",
+    "connectLabel": "Réseaux",
+    "linkedinAria": "Profil LinkedIn (ouvre dans un nouvel onglet)",
+    "githubAria": "Profil GitHub (ouvre dans un nouvel onglet)",
+    "emailAria": "Envoyer un email à Nathan Champagne",
+    "timeLocale": "fr-FR"
+  },
+  "sections": {
+    "projects": "Projets",
+    "contact": "Contact"
+  },
+  "footer": {
+    "portfolio": "Portfolio"
+  },
+  "error": {
+    "title": "Une erreur est survenue !",
+    "retry": "Réessayer"
+  },
+  "projects": {
+    "hrevolution": "2ème place au Hackathon GenAI & RH de HrFlow.ai. Plateforme d'analyse continue des candidatures, exploitant la GenAI pour un scoring et un tagging explicables.",
+    "rlkart": "Simulation de course de kart pilotée par l'apprentissage par renforcement. Éditeur de circuits web sur mesure et agent IA entraîné avec PPO et la physique PyBullet.",
+    "mnist": "Implémentation d'un réseau de neurones convolutif from scratch en C++ pour classifier le dataset MNIST de chiffres manuscrits.",
+    "ocr-sudoku": "Utilise la reconnaissance optique de caractères pour charger une image de Sudoku, extraire les chiffres et appliquer des algorithmes IA pour résoudre la grille.",
+    "ms402": "Jeu vidéo multijoueur développé sous Unity. Boucle de jeu complète, réseau et level design.",
+    "vim-airline": "Un thème airline minimaliste pour VIM inspiré de lightline.",
+    "advent-of-code": "Mes solutions à l'Advent of Code — un défi de programmation annuel avec des puzzles quotidiens tout au long de décembre.",
+    "previous-portfolio": "Mon premier portfolio développé en HTML/CSS/JS vanilla avec une touche de Three.js."
+  }
+}

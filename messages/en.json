@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "title": "Nathan Champagne - AI & Software Engineer Portfolio",
+    "description": "Portfolio of Nathan Champagne - AI & Software Engineer based in Paris, France. Projects in machine learning, computer vision, and software development."
+  },
+  "nav": {
+    "ariaLabel": "Main Navigation",
+    "projects": "Projects",
+    "contact": "Contact"
+  },
+  "hero": {
+    "srRole": "AI & Software Engineer",
+    "roleLeft": "AI",
+    "roleRight": "SOFTWARE ENGINEER",
+    "cta": "Explore Projects"
+  },
+  "heroBar": {
+    "locationLabel": "Location",
+    "connectLabel": "Connect",
+    "linkedinAria": "LinkedIn profile (opens in new tab)",
+    "githubAria": "GitHub profile (opens in new tab)",
+    "emailAria": "Send an email to Nathan Champagne",
+    "timeLocale": "en-GB"
+  },
+  "sections": {
+    "projects": "Projects",
+    "contact": "Contact"
+  },
+  "footer": {
+    "portfolio": "Portfolio"
+  },
+  "error": {
+    "title": "Something went wrong!",
+    "retry": "Try again"
+  },
+  "projects": {
+    "hrevolution": "2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.",
+    "rlkart": "Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.",
+    "mnist": "Implementation of a Convolutional Neural Network from scratch in C++ to classify the MNIST handwritten digit dataset.",
+    "ocr-sudoku": "Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.",
+    "ms402": "Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.",
+    "vim-airline": "A minimal airline theme for VIM inspired by lightline.",
+    "advent-of-code": "My Advent of Code solutions - an annual programming challenge with daily puzzles throughout December.",
+    "previous-portfolio": "My first portfolio built in vanilla HTML/CSS/JS with a touch of Three.js."
+  }
+}
