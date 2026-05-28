@@ -26,3 +26,4 @@ export const AVG_WORK_DECAY = 0.9;
 export const FRAME_WORK_HIGH_MS = 14;
 export const FRAME_WORK_LOW_MS = 7;
 export const MAX_DRAW_STEP = 4;
+export const MAX_GRID_POINTS = 120_000;

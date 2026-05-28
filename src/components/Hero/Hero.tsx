@@ -1,27 +1,20 @@
 'use client';
 
 import { useEffect } from 'react';
-import BackgroundAnimation from '../BackgroundAnimation/BackgroundAnimation';
 import Navbar from '../Navbar/Navbar';
 import HeroBottomBar from './HeroBottomBar';
 import { smoothScrollTo } from '../../utils/smoothScroll';
 import { ChevronDownIcon } from '../icons';
 import TitleLine from '../TitleLine/TitleLine';
-import { useTheme } from '../../context/ThemeContext';
 import { useTranslations } from 'next-intl';
 import './Hero.css';
 import './HeroCTA.css';
-
-const ANIM_DARK = { lineColor: 'rgba(253,253,253,0.08)' };
-const ANIM_LIGHT = { lineColor: 'rgba(26,26,26,0.20)' };
 
 // Persists across remounts — true after the first entry animation has played
 let heroHasAnimated = false;
 
 const Hero = () => {
-  const { theme } = useTheme();
   const t = useTranslations('hero');
-  const animColors = theme === 'light' ? ANIM_LIGHT : ANIM_DARK;
   const skipAnim = heroHasAnimated;
 
   useEffect(() => {
@@ -32,8 +25,6 @@ const Hero = () => {
 
   return (
   <section className={`hero container${skipAnim ? ' hero--instant' : ''}`}>
-    <BackgroundAnimation {...animColors} />
-
     <div className="hero-content">
       <Navbar />
 

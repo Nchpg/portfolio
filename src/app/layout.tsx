@@ -4,7 +4,7 @@ import './globals.css';
 import { inter, bebasNeue } from './fonts';
 import { ThemeProvider } from '../context/ThemeContext';
 import PageLoader from '../components/PageLoader/PageLoader';
-import { CustomCursor } from '../components/ClientWidgets';
+import { CustomCursor, BackgroundAnimationRoot } from '../components/ClientWidgets';
 import { SITE_URL, CONTACT_EMAIL } from '../utils/env';
 
 const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();`;
@@ -68,6 +68,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body suppressHydrationWarning>
         <ThemeProvider>
+          <BackgroundAnimationRoot />
           <PageLoader />
           <CustomCursor />
           {children}

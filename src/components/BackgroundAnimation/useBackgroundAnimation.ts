@@ -16,6 +16,7 @@ import {
   FRAME_WORK_HIGH_MS,
   FRAME_WORK_LOW_MS,
   MAX_DRAW_STEP,
+  MAX_GRID_POINTS,
 } from './constants';
 
 const TRIG_MASK = TRIG_TABLE_SIZE - 1;
@@ -108,6 +109,7 @@ export function useBackgroundAnimation({
     set: false,
   });
   const isVisibleRef = useRef(true);
+  const baselinePointsRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -121,10 +123,22 @@ export function useBackgroundAnimation({
 
     const initPoints = () => {
       const { width, height } = boundsRef.current;
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
       const effScale = FIXED_SCALE / dpr;
-      const pgx = xGap * effScale;
-      const pgy = yGap * effScale;
+      let pgx = xGap * effScale;
+      let pgy = yGap * effScale;
+      const rawCols = Math.ceil((width + 200) / pgx);
+      const rawRows = Math.ceil((height + 30) / pgy);
+      const rawTotal = rawCols * rawRows;
+      if (rawTotal > (baselinePointsRef.current ?? 0)) {
+        baselinePointsRef.current = rawTotal;
+      }
+      const cap = Math.min(baselinePointsRef.current ?? rawTotal, MAX_GRID_POINTS);
+      if (rawTotal > cap) {
+        const scale = Math.sqrt(rawTotal / cap);
+        pgx *= scale;
+        pgy *= scale;
+      }
       const cols = Math.ceil((width + 200) / pgx);
       const rows = Math.ceil((height + 30) / pgy);
       const offsetX = (width - pgx * cols) / 2;

@@ -48,6 +48,7 @@ const LangToggle = () => {
       overlay.appendChild(stripe);
     }
     document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
 
     // Next frame to allow paint before triggering animation
     await sleep(16);
@@ -56,6 +57,8 @@ const LangToggle = () => {
     // Wait for stripes to fully cover the screen before navigating
     await sleep(ENTER_TOTAL_MS + 50);
 
+    const savedScroll = window.scrollY;
+
     router.prefetch(pathname, { locale: nextLocale });
     const signal = createNavSignal();
     router.replace(pathname, { locale: nextLocale });
@@ -63,11 +66,14 @@ const LangToggle = () => {
     // Wait for new locale to be mounted and ready (3s safety timeout)
     await Promise.race([signal, sleep(3000)]);
 
+    window.scrollTo({ top: savedScroll, behavior: 'instant' });
+
     // Switch to exit: stripes retreat upward, left to right
     overlay.classList.remove('lang-stripes--entering');
     overlay.classList.add('lang-stripes--exiting');
 
     await sleep(EXIT_TOTAL_MS + 50);
+    document.body.style.overflow = '';
     overlay.remove();
     transitioning.current = false;
   };
