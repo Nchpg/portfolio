@@ -29,10 +29,6 @@
   "footer": {
     "portfolio": "Portfolio"
   },
-  "error": {
-    "title": "Something went wrong!",
-    "retry": "Try again"
-  },
   "projects": {
     "hrevolution": "2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.",
     "rlkart": "Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.",

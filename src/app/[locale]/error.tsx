@@ -1,8 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import '../error.css';
+import { useParams } from 'next/navigation';
+import ErrorScreen from '../ErrorScreen';
+
+const messages = {
+  fr: { title: 'Une erreur est survenue !', retry: 'Réessayer' },
+  en: { title: 'Something went wrong!',     retry: 'Try again' },
+};
 
 export default function Error({
   error,
@@ -11,16 +16,23 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const t = useTranslations('error');
+  const params = useParams();
+  const locale = params?.locale === 'fr' ? 'fr' : 'en';
+  const t = messages[locale];
 
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <div className="error-screen">
-      <h2>{t('title')}</h2>
-      <button onClick={() => reset()}>{t('retry')}</button>
-    </div>
+    <ErrorScreen
+      code="500"
+      label={t.title}
+      action={
+        <button className="error-screen__cta" onClick={() => reset()}>
+          {t.retry}
+        </button>
+      }
+    />
   );
 }

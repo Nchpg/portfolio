@@ -184,7 +184,13 @@ export function useBackgroundAnimation({
     const handleResize = () => {
       const ctx = ctxRef.current;
       if (!ctx) return;
-      const w = window.innerWidth;
+      // container.clientWidth is always up-to-date when ResizeObserver fires.
+      // window.innerWidth can lag on mobile after orientation change but covers
+      // the scrollbar gutter on desktop. If the gap between the two is small
+      // (≤ scrollbar width), trust window.innerWidth; if it's large (rotation),
+      // trust container.clientWidth.
+      const containerW = container.clientWidth || window.innerWidth;
+      const w = Math.abs(window.innerWidth - containerW) <= 30 ? window.innerWidth : containerW;
       const h = window.innerHeight;
       const hx = h + 2 * CANVAS_MARGIN;
 

@@ -29,10 +29,6 @@
   "footer": {
     "portfolio": "Portfolio"
   },
-  "error": {
-    "title": "Une erreur est survenue !",
-    "retry": "Réessayer"
-  },
   "projects": {
     "hrevolution": "2ème place au Hackathon GenAI & RH de HrFlow.ai. Plateforme d'analyse continue des candidatures, exploitant la GenAI pour un scoring et un tagging explicables.",
     "rlkart": "Simulation de course de kart pilotée par l'apprentissage par renforcement. Éditeur de circuits web sur mesure et agent IA entraîné avec PPO et la physique PyBullet.",

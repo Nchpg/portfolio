@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import type { Viewport } from 'next';
 import './globals.css';
 import { inter, bebasNeue } from './fonts';
@@ -71,7 +72,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <BackgroundAnimationRoot />
           <PageLoader />
           <CustomCursor />
-          {children}
+          <Suspense>{children}</Suspense>
         </ThemeProvider>
       </body>
     </html>

@@ -10,15 +10,15 @@ const ThemeContext = React.createContext<ThemeContextValue>({ theme: 'dark', tog
 export const useTheme = () => React.useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = React.useState<Theme>('dark');
-
-  React.useLayoutEffect(() => {
-    const domTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-    if (domTheme !== theme) {
-      // DOM was set by anti-FOUC script — sync React to DOM without touching the DOM
-      setTheme(domTheme);
-      return;
+  const [theme, setTheme] = React.useState<Theme>(() => {
+    // Read DOM on client — anti-FOUC script already set data-theme before React mounts
+    if (typeof document !== 'undefined') {
+      return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
     }
+    return 'dark';
+  });
+
+  React.useEffect(() => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
