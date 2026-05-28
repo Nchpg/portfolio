@@ -1,5 +1,5 @@
-import React from 'react';
-import './BarGroup.css';
+import React from "react";
+import "./BarGroup.css";
 
 type BarGroupProps = {
   label: string;
@@ -9,9 +9,15 @@ type BarGroupProps = {
   onMouseLeave?: () => void;
 };
 
-const BarGroup = ({ label, value, className, onMouseEnter, onMouseLeave }: BarGroupProps) => (
+const BarGroup = ({
+  label,
+  value,
+  className,
+  onMouseEnter,
+  onMouseLeave,
+}: BarGroupProps) => (
   <div
-    className={`bar-group ${className || ''}`}
+    className={`bar-group ${className || ""}`}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
   >

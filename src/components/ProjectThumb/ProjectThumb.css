@@ -304,9 +304,7 @@
 }
 
 .project-thumb-preview:fullscreen,
-.project-thumb-preview:-webkit-full-screen,
-.project-thumb-narrow:fullscreen,
-.project-thumb-narrow:-webkit-full-screen {
+.project-thumb-narrow:fullscreen {
   top: 0 !important;
   left: 0 !important;
   width: 100vw !important;

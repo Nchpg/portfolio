@@ -1,5 +1,5 @@
-import type { MetadataRoute } from 'next';
-import { SITE_URL } from '../utils/env';
+import type { MetadataRoute } from "next";
+import { SITE_URL } from "../utils/env";
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = SITE_URL;
@@ -7,9 +7,9 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/api/'],
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

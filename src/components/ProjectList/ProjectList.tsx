@@ -1,14 +1,14 @@
-import { cacheLife, cacheTag } from 'next/cache';
-import { getTranslations } from 'next-intl/server';
-import { projects } from '../../data/projects';
-import ProjectRow from '../ProjectRow/ProjectRow';
+import { cacheLife, cacheTag } from "next/cache";
+import { getTranslations } from "next-intl/server";
+import { projects } from "../../data/projects";
+import ProjectRow from "../ProjectRow/ProjectRow";
 
 async function ProjectList({ locale }: { locale: string }) {
-  'use cache';
-  cacheLife('max');
-  cacheTag('projects-' + locale);
+  "use cache";
+  cacheLife("max");
+  cacheTag("projects-" + locale);
 
-  const t = await getTranslations({ locale, namespace: 'projects' });
+  const t = await getTranslations({ locale, namespace: "projects" });
 
   return (
     <div className="projects-list">

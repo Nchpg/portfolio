@@ -1,5 +1,5 @@
-import { useRef, useEffect } from 'react';
-import { buildPerm, perlin2, type PerlinCtx } from './perlin';
+import { useRef, useEffect } from "react";
+import { buildPerm, perlin2, type PerlinCtx } from "./perlin";
 import {
   PIXEL_BUDGET_TOUCH,
   PIXEL_BUDGET_MOUSE,
@@ -17,7 +17,7 @@ import {
   FRAME_WORK_LOW_MS,
   MAX_DRAW_STEP,
   MAX_GRID_POINTS,
-} from './constants';
+} from "./constants";
 
 const TRIG_MASK = TRIG_TABLE_SIZE - 1;
 const SIN_TABLE = new Float32Array(TRIG_TABLE_SIZE);
@@ -91,7 +91,9 @@ export function useBackgroundAnimation({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lineColorRef = useRef(lineColor);
-  lineColorRef.current = lineColor;
+  useEffect(() => {
+    lineColorRef.current = lineColor;
+  }, [lineColor]);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const boundsRef = useRef({ width: 0, height: 0, left: 0, top: 0 });
   const noiseCtxRef = useRef<PerlinCtx | null>(null);
@@ -116,10 +118,14 @@ export function useBackgroundAnimation({
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    ctxRef.current = canvas.getContext('2d', { alpha: true });
+    ctxRef.current = canvas.getContext("2d", { alpha: true });
     noiseCtxRef.current = buildPerm(Math.random());
 
-    const frameState = { lastTime: 0, avgWork: FRAME_WORK_HIGH_MS * 0.5, drawStep: 2 };
+    const frameState = {
+      lastTime: 0,
+      avgWork: FRAME_WORK_HIGH_MS * 0.5,
+      drawStep: 2,
+    };
 
     const initPoints = () => {
       const { width, height } = boundsRef.current;
@@ -133,7 +139,10 @@ export function useBackgroundAnimation({
       if (rawTotal > (baselinePointsRef.current ?? 0)) {
         baselinePointsRef.current = rawTotal;
       }
-      const cap = Math.min(baselinePointsRef.current ?? rawTotal, MAX_GRID_POINTS);
+      const cap = Math.min(
+        baselinePointsRef.current ?? rawTotal,
+        MAX_GRID_POINTS,
+      );
       if (rawTotal > cap) {
         const scale = Math.sqrt(rawTotal / cap);
         pgx *= scale;
@@ -156,7 +165,8 @@ export function useBackgroundAnimation({
 
       const subCols = ((cols / NOISE_STEP) | 0) + 2;
       const subRows = ((rows / NOISE_STEP) | 0) + 2;
-      const baseMouseRadius = Math.max(140, Math.min(width * 0.15, 220)) * effScale;
+      const baseMouseRadius =
+        Math.max(140, Math.min(width * 0.15, 220)) * effScale;
 
       ptsRef.current = {
         data,
@@ -190,7 +200,10 @@ export function useBackgroundAnimation({
       // (≤ scrollbar width), trust window.innerWidth; if it's large (rotation),
       // trust container.clientWidth.
       const containerW = container.clientWidth || window.innerWidth;
-      const w = Math.abs(window.innerWidth - containerW) <= 30 ? window.innerWidth : containerW;
+      const w =
+        Math.abs(window.innerWidth - containerW) <= 30
+          ? window.innerWidth
+          : containerW;
       const h = window.innerHeight;
       const hx = h + 2 * CANVAS_MARGIN;
 
@@ -200,7 +213,12 @@ export function useBackgroundAnimation({
         Math.abs(w - prev.width) < 30 &&
         Math.abs(hx - prev.height) < 30
       ) {
-        boundsRef.current = { width: w, height: hx, left: 0, top: -CANVAS_MARGIN };
+        boundsRef.current = {
+          width: w,
+          height: hx,
+          left: 0,
+          top: -CANVAS_MARGIN,
+        };
         canvas.style.width = `${w}px`;
         canvas.style.height = `${hx}px`;
         return;
@@ -208,16 +226,21 @@ export function useBackgroundAnimation({
 
       const natural = window.devicePixelRatio || 1;
       const cssArea = w * h;
-      const pixelBudget = window.matchMedia('(pointer: coarse)').matches
+      const pixelBudget = window.matchMedia("(pointer: coarse)").matches
         ? PIXEL_BUDGET_TOUCH
         : PIXEL_BUDGET_MOUSE;
       const dpr = Math.min(natural, Math.sqrt(pixelBudget / cssArea), MAX_DPR);
 
-      boundsRef.current = { width: w, height: hx, left: 0, top: -CANVAS_MARGIN };
+      boundsRef.current = {
+        width: w,
+        height: hx,
+        left: 0,
+        top: -CANVAS_MARGIN,
+      };
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(hx * dpr);
-      canvas.style.position = 'absolute';
-      canvas.style.left = '0';
+      canvas.style.position = "absolute";
+      canvas.style.left = "0";
       canvas.style.top = `-${CANVAS_MARGIN}px`;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${hx}px`;
@@ -241,7 +264,9 @@ export function useBackgroundAnimation({
         m.ly = m.y;
         m.set = true;
       }
-      requestAnimationFrame(() => { mouseUpdatePending = false; });
+      requestAnimationFrame(() => {
+        mouseUpdatePending = false;
+      });
     };
 
     let animationFrame = 0;
@@ -250,7 +275,9 @@ export function useBackgroundAnimation({
       if (!isVisibleRef.current) return;
 
       const t0 = performance.now();
-      const dt = frameState.lastTime ? Math.min(2, (t0 - frameState.lastTime) / FRAME_MS_60FPS) : 1;
+      const dt = frameState.lastTime
+        ? Math.min(2, (t0 - frameState.lastTime) / FRAME_MS_60FPS)
+        : 1;
       frameState.lastTime = t0;
 
       const ctx = ctxRef.current;
@@ -350,9 +377,11 @@ export function useBackgroundAnimation({
 
         for (let sr = 0; sr < subRows; sr++) {
           colNoiseX[sr] =
-            (noiseX[sc0r + sr] ?? 0) + ((noiseX[sc1r + sr] ?? 0) - (noiseX[sc0r + sr] ?? 0)) * tc;
+            (noiseX[sc0r + sr] ?? 0) +
+            ((noiseX[sc1r + sr] ?? 0) - (noiseX[sc0r + sr] ?? 0)) * tc;
           colNoiseY[sr] =
-            (noiseY[sc0r + sr] ?? 0) + ((noiseY[sc1r + sr] ?? 0) - (noiseY[sc0r + sr] ?? 0)) * tc;
+            (noiseY[sc0r + sr] ?? 0) +
+            ((noiseY[sc1r + sr] ?? 0) - (noiseY[sc0r + sr] ?? 0)) * tc;
         }
 
         for (let r = 0; r <= rows; r++) {
@@ -363,9 +392,11 @@ export function useBackgroundAnimation({
           const tr = rowInfos[rIdx + 2] ?? 0;
 
           data[base + 2] =
-            (colNoiseX[sr0] ?? 0) + ((colNoiseX[sr1] ?? 0) - (colNoiseX[sr0] ?? 0)) * tr;
+            (colNoiseX[sr0] ?? 0) +
+            ((colNoiseX[sr1] ?? 0) - (colNoiseX[sr0] ?? 0)) * tr;
           data[base + 3] =
-            (colNoiseY[sr0] ?? 0) + ((colNoiseY[sr1] ?? 0) - (colNoiseY[sr0] ?? 0)) * tr;
+            (colNoiseY[sr0] ?? 0) +
+            ((colNoiseY[sr1] ?? 0) - (colNoiseY[sr0] ?? 0)) * tr;
 
           const hasEnergyPoint =
             data[base + 4] !== 0 ||
@@ -384,26 +415,43 @@ export function useBackgroundAnimation({
                   const cDist = Math.sqrt(cDistSq);
                   const fIdx = (cDist * 0.001 * trigFactor) & TRIG_MASK;
                   const f = (COS_TABLE[fIdx] ?? 0) * (1 - cDist / influence);
-                  data[base + 6] = (data[base + 6] ?? 0) + cosA * f * forceScale;
-                  data[base + 7] = (data[base + 7] ?? 0) + sinA * f * forceScale;
+                  data[base + 6] =
+                    (data[base + 6] ?? 0) + cosA * f * forceScale;
+                  data[base + 7] =
+                    (data[base + 7] ?? 0) + sinA * f * forceScale;
                 }
               }
             }
 
-            data[base + 6] = (data[base + 6] ?? 0) + (0 - (data[base + 4] ?? 0)) * fTension;
-            data[base + 7] = (data[base + 7] ?? 0) + (0 - (data[base + 5] ?? 0)) * fTension;
+            data[base + 6] =
+              (data[base + 6] ?? 0) + (0 - (data[base + 4] ?? 0)) * fTension;
+            data[base + 7] =
+              (data[base + 7] ?? 0) + (0 - (data[base + 5] ?? 0)) * fTension;
             data[base + 6] = (data[base + 6] ?? 0) * fFriction;
             data[base + 7] = (data[base + 7] ?? 0) * fFriction;
-            data[base + 4] = (data[base + 4] ?? 0) + 2 * (data[base + 6] ?? 0) * dt;
-            data[base + 5] = (data[base + 5] ?? 0) + 2 * (data[base + 7] ?? 0) * dt;
+            data[base + 4] =
+              (data[base + 4] ?? 0) + 2 * (data[base + 6] ?? 0) * dt;
+            data[base + 5] =
+              (data[base + 5] ?? 0) + 2 * (data[base + 7] ?? 0) * dt;
 
-            if (Math.abs(data[base + 4] ?? 0) < 0.01 && Math.abs(data[base + 6] ?? 0) < 0.01) {
-              data[base + 4] = data[base + 5] = data[base + 6] = data[base + 7] = 0;
+            if (
+              Math.abs(data[base + 4] ?? 0) < 0.01 &&
+              Math.abs(data[base + 6] ?? 0) < 0.01
+            ) {
+              data[base + 4] =
+                data[base + 5] =
+                data[base + 6] =
+                data[base + 7] =
+                  0;
             } else {
-              if ((data[base + 4] ?? 0) < -maxCursorMove) data[base + 4] = -maxCursorMove;
-              else if ((data[base + 4] ?? 0) > maxCursorMove) data[base + 4] = maxCursorMove;
-              if ((data[base + 5] ?? 0) < -maxCursorMove) data[base + 5] = -maxCursorMove;
-              else if ((data[base + 5] ?? 0) > maxCursorMove) data[base + 5] = maxCursorMove;
+              if ((data[base + 4] ?? 0) < -maxCursorMove)
+                data[base + 4] = -maxCursorMove;
+              else if ((data[base + 4] ?? 0) > maxCursorMove)
+                data[base + 4] = maxCursorMove;
+              if ((data[base + 5] ?? 0) < -maxCursorMove)
+                data[base + 5] = -maxCursorMove;
+              else if ((data[base + 5] ?? 0) > maxCursorMove)
+                data[base + 5] = maxCursorMove;
             }
           }
         }
@@ -415,28 +463,37 @@ export function useBackgroundAnimation({
         const b0 = colStart * S;
         ctx.moveTo(
           (data[b0] ?? 0) + (data[b0 + 2] ?? 0) + (data[b0 + 4] ?? 0),
-          (data[b0 + 1] ?? 0) + (data[b0 + 3] ?? 0) + (data[b0 + 5] ?? 0)
+          (data[b0 + 1] ?? 0) + (data[b0 + 3] ?? 0) + (data[b0 + 5] ?? 0),
         );
         for (let r = ds; r < rows; r += ds) {
           const base = (colStart + r) * S;
           ctx.lineTo(
             (data[base] ?? 0) + (data[base + 2] ?? 0) + (data[base + 4] ?? 0),
-            (data[base + 1] ?? 0) + (data[base + 3] ?? 0) + (data[base + 5] ?? 0)
+            (data[base + 1] ?? 0) +
+              (data[base + 3] ?? 0) +
+              (data[base + 5] ?? 0),
           );
         }
         const last = (colStart + rows) * S;
         ctx.lineTo(
           (data[last] ?? 0) + (data[last + 2] ?? 0) + (data[last + 4] ?? 0),
-          (data[last + 1] ?? 0) + (data[last + 3] ?? 0) + (data[last + 5] ?? 0)
+          (data[last + 1] ?? 0) + (data[last + 3] ?? 0) + (data[last + 5] ?? 0),
         );
       }
       ctx.stroke();
 
       const workMs = performance.now() - t0;
-      frameState.avgWork = frameState.avgWork * AVG_WORK_DECAY + workMs * (1 - AVG_WORK_DECAY);
-      if (frameState.avgWork > FRAME_WORK_HIGH_MS && frameState.drawStep < MAX_DRAW_STEP)
+      frameState.avgWork =
+        frameState.avgWork * AVG_WORK_DECAY + workMs * (1 - AVG_WORK_DECAY);
+      if (
+        frameState.avgWork > FRAME_WORK_HIGH_MS &&
+        frameState.drawStep < MAX_DRAW_STEP
+      )
         frameState.drawStep++;
-      else if (frameState.avgWork < FRAME_WORK_LOW_MS && frameState.drawStep > 1)
+      else if (
+        frameState.avgWork < FRAME_WORK_LOW_MS &&
+        frameState.drawStep > 1
+      )
         frameState.drawStep--;
 
       animationFrame = requestAnimationFrame(render);
@@ -448,9 +505,14 @@ export function useBackgroundAnimation({
       animationFrame = requestAnimationFrame(render);
     };
 
-    const isTouchOnly = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
-    const addMouseListener = () => { if (!isTouchOnly) window.addEventListener('mousemove', handleMouseMove); };
-    const removeMouseListener = () => window.removeEventListener('mousemove', handleMouseMove);
+    const isTouchOnly = window.matchMedia(
+      "(pointer: coarse) and (hover: none)",
+    ).matches;
+    const addMouseListener = () => {
+      if (!isTouchOnly) window.addEventListener("mousemove", handleMouseMove);
+    };
+    const removeMouseListener = () =>
+      window.removeEventListener("mousemove", handleMouseMove);
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -462,7 +524,7 @@ export function useBackgroundAnimation({
           removeMouseListener();
         }
       },
-      { threshold: 0 }
+      { threshold: 0 },
     );
     io.observe(container);
 
@@ -475,7 +537,7 @@ export function useBackgroundAnimation({
         removeMouseListener();
       }
     };
-    document.addEventListener('visibilitychange', onVisibilityChange);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const ro = new ResizeObserver(handleResize);
     ro.observe(container);
@@ -486,9 +548,11 @@ export function useBackgroundAnimation({
       watchDpr();
     };
     const watchDpr = () => {
-      if (dprMql) dprMql.removeEventListener('change', onDprChange);
-      dprMql = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-      dprMql.addEventListener('change', onDprChange);
+      if (dprMql) dprMql.removeEventListener("change", onDprChange);
+      dprMql = window.matchMedia(
+        `(resolution: ${window.devicePixelRatio}dppx)`,
+      );
+      dprMql.addEventListener("change", onDprChange);
     };
     watchDpr();
 
@@ -496,9 +560,9 @@ export function useBackgroundAnimation({
     animationFrame = requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      if (dprMql) dprMql.removeEventListener('change', onDprChange);
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      if (dprMql) dprMql.removeEventListener("change", onDprChange);
       io.disconnect();
       ro.disconnect();
       cancelAnimationFrame(animationFrame);

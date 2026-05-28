@@ -1,4 +1,4 @@
-import './ProjectListSkeleton.css';
+import "./ProjectListSkeleton.css";
 
 const SkeletonRow = ({ delay }: { delay: string }) => (
   <div className="skeleton-row" style={{ animationDelay: delay }}>

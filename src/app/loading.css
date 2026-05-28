@@ -23,9 +23,11 @@
     left: 0;
     width: 0;
   }
+
   50% {
     width: 60%;
   }
+
   100% {
     left: 100%;
     width: 0;

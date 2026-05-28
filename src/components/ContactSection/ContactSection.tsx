@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import TitleLine from '../TitleLine/TitleLine';
-import ContactLink from '../ContactLink/ContactLink';
-import { contacts } from '../../data/contacts';
-import { useInView } from '../../hooks/useInView';
-import './ContactSection.css';
+import TitleLine from "../TitleLine/TitleLine";
+import ContactLink from "../ContactLink/ContactLink";
+import { contacts } from "../../data/contacts";
+import { useInView } from "../../hooks/useInView";
+import "./ContactSection.css";
 
 const ContactSection = () => {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.15 });
@@ -12,7 +12,7 @@ const ContactSection = () => {
   return (
     <div
       ref={ref}
-      className={`contact-split${inView ? ' contact-split--visible' : ''}`}
+      className={`contact-split${inView ? " contact-split--visible" : ""}`}
     >
       <div>
         <h3 className="contact-name" aria-hidden="true">

@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from "react";
 
 const mqCache = new Map<string, MediaQueryList>();
 
@@ -15,10 +15,10 @@ export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(
     (onChange) => {
       const mq = getMQ(query);
-      mq.addEventListener('change', onChange);
-      return () => mq.removeEventListener('change', onChange);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
     },
     () => getMQ(query).matches,
-    () => false
+    () => false,
   );
 }

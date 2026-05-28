@@ -1,20 +1,23 @@
-import type { SVGProps } from 'react';
+import type { SVGProps } from "react";
 
 export type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
 const outlineProps: SVGProps<SVGSVGElement> = {
-  fill: 'none',
-  stroke: 'currentColor',
+  fill: "none",
+  stroke: "currentColor",
   strokeWidth: 2,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
 };
 
-const svgProps = (size: number, rest: SVGProps<SVGSVGElement>): SVGProps<SVGSVGElement> => ({
+const svgProps = (
+  size: number,
+  rest: SVGProps<SVGSVGElement>,
+): SVGProps<SVGSVGElement> => ({
   width: size,
   height: size,
-  viewBox: '0 0 24 24',
-  'aria-hidden': true,
+  viewBox: "0 0 24 24",
+  "aria-hidden": true,
   ...rest,
 });
 

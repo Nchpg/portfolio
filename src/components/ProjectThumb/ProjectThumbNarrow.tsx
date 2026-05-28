@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { FullscreenIcon, ExitFullscreenIcon } from '../icons';
-import { cx } from '../../utils/cx';
-import { useMediaQuery } from '../../hooks/useMediaQuery';
+import React from "react";
+import { FullscreenIcon, ExitFullscreenIcon } from "../icons";
+import { cx } from "../../utils/cx";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import {
   INACTIVITY_DELAY_MS,
   TIMER_THROTTLE_MS,
@@ -11,34 +11,41 @@ import {
   unmaskAfterEntry,
   killTransitionForExit,
   restoreTransitionAfterExit,
-} from './shared';
-import VideoControls from './VideoControls';
+} from "./shared";
+import VideoControls from "./VideoControls";
 
 export type ProjectThumbNarrowProps = {
   src: string;
   thumbSrc: string;
-  type: 'video' | 'img';
+  type: "video" | "img";
   alt: string;
 };
 
-const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProps) => {
+const ProjectThumbNarrow = ({
+  src,
+  thumbSrc,
+  type,
+  alt,
+}: ProjectThumbNarrowProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [controlsActive, setControlsActive] = React.useState(false);
   const justActivatedRef = React.useRef(false);
-  const mouseTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mouseTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const isNarrowActiveRef = React.useRef(false);
   const lastTimerSetRef = React.useRef(0);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [imgError, setImgError] = React.useState(false);
   const [isInView, setIsInView] = React.useState(true);
-  const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
+  const supportsHover = useMediaQuery("(hover: hover) and (pointer: fine)");
 
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsInView(entry?.isIntersecting ?? false),
-      { threshold: 0 }
+      { threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -46,21 +53,26 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
 
   // Img fullscreen listener
   React.useEffect(() => {
-    if (type !== 'img') return;
+    if (type !== "img") return;
     const onFsChange = () => {
       const doc = document as Document & { webkitFullscreenElement?: Element };
-      const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+      const isFs = !!(
+        document.fullscreenElement || doc.webkitFullscreenElement
+      );
       setIsFullscreen(isFs);
       const el = containerRef.current;
       if (!el) return;
       if (isFs) unmaskAfterEntry(el);
-      else { killTransitionForExit(el); restoreTransitionAfterExit(el); }
+      else {
+        killTransitionForExit(el);
+        restoreTransitionAfterExit(el);
+      }
     };
-    document.addEventListener('fullscreenchange', onFsChange);
-    document.addEventListener('webkitfullscreenchange', onFsChange);
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
     return () => {
-      document.removeEventListener('fullscreenchange', onFsChange);
-      document.removeEventListener('webkitfullscreenchange', onFsChange);
+      document.removeEventListener("fullscreenchange", onFsChange);
+      document.removeEventListener("webkitfullscreenchange", onFsChange);
     };
   }, [type]);
 
@@ -71,8 +83,14 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
     if (!el) return;
     let fsTimer: ReturnType<typeof setTimeout> | null = null;
     let fsLastTimerSet = 0;
-    const show = () => { el.style.setProperty('--fs-active', '1'); el.style.cursor = 'default'; };
-    const hide = () => { el.style.removeProperty('--fs-active'); el.style.cursor = ''; };
+    const show = () => {
+      el.style.setProperty("--fs-active", "1");
+      el.style.cursor = "default";
+    };
+    const hide = () => {
+      el.style.removeProperty("--fs-active");
+      el.style.cursor = "";
+    };
     const onMove = () => {
       show();
       const now = Date.now();
@@ -82,9 +100,9 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
         fsTimer = setTimeout(hide, INACTIVITY_DELAY_MS);
       }
     };
-    document.addEventListener('mousemove', onMove);
+    document.addEventListener("mousemove", onMove);
     return () => {
-      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener("mousemove", onMove);
       if (fsTimer) clearTimeout(fsTimer);
       hide();
     };
@@ -95,12 +113,13 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
     if (!controlsActive) return;
     const timer = setTimeout(() => setControlsActive(false), 3000);
     const onOutside = (e: PointerEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) setControlsActive(false);
+      if (!containerRef.current?.contains(e.target as Node))
+        setControlsActive(false);
     };
-    document.addEventListener('pointerdown', onOutside);
+    document.addEventListener("pointerdown", onOutside);
     return () => {
       clearTimeout(timer);
-      document.removeEventListener('pointerdown', onOutside);
+      document.removeEventListener("pointerdown", onOutside);
     };
   }, [controlsActive]);
 
@@ -109,8 +128,8 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
     const el = containerRef.current;
     if (!el) return;
     if (!isNarrowActiveRef.current) {
-      el.style.setProperty('--narrow-active', '1');
-      el.style.setProperty('--narrow-pe', 'auto');
+      el.style.setProperty("--narrow-active", "1");
+      el.style.setProperty("--narrow-pe", "auto");
       isNarrowActiveRef.current = true;
     }
     const now = Date.now();
@@ -118,26 +137,32 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
       lastTimerSetRef.current = now;
       if (mouseTimerRef.current) clearTimeout(mouseTimerRef.current);
       mouseTimerRef.current = setTimeout(() => {
-        el.style.removeProperty('--narrow-active');
-        el.style.removeProperty('--narrow-pe');
+        el.style.removeProperty("--narrow-active");
+        el.style.removeProperty("--narrow-pe");
         isNarrowActiveRef.current = false;
       }, INACTIVITY_DELAY_MS);
     }
   };
 
-  React.useEffect(() => () => {
-    if (mouseTimerRef.current) clearTimeout(mouseTimerRef.current);
-  }, []);
+  React.useEffect(
+    () => () => {
+      if (mouseTimerRef.current) clearTimeout(mouseTimerRef.current);
+    },
+    [],
+  );
 
   const toggleImgFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (e.detail > 0) (e.currentTarget as HTMLElement).blur();
-    const container = containerRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    const container = containerRef.current as
+      | (HTMLDivElement & { webkitRequestFullscreen?: () => void })
+      | null;
     if (document.fullscreenElement) {
       document.exitFullscreen();
     } else {
       if (container?.requestFullscreen) container.requestFullscreen();
-      else if (container?.webkitRequestFullscreen) container.webkitRequestFullscreen();
+      else if (container?.webkitRequestFullscreen)
+        container.webkitRequestFullscreen();
     }
   };
 
@@ -167,14 +192,18 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
   return (
     <div
       ref={containerRef}
-      className={cx('project-thumb', 'project-thumb-narrow', controlsActive && 'project-thumb-narrow-active')}
+      className={cx(
+        "project-thumb",
+        "project-thumb-narrow",
+        controlsActive && "project-thumb-narrow-active",
+      )}
       onMouseEnter={handleMouseActivity}
       onMouseMove={handleMouseActivity}
       onPointerDownCapture={handlePointerDownCapture}
       onPointerCancelCapture={handlePointerCancelCapture}
       onClickCapture={handleClickCapture}
     >
-      {type === 'video' ? (
+      {type === "video" ? (
         <VideoControls
           src={src}
           poster=""
@@ -190,11 +219,16 @@ const ProjectThumbNarrow = ({ src, thumbSrc, type, alt }: ProjectThumbNarrowProp
         <div className="project-thumb-error">Preview unavailable</div>
       ) : (
         <>
-          <img src={src} alt={`Preview of ${alt}`} onError={() => setImgError(true)} />
+          {/* eslint-disable-next-line @next/next/no-img-element -- interaction-only preview (non-LCP), sized dynamically from natural dimensions */}
+          <img
+            src={src}
+            alt={`Preview of ${alt}`}
+            onError={() => setImgError(true)}
+          />
           <button
             className="project-thumb-img-fs"
             onClick={toggleImgFullscreen}
-            aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           >
             {isFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
           </button>

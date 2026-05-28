@@ -1,17 +1,13 @@
-'use client';
+"use client";
 
-import { useInView } from '../../hooks/useInView';
-import ProjectThumb from '../ProjectThumb/ProjectThumb';
-import HoverLink from '../HoverLink/HoverLink';
-import {
-  GithubIcon,
-  ExternalLinkIcon,
-  DocumentIcon,
-} from '../icons';
-import type { Project, ProjectLinkItem, LinkIcon } from '../../data/projects';
-import { SITE_URL } from '../../utils/env';
-import { generateProjectJsonLd } from '../../utils/jsonLd';
-import './ProjectRow.css';
+import { useInView } from "../../hooks/useInView";
+import ProjectThumb from "../ProjectThumb/ProjectThumb";
+import HoverLink from "../HoverLink/HoverLink";
+import { GithubIcon, ExternalLinkIcon, DocumentIcon } from "../icons";
+import type { Project, ProjectLinkItem, LinkIcon } from "../../data/projects";
+import { SITE_URL } from "../../utils/env";
+import { generateProjectJsonLd } from "../../utils/jsonLd";
+import "./ProjectRow.css";
 
 const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
   github: GithubIcon,
@@ -19,10 +15,15 @@ const LINK_ICONS: Record<LinkIcon, React.ComponentType<{ size?: number }>> = {
   doc: DocumentIcon,
 };
 
-const ProjectLink = ({ href, icon, label, projectTitle }: ProjectLinkItem & { projectTitle: string }) => {
+const ProjectLink = ({
+  href,
+  icon,
+  label,
+  projectTitle,
+}: ProjectLinkItem & { projectTitle: string }) => {
   const Icon = LINK_ICONS[icon];
-  const isPdf = href.toLowerCase().endsWith('.pdf');
-  const suffix = isPdf ? ' (PDF, opens in new tab)' : ' (opens in new tab)';
+  const isPdf = href.toLowerCase().endsWith(".pdf");
+  const suffix = isPdf ? " (PDF, opens in new tab)" : " (opens in new tab)";
   return (
     <HoverLink
       className="project-link"
@@ -32,7 +33,10 @@ const ProjectLink = ({ href, icon, label, projectTitle }: ProjectLinkItem & { pr
       aria-label={`${label} — ${projectTitle}${suffix}`}
     >
       {Icon ? <Icon /> : null}
-      <span>{label}{isPdf ? ' (PDF)' : null}</span>
+      <span>
+        {label}
+        {isPdf ? " (PDF)" : null}
+      </span>
     </HoverLink>
   );
 };
@@ -44,25 +48,32 @@ type Props = {
   priority?: boolean;
 };
 
-const ProjectRow = ({ project, description, index, priority = false }: Props) => {
-  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.08, rootMargin: '0px 0px 120px 0px' });
+const ProjectRow = ({
+  project,
+  description,
+  index,
+  priority = false,
+}: Props) => {
+  const { ref, inView } = useInView<HTMLElement>({
+    threshold: 0.08,
+    rootMargin: "0px 0px 120px 0px",
+  });
 
-  const jsonLd = generateProjectJsonLd(
-    project,
-    SITE_URL
-  );
+  const jsonLd = generateProjectJsonLd(project, SITE_URL);
 
   return (
     <article
       ref={ref}
-      className={`project-row${inView ? ' project-row--visible' : ''}`}
-      style={{ '--row-i': index } as React.CSSProperties}
+      className={`project-row${inView ? " project-row--visible" : ""}`}
+      style={{ "--row-i": index } as React.CSSProperties}
     >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <span className="project-index">{String(index + 1).padStart(2, '0')}</span>
+      <span className="project-index">
+        {String(index + 1).padStart(2, "0")}
+      </span>
       <ProjectThumb
         slug={project.slug}
         previewExt={project.previewExt}
@@ -77,7 +88,11 @@ const ProjectRow = ({ project, description, index, priority = false }: Props) =>
         <span className="project-year">{project.year}</span>
         <div className="project-links">
           {project.links.map((link) => (
-            <ProjectLink key={link.href} {...link} projectTitle={project.title} />
+            <ProjectLink
+              key={link.href}
+              {...link}
+              projectTitle={project.title}
+            />
           ))}
         </div>
       </div>

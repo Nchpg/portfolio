@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { flushSync } from 'react-dom';
-import './PageLoader.css';
+import { useState, useEffect, useRef, useMemo } from "react";
+import { flushSync } from "react-dom";
+import "./PageLoader.css";
 
 const STRIPE_COUNT = 8;
 const PHASE1_DURATION = 1500; // 0 → 90%, minimum display time
-const PHASE2_DURATION = 400;  // 90 → 100%, once page is loaded
+const PHASE2_DURATION = 400; // 90 → 100%, once page is loaded
 const PHASE1_TARGET = 90;
 const EXIT_STRIPE_DURATION = 520 + (STRIPE_COUNT - 1) * 45 + 50;
 
@@ -37,17 +37,24 @@ function DigitSlot({
   }, [trackPos, visible]);
 
   const digits = useMemo(
-    () => Array.from({ length: trackLen }, (_, i) => (
-      <span key={i} className="loader-digit">{i % 10}</span>
-    )),
-    [trackLen]
+    () =>
+      Array.from({ length: trackLen }, (_, i) => (
+        <span key={i} className="loader-digit">
+          {i % 10}
+        </span>
+      )),
+    [trackLen],
   );
 
   return (
-    <div className={`loader-digit-slot${visible ? '' : ' loader-digit-slot--hidden'}`}>
+    <div
+      className={`loader-digit-slot${visible ? "" : " loader-digit-slot--hidden"}`}
+    >
       <div
         className="loader-digit-track"
-        style={{ transform: `translateY(calc(${-displayPos} * var(--digit-h)))` }}
+        style={{
+          transform: `translateY(calc(${-displayPos} * var(--digit-h)))`,
+        }}
       >
         {digits}
       </div>
@@ -61,7 +68,7 @@ export default function PageLoader() {
   const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
-    if (document.body.classList.contains('page-loaded')) {
+    if (document.body.classList.contains("page-loaded")) {
       setIsDone(true);
       return;
     }
@@ -70,14 +77,14 @@ export default function PageLoader() {
     let t1: ReturnType<typeof setTimeout>;
     let t2: ReturnType<typeof setTimeout>;
     let phase1Done = false;
-    let pageLoaded = document.readyState === 'complete';
+    let pageLoaded = document.readyState === "complete";
 
     const finish = () => {
       setCount(100);
       t1 = setTimeout(() => {
         setIsExiting(true);
         t2 = setTimeout(() => {
-          document.body.classList.add('page-loaded');
+          document.body.classList.add("page-loaded");
           setIsDone(true);
         }, EXIT_STRIPE_DURATION);
       }, 250);
@@ -105,7 +112,7 @@ export default function PageLoader() {
     };
 
     if (!pageLoaded) {
-      window.addEventListener('load', onLoad, { once: true });
+      window.addEventListener("load", onLoad, { once: true });
     }
 
     const start = performance.now();
@@ -127,7 +134,7 @@ export default function PageLoader() {
       cancelAnimationFrame(raf);
       clearTimeout(t1);
       clearTimeout(t2);
-      window.removeEventListener('load', onLoad);
+      window.removeEventListener("load", onLoad);
     };
   }, []);
 
@@ -139,8 +146,8 @@ export default function PageLoader() {
 
   return (
     <div
-      className={`page-loader${isExiting ? ' page-loader--exiting' : ''}`}
-      style={{ '--loader-progress': `${count}%` } as React.CSSProperties}
+      className={`page-loader${isExiting ? " page-loader--exiting" : ""}`}
+      style={{ "--loader-progress": `${count}%` } as React.CSSProperties}
       aria-hidden="true"
     >
       <div className="page-loader__stripes">
@@ -148,15 +155,15 @@ export default function PageLoader() {
           <div
             key={i}
             className="page-loader__stripe"
-            style={{ '--stripe-i': i } as React.CSSProperties}
+            style={{ "--stripe-i": i } as React.CSSProperties}
           />
         ))}
       </div>
 
       <div className="page-loader__counter">
-        <DigitSlot trackPos={hundredsPos} trackLen={2}   visible={count >= 100} />
-        <DigitSlot trackPos={tensPos}     trackLen={11}  visible={count >= 10} />
-        <DigitSlot trackPos={onesPos}     trackLen={101} visible />
+        <DigitSlot trackPos={hundredsPos} trackLen={2} visible={count >= 100} />
+        <DigitSlot trackPos={tensPos} trackLen={11} visible={count >= 10} />
+        <DigitSlot trackPos={onesPos} trackLen={101} visible />
         <span className="loader-percent">%</span>
       </div>
     </div>

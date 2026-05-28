@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import React from 'react';
-import { createPortal, flushSync } from 'react-dom';
-import { CloseIcon, FullscreenIcon, ExitFullscreenIcon } from '../icons';
-import { cx } from '../../utils/cx';
-import { useCoordinator } from './ProjectThumbContext';
-import { useMediaQuery } from '../../hooks/useMediaQuery';
+import Image from "next/image";
+import React from "react";
+import { createPortal, flushSync } from "react-dom";
+import { CloseIcon, FullscreenIcon, ExitFullscreenIcon } from "../icons";
+import { cx } from "../../utils/cx";
+import { useCoordinator } from "./ProjectThumbContext";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import {
   HOVER_LEAVE_DELAY_MS,
   INACTIVITY_DELAY_MS,
@@ -18,8 +18,8 @@ import {
   unmaskAfterEntry,
   killTransitionForExit,
   restoreTransitionAfterExit,
-} from './shared';
-import VideoControls from './VideoControls';
+} from "./shared";
+import VideoControls from "./VideoControls";
 
 // Shared across all instances: suppresses synthetic mouseenter events that browsers
 // fire when a portal is removed and the cursor happens to be over another thumbnail.
@@ -27,9 +27,11 @@ import VideoControls from './VideoControls';
 let suppressHoverUntilMouseMove = false;
 function suppressUntilInteraction() {
   suppressHoverUntilMouseMove = true;
-  const clear = () => { suppressHoverUntilMouseMove = false; };
-  document.addEventListener('mousemove', clear, { once: true });
-  window.addEventListener('scroll', clear, { once: true, passive: true });
+  const clear = () => {
+    suppressHoverUntilMouseMove = false;
+  };
+  document.addEventListener("mousemove", clear, { once: true });
+  window.addEventListener("scroll", clear, { once: true, passive: true });
 }
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
@@ -44,18 +46,18 @@ type State = {
 };
 
 type Action =
-  | { type: 'OPEN' }
-  | { type: 'CLOSE' }
-  | { type: 'UNPIN' }
-  | { type: 'HOVER' }
-  | { type: 'UNHOVER' }
-  | { type: 'DEACTIVATE' }
-  | { type: 'MOUNT' }
-  | { type: 'UNMOUNT' }
-  | { type: 'SHOW' }
-  | { type: 'HIDE' }
-  | { type: 'SET_PREVIEW_STYLE'; style: PreviewStyle | null }
-  | { type: 'SET_MOUSE_ACTIVE'; active: boolean };
+  | { type: "OPEN" }
+  | { type: "CLOSE" }
+  | { type: "UNPIN" }
+  | { type: "HOVER" }
+  | { type: "UNHOVER" }
+  | { type: "DEACTIVATE" }
+  | { type: "MOUNT" }
+  | { type: "UNMOUNT" }
+  | { type: "SHOW" }
+  | { type: "HIDE" }
+  | { type: "SET_PREVIEW_STYLE"; style: PreviewStyle | null }
+  | { type: "SET_MOUSE_ACTIVE"; active: boolean };
 
 const initialState: State = {
   isOpen: false,
@@ -68,18 +70,42 @@ const initialState: State = {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'OPEN':              return { ...state, isOpen: true };
-    case 'CLOSE':             return { ...state, isOpen: false, isHovered: false, isMouseActive: false };
-    case 'UNPIN':             return { ...state, isOpen: false };
-    case 'HOVER':             return { ...state, isHovered: true };
-    case 'UNHOVER':           return { ...state, isHovered: false };
-    case 'DEACTIVATE':        return { ...state, isOpen: false, isHovered: false, isMouseActive: false };
-    case 'MOUNT':             return { ...state, isMounted: true };
-    case 'UNMOUNT':           return { ...state, isMounted: false };
-    case 'SHOW':              return { ...state, isShown: true };
-    case 'HIDE':              return { ...state, isShown: false };
-    case 'SET_PREVIEW_STYLE': return { ...state, previewStyle: action.style };
-    case 'SET_MOUSE_ACTIVE':  return state.isMouseActive === action.active ? state : { ...state, isMouseActive: action.active };
+    case "OPEN":
+      return { ...state, isOpen: true };
+    case "CLOSE":
+      return {
+        ...state,
+        isOpen: false,
+        isHovered: false,
+        isMouseActive: false,
+      };
+    case "UNPIN":
+      return { ...state, isOpen: false };
+    case "HOVER":
+      return { ...state, isHovered: true };
+    case "UNHOVER":
+      return { ...state, isHovered: false };
+    case "DEACTIVATE":
+      return {
+        ...state,
+        isOpen: false,
+        isHovered: false,
+        isMouseActive: false,
+      };
+    case "MOUNT":
+      return { ...state, isMounted: true };
+    case "UNMOUNT":
+      return { ...state, isMounted: false };
+    case "SHOW":
+      return { ...state, isShown: true };
+    case "HIDE":
+      return { ...state, isShown: false };
+    case "SET_PREVIEW_STYLE":
+      return { ...state, previewStyle: action.style };
+    case "SET_MOUSE_ACTIVE":
+      return state.isMouseActive === action.active
+        ? state
+        : { ...state, isMouseActive: action.active };
     default: {
       const _: never = action;
       return state;
@@ -92,7 +118,7 @@ function reducer(state: State, action: Action): State {
 export type ProjectThumbWideProps = {
   src: string;
   thumbSrc: string;
-  type: 'video' | 'img';
+  type: "video" | "img";
   alt: string;
   animatedThumb: boolean;
   priority: boolean;
@@ -100,19 +126,35 @@ export type ProjectThumbWideProps = {
   mountDelay?: number;
 };
 
-const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, forceClose, mountDelay = 0 }: ProjectThumbWideProps) => {
+const ProjectThumbWide = ({
+  src,
+  thumbSrc,
+  type,
+  alt,
+  animatedThumb,
+  priority,
+  forceClose,
+  mountDelay = 0,
+}: ProjectThumbWideProps) => {
   const id = React.useId();
   const coord = useCoordinator();
   const [state, dispatch] = React.useReducer(reducer, initialState);
-  const { isOpen, isHovered, isMounted, isShown, previewStyle, isMouseActive } = state;
+  const { isOpen, isHovered, isMounted, isShown, previewStyle, isMouseActive } =
+    state;
 
   const [imgError, setImgError] = React.useState(false);
   const [isPreviewFullscreen, setIsPreviewFullscreen] = React.useState(false);
   const [isKeyboardClosing, setIsKeyboardClosing] = React.useState(false);
   const [isPortalReady, setIsPortalReady] = React.useState(false);
-  const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const mouseActiveLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inactivityTimer = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const hoverLeaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const mouseActiveLeaveTimer = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const mousePosRef = React.useRef<{ x: number; y: number } | null>(null);
   const closingRef = React.useRef(false);
   const postCloseRef = React.useRef(false);
@@ -126,15 +168,23 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const enteredFullscreenRef = React.useRef(false);
   const fullscreenFromHoverRef = React.useRef(false);
   const isOpenRef = React.useRef(isOpen);
-  React.useEffect(() => { isOpenRef.current = isOpen; }, [isOpen]);
+  React.useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
   const previewLeaveTimeRef = React.useRef(0);
   const lastPreviewTimerSetRef = React.useRef(0);
-  const thumbLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(null);
-  const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
+  const thumbLeaveListenerRef = React.useRef<((e: MouseEvent) => void) | null>(
+    null,
+  );
+  const supportsHover = useMediaQuery("(hover: hover) and (pointer: fine)");
 
   const cancelThumbLeaveListener = React.useCallback(() => {
     if (thumbLeaveListenerRef.current) {
-      document.removeEventListener('mouseover', thumbLeaveListenerRef.current, true);
+      document.removeEventListener(
+        "mouseover",
+        thumbLeaveListenerRef.current,
+        true,
+      );
       thumbLeaveListenerRef.current = null;
     }
   }, []);
@@ -147,21 +197,25 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     // Block handlePreviewMouseEnter immediately (before React re-renders) so the
     // preview can't re-open via the portal area — only the thumbnail can reopen it.
     postCloseRef.current = true;
-    dispatch({ type: 'CLOSE' });
+    dispatch({ type: "CLOSE" });
   }, []);
 
   const handleThumbEnter = () => {
     if (suppressHoverUntilMouseMove) return;
     // Block quick re-hover only when cursor is NOT coming from our own preview.
     // If closingRef is true the cursor came directly from the preview → allow immediately.
-    if (!closingRef.current && Date.now() - previewLeaveTimeRef.current < HOVER_LEAVE_DELAY_MS) return;
+    if (
+      !closingRef.current &&
+      Date.now() - previewLeaveTimeRef.current < HOVER_LEAVE_DELAY_MS
+    )
+      return;
     if (coord.isPinnedElsewhere(id)) return;
     cancelThumbLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     closingRef.current = false;
     postCloseRef.current = false;
     coord.notifyActivated(id);
-    dispatch({ type: 'HOVER' });
+    dispatch({ type: "HOVER" });
   };
 
   const handleThumbLeave = () => {
@@ -170,21 +224,21 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     // old row highlight doesn't linger while the new row's CSS :hover is already active.
     // The 200ms fallback timer still covers the case where cursor goes to the preview
     // (which is not a .project-row) or to empty space.
-    const thisRow = thumbButtonRef.current?.closest('.project-row') ?? null;
+    const thisRow = thumbButtonRef.current?.closest(".project-row") ?? null;
     const onOtherRowEnter = (e: MouseEvent) => {
-      const row = (e.target as Element | null)?.closest('.project-row');
+      const row = (e.target as Element | null)?.closest(".project-row");
       if (row && row !== thisRow) {
-        document.removeEventListener('mouseover', onOtherRowEnter, true);
+        document.removeEventListener("mouseover", onOtherRowEnter, true);
         thumbLeaveListenerRef.current = null;
         if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-        dispatch({ type: 'UNHOVER' });
+        dispatch({ type: "UNHOVER" });
       }
     };
     thumbLeaveListenerRef.current = onOtherRowEnter;
-    document.addEventListener('mouseover', onOtherRowEnter, true);
+    document.addEventListener("mouseover", onOtherRowEnter, true);
     hoverLeaveTimer.current = setTimeout(() => {
       cancelThumbLeaveListener();
-      dispatch({ type: 'UNHOVER' });
+      dispatch({ type: "UNHOVER" });
     }, HOVER_LEAVE_DELAY_MS);
   };
 
@@ -196,16 +250,21 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     const el = previewRef.current;
     if (el) {
       const rect = el.getBoundingClientRect();
-      if (e.clientX >= rect.left && e.clientX <= rect.right &&
-          e.clientY >= rect.top && e.clientY <= rect.bottom) {
+      if (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ) {
         return;
       }
     }
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
     if (isOpen) return; // pinned — only close button / Escape can dismiss
-    if (mouseActiveLeaveTimer.current) clearTimeout(mouseActiveLeaveTimer.current);
+    if (mouseActiveLeaveTimer.current)
+      clearTimeout(mouseActiveLeaveTimer.current);
     mouseActiveLeaveTimer.current = setTimeout(() => {
-      dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
+      dispatch({ type: "SET_MOUSE_ACTIVE", active: false });
     }, HOVER_LEAVE_DELAY_MS);
     closingRef.current = true;
     previewLeaveTimeRef.current = Date.now();
@@ -215,14 +274,14 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   };
 
   const handlePreviewMouseMove = () => {
-    dispatch({ type: 'SET_MOUSE_ACTIVE', active: true });
+    dispatch({ type: "SET_MOUSE_ACTIVE", active: true });
     const now = Date.now();
     if (now - lastPreviewTimerSetRef.current > TIMER_THROTTLE_MS) {
       lastPreviewTimerSetRef.current = now;
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
       inactivityTimer.current = setTimeout(
-        () => dispatch({ type: 'SET_MOUSE_ACTIVE', active: false }),
-        INACTIVITY_DELAY_MS
+        () => dispatch({ type: "SET_MOUSE_ACTIVE", active: false }),
+        INACTIVITY_DELAY_MS,
       );
     }
   };
@@ -232,28 +291,36 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     closingRef.current = false;
     cancelThumbLeaveListener();
     if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-    if (mouseActiveLeaveTimer.current) { clearTimeout(mouseActiveLeaveTimer.current); mouseActiveLeaveTimer.current = null; }
-    dispatch({ type: 'HOVER' });
+    if (mouseActiveLeaveTimer.current) {
+      clearTimeout(mouseActiveLeaveTimer.current);
+      mouseActiveLeaveTimer.current = null;
+    }
+    dispatch({ type: "HOVER" });
   };
 
-  const handleFullscreenChange = React.useCallback((isFs: boolean) => {
-    setIsPreviewFullscreen(isFs);
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
-    dispatch({ type: 'SET_MOUSE_ACTIVE', active: false });
-    if (!isFs) {
-      if (fullscreenFromHoverRef.current) {
-        fullscreenFromHoverRef.current = false;
-        dispatch({ type: 'UNPIN' });
-      } else if (!supportsHover && !isOpenRef.current) {
-        closePreview();
+  const handleFullscreenChange = React.useCallback(
+    (isFs: boolean) => {
+      setIsPreviewFullscreen(isFs);
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      dispatch({ type: "SET_MOUSE_ACTIVE", active: false });
+      if (!isFs) {
+        if (fullscreenFromHoverRef.current) {
+          fullscreenFromHoverRef.current = false;
+          dispatch({ type: "UNPIN" });
+        } else if (!supportsHover && !isOpenRef.current) {
+          closePreview();
+        }
       }
-    }
-  }, [supportsHover, closePreview]);
+    },
+    [supportsHover, closePreview],
+  );
 
   const toggleImgFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (e.detail > 0) (e.currentTarget as HTMLElement).blur();
-    const container = previewRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    const container = previewRef.current as
+      | (HTMLDivElement & { webkitRequestFullscreen?: () => void })
+      | null;
     if (document.fullscreenElement) {
       const el = previewRef.current;
       if (el) killTransitionForExit(el);
@@ -263,36 +330,42 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       const el = previewRef.current;
       if (el) maskForEntry(el);
       coord.notifyActivated(id);
-      dispatch({ type: 'OPEN' });
+      dispatch({ type: "OPEN" });
       if (container?.requestFullscreen) container.requestFullscreen();
-      else if (container?.webkitRequestFullscreen) container.webkitRequestFullscreen();
+      else if (container?.webkitRequestFullscreen)
+        container.webkitRequestFullscreen();
     }
   };
 
   React.useEffect(() => {
-    if (type !== 'img' || !isOpen) return;
+    if (type !== "img" || !isOpen) return;
     const onFsChange = () => {
       const doc = document as Document & { webkitFullscreenElement?: Element };
-      const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+      const isFs = !!(
+        document.fullscreenElement || doc.webkitFullscreenElement
+      );
       setIsPreviewFullscreen(isFs);
       const el = previewRef.current;
       if (!el) return;
       if (isFs) unmaskAfterEntry(el);
-      else { killTransitionForExit(el); restoreTransitionAfterExit(el); }
+      else {
+        killTransitionForExit(el);
+        restoreTransitionAfterExit(el);
+      }
       if (!isFs) {
         if (fullscreenFromHoverRef.current) {
           fullscreenFromHoverRef.current = false;
-          dispatch({ type: 'UNPIN' });
+          dispatch({ type: "UNPIN" });
         } else if (!supportsHover) {
           closePreview();
         }
       }
     };
-    document.addEventListener('fullscreenchange', onFsChange);
-    document.addEventListener('webkitfullscreenchange', onFsChange);
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
     return () => {
-      document.removeEventListener('fullscreenchange', onFsChange);
-      document.removeEventListener('webkitfullscreenchange', onFsChange);
+      document.removeEventListener("fullscreenchange", onFsChange);
+      document.removeEventListener("webkitfullscreenchange", onFsChange);
     };
   }, [type, isOpen, supportsHover, closePreview]);
 
@@ -303,8 +376,14 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     if (!el) return;
     let fsTimer: ReturnType<typeof setTimeout> | null = null;
     let fsLastTimerSet = 0;
-    const show = () => { el.style.setProperty('--fs-active', '1'); el.style.cursor = 'default'; };
-    const hide = () => { el.style.removeProperty('--fs-active'); el.style.cursor = ''; };
+    const show = () => {
+      el.style.setProperty("--fs-active", "1");
+      el.style.cursor = "default";
+    };
+    const hide = () => {
+      el.style.removeProperty("--fs-active");
+      el.style.cursor = "";
+    };
     const onFsMouseMove = () => {
       show();
       const now = Date.now();
@@ -314,9 +393,9 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         fsTimer = setTimeout(hide, INACTIVITY_DELAY_MS);
       }
     };
-    document.addEventListener('mousemove', onFsMouseMove);
+    document.addEventListener("mousemove", onFsMouseMove);
     return () => {
-      document.removeEventListener('mousemove', onFsMouseMove);
+      document.removeEventListener("mousemove", onFsMouseMove);
       if (fsTimer) clearTimeout(fsTimer);
       hide();
     };
@@ -324,19 +403,19 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
 
   const handlePreviewTransitionEnd = (e: React.TransitionEvent) => {
     if (e.target !== e.currentTarget) return;
-    if (!isShown) dispatch({ type: 'UNMOUNT' });
+    if (!isShown) dispatch({ type: "UNMOUNT" });
   };
 
   const handleDimensionsLoaded = React.useCallback((w: number, h: number) => {
     naturalDimsRef.current = { w, h };
-    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(w, h) });
+    dispatch({ type: "SET_PREVIEW_STYLE", style: computePreviewSize(w, h) });
   }, []);
 
   const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const w = e.currentTarget.naturalWidth;
     const h = e.currentTarget.naturalHeight;
     naturalDimsRef.current = { w, h };
-    dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(w, h) });
+    dispatch({ type: "SET_PREVIEW_STYLE", style: computePreviewSize(w, h) });
   };
 
   const handleImgError = () => setImgError(true);
@@ -344,7 +423,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const handleVideoPin = React.useCallback(() => {
     fullscreenFromHoverRef.current = !isOpen;
     coord.notifyActivated(id);
-    dispatch({ type: 'OPEN' });
+    dispatch({ type: "OPEN" });
   }, [coord, id, isOpen]);
 
   // Start inactivity timer as soon as the preview becomes active (hover or pin).
@@ -354,10 +433,12 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     if (!isHovered && !isOpen) return;
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     inactivityTimer.current = setTimeout(
-      () => dispatch({ type: 'SET_MOUSE_ACTIVE', active: false }),
-      INACTIVITY_DELAY_MS
+      () => dispatch({ type: "SET_MOUSE_ACTIVE", active: false }),
+      INACTIVITY_DELAY_MS,
     );
-    return () => { if (inactivityTimer.current) clearTimeout(inactivityTimer.current); };
+    return () => {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    };
   }, [isHovered, isOpen]);
 
   React.useEffect(
@@ -368,35 +449,42 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
         suppressUntilInteraction();
         postCloseRef.current = true;
-        dispatch({ type: 'DEACTIVATE' });
+        dispatch({ type: "DEACTIVATE" });
       }),
-    [coord, id, cancelThumbLeaveListener]
+    [coord, id, cancelThumbLeaveListener],
   );
 
   React.useEffect(() => {
     if (!isOpen || !isMounted) return;
     const thumbButton = thumbButtonRef.current;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
     const prevBody = document.body.style.overflow;
     const prevHtml = document.documentElement.style.overflow;
     const prevPadding = document.body.style.paddingRight;
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+      document.documentElement.style.setProperty(
+        "--scrollbar-width",
+        `${scrollbarWidth}px`,
+      );
     }
     return () => {
       document.body.style.overflow = prevBody;
       document.documentElement.style.overflow = prevHtml;
       document.body.style.paddingRight = prevPadding;
-      document.documentElement.style.removeProperty('--scrollbar-width');
+      document.documentElement.style.removeProperty("--scrollbar-width");
       if (thumbButton?.isConnected) thumbButton.focus();
     };
   }, [isOpen, isMounted]);
 
   React.useEffect(() => {
-    if (isPreviewFullscreen) { enteredFullscreenRef.current = true; return; }
+    if (isPreviewFullscreen) {
+      enteredFullscreenRef.current = true;
+      return;
+    }
     if (!isOpen || !isMounted) {
       // Reset flag if the preview closes while still in fullscreen (e.g. another
       // project triggers DEACTIVATE), so the next open focuses the close button normally.
@@ -420,16 +508,16 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       // Suppress mouseenter until the next real mousemove so the browser's synthetic
       // mouseenter (fired when the portal unmounts under the cursor) doesn't re-open
       // the next thumbnail's preview immediately.
-      if (!isOpen && e.key === 'Escape') {
+      if (!isOpen && e.key === "Escape") {
         suppressUntilInteraction();
         flushSync(() => {
           closePreview();
-          dispatch({ type: 'HIDE' });
-          dispatch({ type: 'UNMOUNT' });
+          dispatch({ type: "HIDE" });
+          dispatch({ type: "UNMOUNT" });
         });
         return;
       }
-      if (!isOpen && e.key === 'Tab') {
+      if (!isOpen && e.key === "Tab") {
         // Tab in hover mode: keep row highlighted during close animation so it
         // stays active until :hover takes over on the next pointer event.
         setIsKeyboardClosing(true);
@@ -438,7 +526,7 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
         return;
       }
       if (!isOpen) return;
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         if (isPreviewFullscreen) {
           const c = previewRef.current;
           if (c) killTransitionForExit(c);
@@ -448,36 +536,47 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
           // HIDE resets isShown so the next open gets its fade-in back.
           flushSync(() => {
             closePreview(true);
-            dispatch({ type: 'HIDE' });
-            dispatch({ type: 'UNMOUNT' });
+            dispatch({ type: "HIDE" });
+            dispatch({ type: "UNMOUNT" });
           });
         }
         return;
       }
-      if (e.key !== 'Tab') return;
+      if (e.key !== "Tab") return;
       const container = previewRef.current;
       if (!container) return;
       const focusable = Array.from(
-        container.querySelectorAll<HTMLElement>('button:not([tabindex="-1"]), [role="slider"][tabindex="0"]')
+        container.querySelectorAll<HTMLElement>(
+          'button:not([tabindex="-1"]), [role="slider"][tabindex="0"]',
+        ),
       );
       if (focusable.length === 0) return;
       const first = focusable[0]!;
       const last = focusable[focusable.length - 1]!;
       // If focus is outside the interactive controls (e.g. on body or the container
       // div itself after a mouse-triggered fullscreen), pull it in immediately.
-      if (!container.contains(document.activeElement) || document.activeElement === container) {
+      if (
+        !container.contains(document.activeElement) ||
+        document.activeElement === container
+      ) {
         e.preventDefault();
         (e.shiftKey ? last : first).focus();
         return;
       }
       if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
       } else {
-        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, isHovered, isPreviewFullscreen, closePreview]);
 
   // Clear keyboard-closing flag once the portal has fully unmounted so that
@@ -488,9 +587,11 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
 
   React.useEffect(() => {
     if (!isHovered || isOpen) return;
-    const onMouseMove = (e: MouseEvent) => { mousePosRef.current = { x: e.clientX, y: e.clientY }; };
-    document.addEventListener('mousemove', onMouseMove);
-    return () => document.removeEventListener('mousemove', onMouseMove);
+    const onMouseMove = (e: MouseEvent) => {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+    };
+    document.addEventListener("mousemove", onMouseMove);
+    return () => document.removeEventListener("mousemove", onMouseMove);
   }, [isHovered, isOpen]);
 
   React.useEffect(() => {
@@ -502,12 +603,18 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
       const thumb = thumbButtonRef.current;
       if (pos && thumb) {
         const rect = thumb.getBoundingClientRect();
-        if (pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.top && pos.y <= rect.bottom) return;
+        if (
+          pos.x >= rect.left &&
+          pos.x <= rect.right &&
+          pos.y >= rect.top &&
+          pos.y <= rect.bottom
+        )
+          return;
       }
       closePreview();
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [isHovered, isOpen, closePreview]);
 
   // Stagger portal mount to avoid all projects initializing simultaneously on page load.
@@ -521,11 +628,12 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     () => () => {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
       if (hoverLeaveTimer.current) clearTimeout(hoverLeaveTimer.current);
-      if (mouseActiveLeaveTimer.current) clearTimeout(mouseActiveLeaveTimer.current);
+      if (mouseActiveLeaveTimer.current)
+        clearTimeout(mouseActiveLeaveTimer.current);
       cancelThumbLeaveListener();
       coord.clearPinnedIf(id);
     },
-    [coord, id, cancelThumbLeaveListener]
+    [coord, id, cancelThumbLeaveListener],
   );
 
   React.useEffect(() => {
@@ -541,9 +649,12 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
   const isVisible = isOpen || (supportsHover && isHovered);
 
   React.useEffect(() => {
-    if (!isVisible) { dispatch({ type: 'HIDE' }); return; }
-    dispatch({ type: 'MOUNT' });
-    const r = requestAnimationFrame(() => dispatch({ type: 'SHOW' }));
+    if (!isVisible) {
+      dispatch({ type: "HIDE" });
+      return;
+    }
+    dispatch({ type: "MOUNT" });
+    const r = requestAnimationFrame(() => dispatch({ type: "SHOW" }));
     return () => cancelAnimationFrame(r);
   }, [isVisible]);
 
@@ -552,70 +663,106 @@ const ProjectThumbWide = ({ src, thumbSrc, type, alt, animatedThumb, priority, f
     const recompute = () => {
       const dims = naturalDimsRef.current;
       if (!dims) return;
-      dispatch({ type: 'SET_PREVIEW_STYLE', style: computePreviewSize(dims.w, dims.h) });
+      dispatch({
+        type: "SET_PREVIEW_STYLE",
+        style: computePreviewSize(dims.w, dims.h),
+      });
     };
     recompute();
-    window.addEventListener('resize', recompute);
-    return () => window.removeEventListener('resize', recompute);
+    window.addEventListener("resize", recompute);
+    return () => window.removeEventListener("resize", recompute);
   }, [isVisible]);
 
-  const preview = (isMounted || isPortalReady) && createPortal(
-    <div
-      ref={previewRef}
-      tabIndex={-1}
-      className={cx(
-        'project-thumb-preview',
-        isShown && 'project-thumb-preview-visible',
-        isOpen && 'project-thumb-preview-open',
-        isMouseActive && 'project-thumb-preview-active',
-        isVisible && 'project-thumb-preview-interactive'
-      )}
-      style={(isVisible || isMounted) ? (previewStyle || undefined) : undefined}
-      onMouseEnter={handlePreviewMouseEnter}
-      onMouseLeave={handlePreviewLeave}
-      onMouseMove={handlePreviewMouseMove}
-      onTransitionEnd={handlePreviewTransitionEnd}
-      onClick={() => dispatch({ type: 'OPEN' })}
-      {...(isOpen
-        ? { role: 'dialog' as const, 'aria-modal': true, 'aria-label': `${alt} preview` }
-        : { 'aria-hidden': true as const })}
-    >
-      {type === 'video'
-        ? <VideoControls src={src} poster={thumbSrc} isOpen={isOpen} isHovered={isHovered} shouldPlay={isMounted || isHovered || isOpen} containerRef={previewRef} onPin={handleVideoPin} onFullscreenChange={handleFullscreenChange} onDimensionsLoaded={handleDimensionsLoaded} />
-        : imgError
-          ? <div className="project-thumb-error">Preview unavailable</div>
-          : <img src={src} alt={`Preview of ${alt}`} onLoad={handleImgLoad} onError={handleImgError} />
-      }
-      {isOpen && !isPreviewFullscreen && (
-        <button
-          ref={closeButtonRef}
-          className="project-thumb-close"
-          onClick={(e) => { e.stopPropagation(); closePreview(true); }}
-          aria-label="Close preview"
-        >
-          <CloseIcon />
-        </button>
-      )}
-      {type === 'img' && isVisible && (
-        <button
-          className="project-thumb-img-fs"
-          onClick={toggleImgFullscreen}
-          tabIndex={isOpen ? 0 : -1}
-          aria-label={isPreviewFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-        >
-          {isPreviewFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
-        </button>
-      )}
-    </div>,
-    document.body
-  );
+  const preview =
+    (isMounted || isPortalReady) &&
+    createPortal(
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- role="dialog" when open; keyboard handled via document Escape/Tab listeners and the real thumb <button>
+      <div
+        ref={previewRef}
+        tabIndex={-1}
+        className={cx(
+          "project-thumb-preview",
+          isShown && "project-thumb-preview-visible",
+          isOpen && "project-thumb-preview-open",
+          isMouseActive && "project-thumb-preview-active",
+          isVisible && "project-thumb-preview-interactive",
+        )}
+        style={isVisible || isMounted ? previewStyle || undefined : undefined}
+        onMouseEnter={handlePreviewMouseEnter}
+        onMouseLeave={handlePreviewLeave}
+        onMouseMove={handlePreviewMouseMove}
+        onTransitionEnd={handlePreviewTransitionEnd}
+        onClick={() => dispatch({ type: "OPEN" })}
+        {...(isOpen
+          ? {
+              role: "dialog" as const,
+              "aria-modal": true,
+              "aria-label": `${alt} preview`,
+            }
+          : { "aria-hidden": true as const })}
+      >
+        {type === "video" ? (
+          <VideoControls
+            src={src}
+            poster={thumbSrc}
+            isOpen={isOpen}
+            isHovered={isHovered}
+            shouldPlay={isMounted || isHovered || isOpen}
+            containerRef={previewRef}
+            onPin={handleVideoPin}
+            onFullscreenChange={handleFullscreenChange}
+            onDimensionsLoaded={handleDimensionsLoaded}
+          />
+        ) : imgError ? (
+          <div className="project-thumb-error">Preview unavailable</div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element -- interaction-only preview (non-LCP), sized dynamically from natural dimensions
+          <img
+            src={src}
+            alt={`Preview of ${alt}`}
+            onLoad={handleImgLoad}
+            onError={handleImgError}
+          />
+        )}
+        {isOpen && !isPreviewFullscreen && (
+          <button
+            ref={closeButtonRef}
+            className="project-thumb-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              closePreview(true);
+            }}
+            aria-label="Close preview"
+          >
+            <CloseIcon />
+          </button>
+        )}
+        {type === "img" && isVisible && (
+          <button
+            className="project-thumb-img-fs"
+            onClick={toggleImgFullscreen}
+            tabIndex={isOpen ? 0 : -1}
+            aria-label={isPreviewFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          >
+            {isPreviewFullscreen ? <ExitFullscreenIcon /> : <FullscreenIcon />}
+          </button>
+        )}
+      </div>,
+      document.body,
+    );
 
   return (
     <>
       <button
         ref={thumbButtonRef}
-        className={cx('project-thumb', (isVisible || isKeyboardClosing) && 'project-thumb-active')}
-        onClick={() => { coord.notifyActivated(id); dispatch({ type: 'OPEN' }); }}
+        className={cx(
+          "project-thumb",
+          (isVisible || isKeyboardClosing) && "project-thumb-active",
+        )}
+        onClick={() => {
+          coord.notifyActivated(id);
+          dispatch({ type: "OPEN" });
+        }}
         onMouseEnter={handleThumbEnter}
         onMouseLeave={handleThumbLeave}
         aria-label={`Preview ${alt}`}

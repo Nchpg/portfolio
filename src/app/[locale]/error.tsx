@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import ErrorScreen from '../ErrorScreen';
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import ErrorScreen from "../ErrorScreen";
 
 const messages = {
-  fr: { title: 'Une erreur est survenue !', retry: 'Réessayer' },
-  en: { title: 'Something went wrong!',     retry: 'Try again' },
+  fr: { title: "Une erreur est survenue !", retry: "Réessayer" },
+  en: { title: "Something went wrong!", retry: "Try again" },
 };
 
 export default function Error({
@@ -17,7 +17,7 @@ export default function Error({
   reset: () => void;
 }) {
   const params = useParams();
-  const locale = params?.locale === 'fr' ? 'fr' : 'en';
+  const locale = params?.locale === "fr" ? "fr" : "en";
   const t = messages[locale];
 
   useEffect(() => {

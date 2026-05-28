@@ -1,5 +1,5 @@
-import type { MetadataRoute } from 'next';
-import { SITE_URL } from '../utils/env';
+import type { MetadataRoute } from "next";
+import { SITE_URL } from "../utils/env";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -8,11 +8,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 1,
       alternates: {
         languages: {
-          'x-default': baseUrl,
+          "x-default": baseUrl,
           en: baseUrl,
           fr: `${baseUrl}/fr`,
         },
@@ -22,11 +22,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}/fr`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: "monthly",
       priority: 1,
       alternates: {
         languages: {
-          'x-default': baseUrl,
+          "x-default": baseUrl,
           en: baseUrl,
           fr: `${baseUrl}/fr`,
         },
@@ -34,14 +34,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/projects/ocr-sudoku/report.pdf`,
-      lastModified: new Date('2024-06-01'),
-      changeFrequency: 'never',
+      lastModified: new Date("2024-06-01"),
+      changeFrequency: "never",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/projects/ms402/report.pdf`,
-      lastModified: new Date('2024-06-01'),
-      changeFrequency: 'never',
+      lastModified: new Date("2024-06-01"),
+      changeFrequency: "never",
       priority: 0.3,
     },
   ];

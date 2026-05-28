@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL } from '../utils/env';
+import { CONTACT_EMAIL } from "../utils/env";
 
 export type Contact = {
   name: string;
@@ -9,19 +9,19 @@ export type Contact = {
 
 export const contacts: Contact[] = [
   {
-    name: 'LinkedIn',
-    id: '/in/nathan-champagne',
-    href: 'https://www.linkedin.com/in/nathan-champagne',
-    copyValue: '/in/nathan-champagne',
+    name: "LinkedIn",
+    id: "/in/nathan-champagne",
+    href: "https://www.linkedin.com/in/nathan-champagne",
+    copyValue: "/in/nathan-champagne",
   },
   {
-    name: 'GitHub',
-    id: '@Nchpg',
-    href: 'https://github.com/Nchpg',
-    copyValue: 'Nchpg',
+    name: "GitHub",
+    id: "@Nchpg",
+    href: "https://github.com/Nchpg",
+    copyValue: "Nchpg",
   },
   {
-    name: 'Email',
+    name: "Email",
     id: CONTACT_EMAIL,
     href: `mailto:${CONTACT_EMAIL}`,
     copyValue: CONTACT_EMAIL,

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { cx } from '../../utils/cx';
-import { useMediaQuery } from '../../hooks/useMediaQuery';
-import './CustomCursor.css';
+import { useEffect, useRef, useState } from "react";
+import { cx } from "../../utils/cx";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
+import "./CustomCursor.css";
 
-const interactiveSelector = 'a, button, img, input, textarea, select';
+const interactiveSelector = "a, button, img, input, textarea, select";
 
 const CustomCursor = () => {
   const dotEl = useRef<HTMLDivElement>(null);
@@ -14,7 +14,7 @@ const CustomCursor = () => {
 
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const isDisabled = useMediaQuery('(hover: none), (pointer: coarse)');
+  const isDisabled = useMediaQuery("(hover: none), (pointer: coarse)");
 
   useEffect(() => {
     if (isDisabled) return undefined;
@@ -26,16 +26,21 @@ const CustomCursor = () => {
     const dot = { x: startX, y: startY };
     const ring = { x: startX, y: startY };
 
-    const writeTransform = (el: HTMLDivElement | null, x: number, y: number) => {
+    const writeTransform = (
+      el: HTMLDivElement | null,
+      x: number,
+      y: number,
+    ) => {
       if (!el) return;
-      el.style.setProperty('--x', `${x}px`);
-      el.style.setProperty('--y', `${y}px`);
+      el.style.setProperty("--x", `${x}px`);
+      el.style.setProperty("--y", `${y}px`);
     };
 
     writeTransform(dotEl.current, startX, startY);
     writeTransform(ringEl.current, startX, startY);
 
-    const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
+    const lerp = (from: number, to: number, amount: number) =>
+      from + (to - from) * amount;
 
     let rafId = 0;
 
@@ -72,19 +77,24 @@ const CustomCursor = () => {
       const fs = document.fullscreenElement;
       if (
         fs &&
-        (fs.classList.contains('project-thumb-preview') ||
-          fs.classList.contains('project-thumb-narrow')) &&
+        (fs.classList.contains("project-thumb-preview") ||
+          fs.classList.contains("project-thumb-narrow")) &&
         (el === fs || fs.contains(el))
       ) {
         return true;
       }
-      const preview = el.closest('.project-thumb-preview');
-      return !!preview && !preview.classList.contains('project-thumb-preview-active');
+      const preview = el.closest(".project-thumb-preview");
+      return (
+        !!preview && !preview.classList.contains("project-thumb-preview-active")
+      );
     };
 
     // Hide circles when the element under the cursor has cursor:none (e.g. inactive preview).
     const syncVisibility = () => {
-      wrapperEl.current?.classList.toggle('is-cursor-none', cursorHidden(lastEl));
+      wrapperEl.current?.classList.toggle(
+        "is-cursor-none",
+        cursorHidden(lastEl),
+      );
     };
 
     let hasMoved = false;
@@ -101,23 +111,25 @@ const CustomCursor = () => {
     };
 
     const handlePointerOver = (event: MouseEvent) => {
-      if ((event.target as Element).closest(interactiveSelector)) setIsHovering(true);
+      if ((event.target as Element).closest(interactiveSelector))
+        setIsHovering(true);
     };
     const handlePointerOut = (event: MouseEvent) => {
-      if ((event.target as Element).closest(interactiveSelector)) setIsHovering(false);
+      if ((event.target as Element).closest(interactiveSelector))
+        setIsHovering(false);
     };
 
     const visibilityInterval = setInterval(syncVisibility, 200);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseover', handlePointerOver);
-    document.addEventListener('mouseout', handlePointerOut);
+    window.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseover", handlePointerOver);
+    document.addEventListener("mouseout", handlePointerOut);
 
     return () => {
       clearInterval(visibilityInterval);
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseover', handlePointerOver);
-      document.removeEventListener('mouseout', handlePointerOut);
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseover", handlePointerOver);
+      document.removeEventListener("mouseout", handlePointerOut);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [isDisabled]);
@@ -126,10 +138,17 @@ const CustomCursor = () => {
 
   return (
     <div ref={wrapperEl} className="custom-cursor" aria-hidden="true">
-      <div ref={dotEl} className={cx('custom-cursor-dot', isVisible && 'is-visible')} />
+      <div
+        ref={dotEl}
+        className={cx("custom-cursor-dot", isVisible && "is-visible")}
+      />
       <div
         ref={ringEl}
-        className={cx('custom-cursor-ring', isVisible && 'is-visible', isHovering && 'is-hovering')}
+        className={cx(
+          "custom-cursor-ring",
+          isVisible && "is-visible",
+          isHovering && "is-hovering",
+        )}
       />
     </div>
   );

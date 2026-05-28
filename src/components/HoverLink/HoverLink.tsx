@@ -1,6 +1,6 @@
-import React from 'react';
-import { cx } from '../../utils/cx';
-import './HoverLink.css';
+import React from "react";
+import { cx } from "../../utils/cx";
+import "./HoverLink.css";
 
 type HoverLinkProps = {
   href: string;
@@ -9,11 +9,11 @@ type HoverLinkProps = {
   target?: string;
   rel?: string;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-  'aria-label'?: string;
+  "aria-label"?: string;
 };
 
 const HoverLink = ({ children, className, ...props }: HoverLinkProps) => (
-  <a {...props} className={cx('hover-underline', className)}>
+  <a {...props} className={cx("hover-underline", className)}>
     {children}
   </a>
 );
