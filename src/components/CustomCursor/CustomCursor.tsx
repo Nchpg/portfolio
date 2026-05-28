@@ -64,10 +64,27 @@ const CustomCursor = () => {
 
     let lastEl: Element | null = null;
 
+    // Mirror the CSS rules that set `cursor: none` — a hovered, inactive preview
+    // or a fullscreen viewer — using class/fullscreen checks instead of
+    // getComputedStyle, which would force a synchronous style recalc on every move.
+    const cursorHidden = (el: Element | null): boolean => {
+      if (!el) return false;
+      const fs = document.fullscreenElement;
+      if (
+        fs &&
+        (fs.classList.contains('project-thumb-preview') ||
+          fs.classList.contains('project-thumb-narrow')) &&
+        (el === fs || fs.contains(el))
+      ) {
+        return true;
+      }
+      const preview = el.closest('.project-thumb-preview');
+      return !!preview && !preview.classList.contains('project-thumb-preview-active');
+    };
+
     // Hide circles when the element under the cursor has cursor:none (e.g. inactive preview).
     const syncVisibility = () => {
-      const hidden = lastEl ? window.getComputedStyle(lastEl).cursor === 'none' : false;
-      wrapperEl.current?.classList.toggle('is-cursor-none', hidden);
+      wrapperEl.current?.classList.toggle('is-cursor-none', cursorHidden(lastEl));
     };
 
     let hasMoved = false;

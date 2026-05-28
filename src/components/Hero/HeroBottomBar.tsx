@@ -6,6 +6,7 @@ import { cx } from '../../utils/cx';
 import { GithubIcon, LinkedInIcon, EmailIcon } from '../icons';
 import BarGroup from '../BarGroup/BarGroup';
 import HoverLink from '../HoverLink/HoverLink';
+import { CONTACT_EMAIL } from '../../utils/env';
 import './HeroBottomBar.css';
 
 const HeroBottomBar = () => {
@@ -74,7 +75,7 @@ const HeroBottomBar = () => {
                 GitHub
               </HoverLink>
               <HoverLink
-                href="mailto:nathan.champagne@epita.fr"
+                href={`mailto:${CONTACT_EMAIL}`}
                 aria-label={t('emailAria')}
               >
                 <EmailIcon size={13} />

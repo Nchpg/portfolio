@@ -1,4 +1,11 @@
 export const vertexShader = /* glsl */ `
+precision highp float;
+
+// Built-ins previously injected by three.js — declared explicitly for raw WebGL.
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+attribute vec3 position;
+
 uniform float uTime;
 uniform float uLightMode;
 uniform vec2 uMouse;
@@ -60,6 +67,8 @@ void main() {
 `;
 
 export const fragmentShader = /* glsl */ `
+precision highp float;
+
 uniform float uLightMode;
 varying vec3 vColor;
 

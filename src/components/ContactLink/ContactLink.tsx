@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { CopyIcon } from '../icons';
 import './ContactLink.css';
 
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const ContactLink = ({ name, id, href, copyValue }: Props) => {
+  const t = useTranslations('contactLink');
   const [copied, setCopied] = React.useState(false);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -43,9 +45,9 @@ const ContactLink = ({ name, id, href, copyValue }: Props) => {
       >
         {name}
       </a>
-      <button className="link-id" onClick={handleCopy} aria-label={copied ? `${id} copied` : `Copy ${id}`} aria-live="polite">
+      <button className="link-id" onClick={handleCopy} aria-label={copied ? t('copiedAria', { id }) : t('copyAria', { id })} aria-live="polite">
         {copied ? (
-          <span className="copied-text">Copied!</span>
+          <span className="copied-text">{t('copied')}</span>
         ) : (
           <>
             {id}
