@@ -1,9 +1,96 @@
 import type { ReactNode } from "react";
+import { Suspense } from "react";
+import type { Viewport } from "next";
 import "./globals.css";
+import { inter, bebasNeue } from "./fonts";
+import { ThemeProvider } from "../context/ThemeContext";
+import PageLoader from "../components/PageLoader/PageLoader";
+import {
+  CustomCursor,
+  BackgroundAnimationRoot,
+} from "../components/ClientWidgets";
+import { SITE_URL, CONTACT_EMAIL } from "../utils/env";
 
-// The localized <html>/<body> shell lives in app/[locale]/layout.tsx so that
-// `lang` can be set from the (statically known) locale. This root layout only
-// passes children through; the global not-found renders its own shell.
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
+      name: "Nathan Champagne",
+      jobTitle: "AI & Software Engineer",
+      url: SITE_URL,
+      email: CONTACT_EMAIL,
+      image: `${SITE_URL}/og-image.jpg`,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Paris",
+        addressCountry: "FR",
+      },
+      alumniOf: { "@type": "EducationalOrganization", name: "EPITA" },
+      sameAs: [
+        "https://www.linkedin.com/in/nathan-champagne/",
+        "https://github.com/Nchpg",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Nathan Champagne Portfolio",
+      author: { "@id": `${SITE_URL}/#person` },
+    },
+  ],
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8f7f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#212121" },
+  ],
+};
+
+// The <html>/<body> shell lives here (not in [locale]/layout) so that the
+// global UI (background animation, theme, cursor) is not remounted on locale
+// switch. `lang` is set client-side by LocaleHtml (under [locale]/layout):
+// reading the locale here would force the route dynamic and break the static
+// prerender of /_not-found under cacheComponents. SEO language targeting is
+// handled by hreflang + canonical + og:locale, which are the primary signals.
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return children;
+  return (
+    <html
+      suppressHydrationWarning
+      className={`${inter.variable} ${bebasNeue.variable}`}
+    >
+      <head>
+        <link rel="dns-prefetch" href="https://www.linkedin.com" />
+        <link rel="dns-prefetch" href="https://github.com" />
+        <link rel="dns-prefetch" href="https://cloud.umami.is" />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="2e50db68-faa2-4c05-ad9c-1b73580ee2a4"
+        />
+      </head>
+      <body suppressHydrationWarning>
+        <ThemeProvider>
+          <BackgroundAnimationRoot />
+          <PageLoader />
+          <CustomCursor />
+          <Suspense>{children}</Suspense>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }
