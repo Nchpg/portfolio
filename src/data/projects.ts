@@ -41,7 +41,7 @@ export const projects: Project[] = [
     tags: ["Python", "RL", "PPO"],
     links: [
       {
-        href: "https://rlviewer.nathanchampagne.ddns.net/",
+        href: "https://rlkart.nathanchampagne.com/",
         icon: "link",
         label: "Live demo",
       },
@@ -60,6 +60,11 @@ export const projects: Project[] = [
     year: 2023,
     tags: ["C++", "Deep Learning"],
     links: [
+      {
+        href: "https://mnist.nathanchampagne.com/",
+        icon: "link",
+        label: "Live demo",
+      },
       {
         href: "https://github.com/Nchpg/mnist-cnn-cpp",
         icon: "github",
