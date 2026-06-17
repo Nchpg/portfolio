@@ -41,7 +41,8 @@
     "ocr-sudoku": "Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.",
     "ms402": "Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.",
     "vim-airline": "A minimal airline theme for VIM inspired by lightline.",
+    "nixos-config": "Declarative and modular NixOS flake for my personal machine, soon extended to my self-hosted server (currently Debian). This server runs this portfolio and all the projects showcased here. DNS management, Cloudflare, SSH, security hardening and full server deployment from scratch.",
     "advent-of-code": "My Advent of Code solutions - an annual programming challenge with daily puzzles throughout December.",
-    "previous-portfolio": "My first portfolio built in vanilla HTML/CSS/JS with a touch of Three.js."
+    "portfolio": "Portfolio built with Next.js and TypeScript, with WebGL-powered animations and bilingual support."
   }
 }
