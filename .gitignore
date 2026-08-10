@@ -6,6 +6,7 @@
 /example
 
 .*
+!.github
 !.env.example
 !.dockerignore
 !.browserslistrc

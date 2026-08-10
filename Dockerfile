@@ -4,6 +4,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 COPY . .
+
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_CONTACT_EMAIL
+ENV NEXT_TELEMETRY_DISABLED=1
+
 RUN npm run build
 
 # Production stage
