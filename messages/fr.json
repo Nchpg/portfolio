@@ -36,6 +36,7 @@
   },
   "projects": {
     "hrevolution": "2ème place au Hackathon GenAI & RH de HrFlow.ai. Plateforme d'analyse continue des candidatures, exploitant la GenAI pour un scoring et un tagging explicables.",
+    "ship-dinov2": "Transfer learning en deux temps sur un backbone DINOv2 ViT-B/14 pré-entraîné pour classer des images satellites en 10 types de navires. 96,5% de précision en linear probing, 98,4% après fine-tuning des derniers blocs.",
     "rlkart": "Simulation de course de kart pilotée par l'apprentissage par renforcement. Éditeur de circuits web sur mesure et agent IA entraîné avec PPO et la physique PyBullet.",
     "mnist": "Implémentation d'un réseau de neurones convolutif from scratch en C++ pour classifier le dataset MNIST de chiffres manuscrits.",
     "ocr-sudoku": "Utilise la reconnaissance optique de caractères pour charger une image de Sudoku, extraire les chiffres et appliquer des algorithmes IA pour résoudre la grille.",

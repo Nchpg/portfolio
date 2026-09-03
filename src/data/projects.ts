@@ -33,6 +33,14 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "ship-dinov2",
+    previewExt: "webp",
+    title: "DINOv2 Ship Classifier",
+    year: 2026,
+    tags: ["Python", "PyTorch", "DINOv2"],
+    links: [],
+  },
+  {
     slug: "rlkart",
     previewExt: "mp4",
     animatedThumb: true,
