@@ -27,7 +27,7 @@ Tags: Robotics, Computer Vision
 ### Traffic Vision (2026)
 7-class detector (vehicles, license plates) built by fine-tuning YOLO11, wired into a web demo to test it live. mAP50 of 0.83.
 Tags: Python, PyTorch, ONNX
-Demo: https://yolo.nathanchampagne.com/
+Demo: https://trafficvision.nathanchampagne.com/
 GitHub: https://github.com/Nchpg/yolo-detection
 
 ### iSeg-2017 (2026)

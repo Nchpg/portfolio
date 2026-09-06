@@ -34,7 +34,7 @@ export const projects: Project[] = [
     tags: ["Python", "PyTorch", "ONNX"],
     links: [
       {
-        href: "https://yolo.nathanchampagne.com/",
+        href: "https://trafficvision.nathanchampagne.com/",
         icon: "link",
         label: "Try it",
       },
