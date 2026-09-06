@@ -35,6 +35,7 @@
     "copied": "Copié !"
   },
   "projects": {
+    "unitree-go2": "Projet de fin d'études EPITA, un jour par semaine au sein du programme d'exploration robotique de Bouygues. Navigation autonome et vision par ordinateur sur un quadrupède Unitree Go2, pour des cas d'usage sur chantier.",
     "traffic-vision": "Détecteur 7 classes (véhicules, plaques) par fine-tuning de YOLO11, intégré à une démo web pour le tester. mAP50 de 0,83.",
     "iseg-2017": "Segmentation de 3 tissus (LCR, substance grise, substance blanche) sur IRM T1/T2 de nourrissons, cas à très faible contraste. Entraînement et évaluation d'un U-Net 2.5D au score Dice, avec arbitrage explicite performance / taille de modèle, en vue d'un déploiement embarqué et hors ligne.",
     "hrevolution": "2ème place au Hackathon GenAI & RH de HrFlow.ai. Plateforme d'analyse continue des candidatures, exploitant la GenAI pour un scoring et un tagging explicables.",

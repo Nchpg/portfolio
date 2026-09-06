@@ -18,6 +18,14 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "unitree-go2",
+    previewExt: "webp",
+    title: "Unitree Go2",
+    year: 2026,
+    tags: ["Robotics", "Computer Vision"],
+    links: [],
+  },
+  {
     slug: "traffic-vision",
     previewExt: "mp4",
     animatedThumb: true,

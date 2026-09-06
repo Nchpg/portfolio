@@ -35,6 +35,7 @@
     "copied": "Copied!"
   },
   "projects": {
+    "unitree-go2": "Final-year engineering project at EPITA, one day a week within Bouygues' robotics exploration program. Autonomous navigation and computer vision on a Unitree Go2 quadruped, for construction-site use cases.",
     "traffic-vision": "7-class detector (vehicles, license plates) built by fine-tuning YOLO11, wired into a web demo to test it live. mAP50 of 0.83.",
     "iseg-2017": "Segmentation of 3 brain tissues (CSF, grey matter, white matter) on infant T1/T2 MRI, a very low-contrast case. A 2.5D U-Net trained and evaluated on the Dice score, with an explicit performance / model size trade-off for embedded, offline deployment.",
     "hrevolution": "2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.",

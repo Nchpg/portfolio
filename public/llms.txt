@@ -20,6 +20,10 @@ Machine Learning, Reinforcement Learning, Computer Vision, Deep Learning, Genera
 
 ## Projects
 
+### Unitree Go2 (2026)
+Final-year engineering project at EPITA, one day a week within Bouygues' robotics exploration program. Autonomous navigation and computer vision on a Unitree Go2 quadruped, for construction-site use cases.
+Tags: Robotics, Computer Vision
+
 ### Traffic Vision (2026)
 7-class detector (vehicles, license plates) built by fine-tuning YOLO11, wired into a web demo to test it live. mAP50 of 0.83.
 Tags: Python, PyTorch, ONNX
