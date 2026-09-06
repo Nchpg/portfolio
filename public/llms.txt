@@ -20,54 +20,61 @@ Machine Learning, Reinforcement Learning, Computer Vision, Deep Learning, Genera
 
 ## Projects
 
-### Traffic Vision
+### Traffic Vision (2026)
 7-class detector (vehicles, license plates) built by fine-tuning YOLO11, wired into a web demo to test it live. mAP50 of 0.83.
 Tags: Python, PyTorch, ONNX
 Demo: https://yolo.nathanchampagne.com/
 GitHub: https://github.com/Nchpg/yolo-detection
 
-### iSeg-2017
+### iSeg-2017 (2026)
 Segmentation of 3 brain tissues (CSF, grey matter, white matter) on infant T1/T2 MRI, a very low-contrast case. A 2.5D U-Net trained and evaluated on the Dice score, with an explicit performance / model size trade-off for embedded, offline deployment.
 Tags: Python, PyTorch, U-Net
 Demo: https://iseg2017.nathanchampagne.com/
 GitHub: https://github.com/Nchpg/iSeg-2017
 
-### HRévolution
+### HRévolution (2026)
 2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.
 Tags: React, Python, GenAI
 GitHub: https://github.com/Nchpg/HRFlow/tree/master/HEpiR-HREvolution
 
-### RLkart
+### DINOv2 Ship Classifier (2026)
+Two-stage transfer learning on a pretrained DINOv2 ViT-B/14 backbone to sort satellite imagery into 10 ship types. Linear probing reaches 96.5% accuracy, fine-tuning the last backbone blocks 98.4%.
+Tags: Python, PyTorch, DINOv2
+
+### RLkart (2026)
 Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.
-Tags: Python, Reinforcement Learning, PPO
-Demo: https://rlviewer.nathanchampagne.ddns.net/
+Tags: Python, RL, PPO
+Demo: https://rlkart.nathanchampagne.com/
 GitHub: https://github.com/Nchpg/RLkart
 
-### MNIST CNN from Scratch
+### MNIST CNN from Scratch (2026)
 Implementation of a Convolutional Neural Network from scratch in C++ to classify the MNIST handwritten digit dataset.
 Tags: C++, Deep Learning
+Demo: https://mnist.nathanchampagne.com/
 GitHub: https://github.com/Nchpg/mnist-cnn-cpp
 
-### OCR Sudoku Solver
-Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.
-Tags: C, GTK, OCR
+### Portfolio (2026)
+Portfolio built with Next.js and TypeScript, with WebGL-powered animations and bilingual support.
+Tags: Next.js, TypeScript, Three.js
+GitHub: https://github.com/Nchpg/portfolio
 
-### MS402
-Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.
-Tags: C#, Unity
-Website: https://a2nt.gitlab.io/ms-402-website/
+### NixOS Config & Infra (2024-2026)
+Declarative and modular NixOS flake for my personal machine and my self-hosted server. This server runs this portfolio and all the projects showcased here. DNS management, Cloudflare, SSH, security hardening and full server deployment from scratch.
+Tags: NixOS, Linux, Docker, Nginx, Cloudflare
+GitHub: https://github.com/Nchpg/.dotfiles
 
-### Vim Airline Theme
-A minimal airline theme for VIM inspired by lightline.
-Tags: Vimscript
-GitHub: https://github.com/Nchpg/Vim-Airline-Powerline-Theme
-
-### Advent of Code
-Annual programming challenge solutions — daily puzzles throughout December.
+### Advent of Code (2023-2025)
+My Advent of Code solutions - an annual programming challenge with daily puzzles throughout December.
 Tags: Python
 GitHub: https://github.com/Nchpg/Advent-of-Code
 
-### Previous Portfolio
-First portfolio built in vanilla HTML/CSS/JS with a touch of Three.js.
-Tags: HTML, JS, Three.js
-GitHub: https://github.com/Nchpg/portfolio-epita
+### OCR Sudoku Solver (2023)
+Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.
+Tags: C, GTK, OCR
+Report: https://nathanchampagne.com/projects/ocr-sudoku/report.pdf
+
+### MS402 (2023)
+Multiplayer video game developed in Unity. Full gameplay loop, networking and level design.
+Tags: C#, Unity
+Website: https://a2nt.gitlab.io/ms-402-website/
+Report: https://nathanchampagne.com/projects/ms402/report.pdf
