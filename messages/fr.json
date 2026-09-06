@@ -35,6 +35,8 @@
     "copied": "Copié !"
   },
   "projects": {
+    "traffic-vision": "Détecteur 7 classes (véhicules, plaques) par fine-tuning de YOLO11, intégré à une démo web pour le tester. mAP50 de 0,83.",
+    "iseg-2017": "Segmentation de 3 tissus (LCR, substance grise, substance blanche) sur IRM T1/T2 de nourrissons, cas à très faible contraste. Entraînement et évaluation d'un U-Net 2.5D au score Dice, avec arbitrage explicite performance / taille de modèle, en vue d'un déploiement embarqué et hors ligne.",
     "hrevolution": "2ème place au Hackathon GenAI & RH de HrFlow.ai. Plateforme d'analyse continue des candidatures, exploitant la GenAI pour un scoring et un tagging explicables.",
     "ship-dinov2": "Transfer learning en deux temps sur un backbone DINOv2 ViT-B/14 pré-entraîné pour classer des images satellites en 10 types de navires. 96,5% de précision en linear probing, 98,4% après fine-tuning des derniers blocs.",
     "rlkart": "Simulation de course de kart pilotée par l'apprentissage par renforcement. Éditeur de circuits web sur mesure et agent IA entraîné avec PPO et la physique PyBullet.",

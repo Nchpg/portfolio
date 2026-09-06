@@ -35,6 +35,8 @@
     "copied": "Copied!"
   },
   "projects": {
+    "traffic-vision": "7-class detector (vehicles, license plates) built by fine-tuning YOLO11, wired into a web demo to test it live. mAP50 of 0.83.",
+    "iseg-2017": "Segmentation of 3 brain tissues (CSF, grey matter, white matter) on infant T1/T2 MRI, a very low-contrast case. A 2.5D U-Net trained and evaluated on the Dice score, with an explicit performance / model size trade-off for embedded, offline deployment.",
     "hrevolution": "2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.",
     "ship-dinov2": "Two-stage transfer learning on a pretrained DINOv2 ViT-B/14 backbone to sort satellite imagery into 10 ship types. Linear probing reaches 96.5% accuracy, fine-tuning the last backbone blocks 98.4%.",
     "rlkart": "Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.",

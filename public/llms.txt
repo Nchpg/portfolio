@@ -20,6 +20,18 @@ Machine Learning, Reinforcement Learning, Computer Vision, Deep Learning, Genera
 
 ## Projects
 
+### Traffic Vision
+7-class detector (vehicles, license plates) built by fine-tuning YOLO11, wired into a web demo to test it live. mAP50 of 0.83.
+Tags: Python, PyTorch, ONNX
+Demo: https://yolo.nathanchampagne.com/
+GitHub: https://github.com/Nchpg/yolo-detection
+
+### iSeg-2017
+Segmentation of 3 brain tissues (CSF, grey matter, white matter) on infant T1/T2 MRI, a very low-contrast case. A 2.5D U-Net trained and evaluated on the Dice score, with an explicit performance / model size trade-off for embedded, offline deployment.
+Tags: Python, PyTorch, U-Net
+Demo: https://iseg2017.nathanchampagne.com/
+GitHub: https://github.com/Nchpg/iSeg-2017
+
 ### HRévolution
 2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.
 Tags: React, Python, GenAI

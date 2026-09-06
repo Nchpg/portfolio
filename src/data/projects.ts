@@ -18,6 +18,46 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "traffic-vision",
+    previewExt: "mp4",
+    animatedThumb: true,
+    title: "Traffic Vision",
+    year: 2026,
+    tags: ["Python", "PyTorch", "ONNX"],
+    links: [
+      {
+        href: "https://yolo.nathanchampagne.com/",
+        icon: "link",
+        label: "Try it",
+      },
+      {
+        href: "https://github.com/Nchpg/yolo-detection",
+        icon: "github",
+        label: "GitHub",
+      },
+    ],
+  },
+  {
+    slug: "iseg-2017",
+    previewExt: "mp4",
+    animatedThumb: true,
+    title: "iSeg-2017",
+    year: 2026,
+    tags: ["Python", "PyTorch", "U-Net"],
+    links: [
+      {
+        href: "https://iseg2017.nathanchampagne.com/",
+        icon: "link",
+        label: "Try it",
+      },
+      {
+        href: "https://github.com/Nchpg/iSeg-2017",
+        icon: "github",
+        label: "GitHub",
+      },
+    ],
+  },
+  {
     slug: "hrevolution",
     previewExt: "mp4",
     animatedThumb: true,
