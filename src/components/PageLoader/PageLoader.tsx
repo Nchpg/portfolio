@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
-import { flushSync } from "react-dom";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import "./PageLoader.css";
 
 const STRIPE_COUNT = 8;
@@ -22,13 +21,17 @@ function DigitSlot({
   const [displayPos, setDisplayPos] = useState(trackPos);
   const wasVisible = useRef(visible); // init au visible initial, pas à false
 
-  useEffect(() => {
+  // Layout effect : le setState est rendu avant le paint, sans flushSync
+  useLayoutEffect(() => {
     if (visible && !wasVisible.current) {
       // Première apparition : forcer un rendu une position en dessous,
       // puis animer vers la bonne position → effet tambour qui monte
       wasVisible.current = true;
-      flushSync(() => setDisplayPos(Math.max(0, trackPos - 1)));
-      const raf = requestAnimationFrame(() => setDisplayPos(trackPos));
+      setDisplayPos(Math.max(0, trackPos - 1));
+      // Double rAF : laisser peindre la position de départ avant d'animer
+      let raf = requestAnimationFrame(() => {
+        raf = requestAnimationFrame(() => setDisplayPos(trackPos));
+      });
       return () => cancelAnimationFrame(raf);
     }
     if (visible) {
