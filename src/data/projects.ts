@@ -89,6 +89,21 @@ export const projects: Project[] = [
     links: [],
   },
   {
+    slug: "ftml",
+    previewExt: "webp",
+    title: "Machine Learning Project",
+    year: 2026,
+    tags: ["Python", "scikit-learn", "NumPy"],
+    links: [
+      { href: "/projects/ftml/report.pdf", icon: "doc", label: "Read report" },
+      {
+        href: "https://github.com/Nchpg/FTML_Project",
+        icon: "github",
+        label: "GitHub",
+      },
+    ],
+  },
+  {
     slug: "rlkart",
     previewExt: "mp4",
     animatedThumb: true,

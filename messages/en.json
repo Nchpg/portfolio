@@ -40,6 +40,7 @@
     "iseg-2017": "Segmentation of 3 brain tissues (CSF, grey matter, white matter) on infant T1/T2 MRI, a very low-contrast case. A 2.5D U-Net trained and evaluated on the Dice score, with an explicit performance / model size trade-off for embedded, offline deployment.",
     "hrevolution": "2nd place at the HrFlow.ai GenAI & HR Hackathon. Platform for continuous analysis of job applications, leveraging GenAI for explainable scoring and tagging.",
     "ship-dinov2": "Two-stage transfer learning on a pretrained DINOv2 ViT-B/14 backbone to sort satellite imagery into 10 ship types. Linear probing reaches 96.5% accuracy, fine-tuning the last backbone blocks 98.4%.",
+    "ftml": "Project split into 7 exercises covering the foundations of ML: theory, regression and classification with regularization and model selection, then two applications: credit-card fraud detection with 0.17% fraud (PR-AUC 0.906) and k-means clustering of 89.7k Spotify tracks.",
     "rlkart": "Kart racing simulation powered by Reinforcement Learning. Custom web-based track editor and AI agent trained with PPO and PyBullet physics.",
     "mnist": "Implementation of a Convolutional Neural Network from scratch in C++ to classify the MNIST handwritten digit dataset.",
     "ocr-sudoku": "Uses Optical Character Recognition to load a Sudoku image, extract the digits, and applies AI algorithms to solve the puzzle.",
